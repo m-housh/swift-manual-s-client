@@ -1,57 +1,42 @@
 public struct SizingLimit: Codable, Equatable, Sendable {
 
-  public let oversizing: Oversizing
-  public let undersizing: UnderSizing
+  public typealias Cooling = Container<CoolingOversizeLimit, CoolingUndersizeLimit>
+  public typealias Heating = Container<Int, Int>
 
-  public enum Oversizing: Codable, Equatable, Sendable {
+  public struct Container<Over, Under> {
 
-    case cooling(Cooling)
-    case heating(SizingLimit.Heating)
+    public let oversizing: Over
+    public let undersizing: Under
 
-    public struct Cooling: Codable, Equatable, Sendable {
-      public let total: Int
-      public let latent: Int
-
-      public init(total: Int, latent: Int = 150) {
-        self.total = total
-        self.latent = latent
-      }
+    public init(oversizing: Over, undersizing: Under) {
+      self.oversizing = oversizing
+      self.undersizing = undersizing
     }
   }
 
-  public enum UnderSizing: Codable, Equatable, Sendable {
+  public struct CoolingOversizeLimit: Codable, Equatable, Sendable {
+    public let total: Int
+    public let latent: Int
 
-    case cooling(Cooling)
-    case heating(SizingLimit.Heating)
-
-    public struct Cooling: Codable, Equatable, Sendable {
-      public let total: Int
-      public let sensible: Int
-      public let latent: Int
-
-      public init(
-        total: Int = 90,
-        sensible: Int = 90,
-        latent: Int = 90
-      ) {
-        self.total = total
-        self.sensible = sensible
-        self.latent = latent
-      }
+    public init(total: Int, latent: Int = 150) {
+      self.total = total
+      self.latent = latent
     }
   }
 
-  public struct Heating: Codable, Equatable, Sendable {
-    public let type: SystemType.Heating
-    public let value: Int
+  public struct CoolingUndersizeLimit: Codable, Equatable, Sendable {
+    public let total: Int
+    public let sensible: Int
+    public let latent: Int
 
     public init(
-      type: SystemType.Heating,
-      value: Int = 90
+      total: Int = 90,
+      sensible: Int = 90,
+      latent: Int = 90
     ) {
-      self.type = type
-      self.value = value
+      self.total = total
+      self.sensible = sensible
+      self.latent = latent
     }
-
   }
 }

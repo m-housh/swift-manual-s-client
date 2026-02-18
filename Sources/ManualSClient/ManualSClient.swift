@@ -12,11 +12,17 @@ extension DependencyValues {
 
 @DependencyClient
 public struct ManualSClient: Sendable {
-  public typealias HeatLoss = Tagged<Tag.HeatLoss, Double>
-  public typealias CapacityAtDesign = Tagged<Tag.CapacityAtDesign, Double>
 
-  public var thermalBalancePoint: @Sendable (ThermalBalancePointRequest) async throws -> Double
+  public typealias CapacityAtDesign = Tagged<Tag.CapacityAtDesign, Double>
+  public typealias Elevation = Tagged<Tag.Elevation, Double>
+  public typealias HeatLoss = Tagged<Tag.HeatLoss, Double>
+
+  public var coolingDerating: @Sendable (SystemType.Cooling) async throws -> CoolingDerating
+  public var heatingDerating: @Sendable (SystemType.Heating, Elevation) async throws -> Double
   public var requiredKW: @Sendable (HeatLoss, CapacityAtDesign?) async throws -> Double
+  public var coolingSizeLimits: @Sendable (SystemType.Cooling) async throws -> SizingLimit.Cooling
+  public var heatingSizeLimits: @Sendable (SystemType.Heating) async throws -> SizingLimit.Heating
+  public var thermalBalancePoint: @Sendable (ThermalBalancePointRequest) async throws -> Double
 
 }
 
@@ -24,8 +30,9 @@ extension ManualSClient {
 
   /// A namespace for tagged types.
   public enum Tag {
-    public enum HeatLoss {}
     public enum CapacityAtDesign {}
+    public enum Elevation {}
+    public enum HeatLoss {}
   }
 
   public struct ThermalBalancePointRequest: Codable, Equatable, Sendable {
