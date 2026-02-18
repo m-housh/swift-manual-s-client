@@ -21,6 +21,7 @@ public enum SystemType {
     case boiler
     case electric
     case furnace
+    case heatPump
   }
 
   public enum ClimateType: String, CaseIterable, Codable, Equatable, Sendable {

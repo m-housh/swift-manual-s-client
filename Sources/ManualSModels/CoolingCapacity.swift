@@ -1,29 +1,41 @@
 import Tagged
 
-public struct CoolingContainer: Codable, Equatable, Sendable {
+public struct CoolingContainer<N> {
 
   /// The total cooling capacity
-  public let total: Double
+  public let total: N
 
   /// The sensible cooling capacity.
-  public let sensible: Double
+  public let sensible: N
 
-  public init(total: Double, sensible: Double) {
+  public init(total: N, sensible: N) {
     self.total = total
     self.sensible = sensible
   }
 
 }
+extension CoolingContainer: Codable where N: Codable {}
+extension CoolingContainer: Equatable where N: Equatable {}
+extension CoolingContainer: Sendable where N: Sendable {}
 
 public enum CoolingTag {
+  public enum AdjustmentMultiplier {}
   public enum Capacity {}
   public enum Derating {}
 }
 
-public typealias CoolingCapacity = Tagged<CoolingTag.Capacity, CoolingContainer>
-public typealias CoolingDerating = Tagged<CoolingTag.Derating, CoolingContainer>
+public typealias CoolingCapacityAdjustment = Tagged<
+  CoolingTag.AdjustmentMultiplier, CoolingContainer<Percent>
+>
+public typealias CoolingCapacity = Tagged<CoolingTag.Capacity, CoolingContainer<Double>>
+public typealias CoolingDerating = Tagged<CoolingTag.Derating, CoolingContainer<Percent>>
 
 extension CoolingCapacity {
+
+  public init(total: Double, sensible: Double) {
+    self.init(rawValue: .init(total: total, sensible: sensible))
+  }
+
   /// The latent cooling capacity.
   public var latent: Double {
     rawValue.total - rawValue.sensible

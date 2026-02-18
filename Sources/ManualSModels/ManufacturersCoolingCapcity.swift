@@ -1,6 +1,6 @@
 /// Represent manufacturer's data about the cooling capacity of a unit.
 ///
-public struct ManufacturersCoolingCapcity: Codable, Equatable, Sendable {
+public struct ManufacturersCoolingCapacity: Codable, Equatable, Sendable {
 
   /// The rated CFM for the unit.
   public let cfm: Int
@@ -9,20 +9,20 @@ public struct ManufacturersCoolingCapcity: Codable, Equatable, Sendable {
   public let indoorTemperature: Int
 
   /// The rated indoor wet-bulb temperature for the unit.
-  public let indoorWetBulbTemperature: Int
+  public let indoorWetBulbTemperature: Double
 
   /// The rated outdoor temperature for the unit.
   public let outdoorTemperature: Int
 
   /// The rated cooling capacity of the unit.
-  public let capacity: CoolingCapcity
+  public let capacity: CoolingCapacity
 
   public init(
     cfm: Int,
     indoorTemperature: Int,
-    indoorWetBulbTemperature: Int,
+    indoorWetBulbTemperature: Double,
     outdoorTemperature: Int,
-    capacity: CoolingCapcity
+    capacity: CoolingCapacity
   ) {
     self.cfm = cfm
     self.indoorTemperature = indoorTemperature

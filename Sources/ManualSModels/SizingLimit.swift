@@ -18,7 +18,7 @@ public struct SizingLimit: Codable, Equatable, Sendable {
     public let total: Int
     public let latent: Int
 
-    public init(total: Int, latent: Int = 150) {
+    public init(total: Int, latent: Int) {
       self.total = total
       self.latent = latent
     }
@@ -30,9 +30,9 @@ public struct SizingLimit: Codable, Equatable, Sendable {
     public let latent: Int
 
     public init(
-      total: Int = 90,
-      sensible: Int = 90,
-      latent: Int = 90
+      total: Int,
+      sensible: Int,
+      latent: Int
     ) {
       self.total = total
       self.sensible = sensible
@@ -40,3 +40,7 @@ public struct SizingLimit: Codable, Equatable, Sendable {
     }
   }
 }
+
+extension SizingLimit.Container: Codable where Over: Codable, Under: Codable {}
+extension SizingLimit.Container: Equatable where Over: Equatable, Under: Equatable {}
+extension SizingLimit.Container: Sendable where Over: Sendable, Under: Sendable {}

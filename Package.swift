@@ -28,8 +28,8 @@ let package = Package(
       ],
     ),
     .testTarget(
-      name: "ManualSTests",
-      dependencies: ["ManualSModels"]
+      name: "ManualSClientTests",
+      dependencies: ["ManualSClient"]
     ),
   ]
 )
