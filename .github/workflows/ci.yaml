@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: manual-s
+
+jobs:
+  macos:
+    name: macOS Tests
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run tests
+        run: swift test
+
+  ubuntu:
+    name: Linux Tests
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup QEMU
+      uses: docker/setup-qemu-action@v3
+    - name: Setup buildx
+      uses: docker/setup-buildx-action@v3 
+    - name: Build test image
+      uses: docker/build-push-action@v6
+      with:
+        context: .
+        file: Dockerfile
+        push: false
+        load: true
+        tags: ${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:test
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    - name: Run Tests
+      run: |
+        docker run --rm ${{ github.repository_owner }}/${{ env.IMAGE_NAME }}:test swift test

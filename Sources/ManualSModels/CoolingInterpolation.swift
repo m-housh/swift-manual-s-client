@@ -2,14 +2,14 @@ public enum CoolingInterpolation {
   public struct Response: Codable, Equatable, Sendable {
 
     public let interpolatedCapacity: CoolingCapacity
-    public let excessLatent: Int
+    public let excessLatent: Double
     public let finalCapacityAtDesign: CoolingCapacity
     public let altitudeDeratings: CoolingDerating?
     public let capacityAsPercentOfLoad: CapacityAsPercentOfLoad
 
     public init(
       interpolatedCapacity: CoolingCapacity,
-      excessLatent: Int,
+      excessLatent: Double,
       finalCapacityAtDesign: CoolingCapacity,
       altitudeDeratings: CoolingDerating? = nil,
       capacityAsPercentOfLoad: CapacityAsPercentOfLoad

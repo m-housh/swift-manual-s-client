@@ -1,4 +1,4 @@
-docker_image := "manualS"
+docker_image := "manual-s"
 docker_tag := "latest"
 
 clean:
@@ -13,13 +13,13 @@ run-css:
 run:
 	@swift run App serve --log debug
 
-build-docker file="docker/Dockerfile":
+build-docker file="Dockerfile":
 	@docker build -f {{file}} -t {{docker_image}}:{{docker_tag}} .
 
 run-docker:
 	@docker run -it --rm -v $PWD:/app -p 8080:8080 {{docker_image}}:{{docker_tag}}
 
-test-docker: (build-docker "docker/Dockerfile.test")
+test-docker: (build-docker "Dockerfile")
 	@docker run --rm {{docker_image}}:{{docker_tag}} swift test
 
 code-coverage:

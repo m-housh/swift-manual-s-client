@@ -273,7 +273,8 @@ struct ManualSClientTests {
       )
       #expect(sut.interpolatedCapacity.total.string() == "23,402.4")
       #expect(sut.interpolatedCapacity.sensible.string() == "18,449.8")
-      #expect(sut.excessLatent == 487)
+      #expect(sut.excessLatent.string() == "487.3")
+      #expect(sut.finalCapacityAtDesign.total == sut.interpolatedCapacity.total)
       #expect(sut.finalCapacityAtDesign.sensible == 18937.1)
       #expect(sut.capacityAsPercentOfLoad.total.string() == "130.94")
       #expect(
@@ -358,7 +359,7 @@ struct ManualSClientTests {
       )
       #expect(sut.interpolatedCapacity.total.string(digits: 0) == "23,911")
       #expect(sut.interpolatedCapacity.sensible.string(digits: 0) == "18,700")
-      #expect(sut.excessLatent == 616)
+      #expect(sut.excessLatent.string() == "616.75")
       #expect(sut.finalCapacityAtDesign.total.string(digits: 0) == "23,911")
       #expect(sut.finalCapacityAtDesign.sensible.string(digits: 0) == "19,317")
       #expect(sut.capacityAsPercentOfLoad.total.string(digits: 0) == "134")

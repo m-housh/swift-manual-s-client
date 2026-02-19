@@ -59,7 +59,7 @@ extension CoolingInterpolation.Response {
 
     self.init(
       interpolatedCapacity: interpolatedCapacity,
-      excessLatent: Int(excessLatent),
+      excessLatent: excessLatent,
       finalCapacityAtDesign: finalCapacity,
       altitudeDeratings: altitudeDeratings,
       capacityAsPercentOfLoad: request.coolingLoad.capacityAsPercentOfLoad(finalCapacity)
