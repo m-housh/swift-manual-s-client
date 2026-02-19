@@ -1,7 +1,7 @@
 import Foundation
 import ManualSModels
 
-extension Interpolation.Heating.Response.Electric {
+extension HeatingInterpolation.Response.Electric {
 
   init(
     inputKW: Double,
@@ -19,7 +19,7 @@ extension Interpolation.Heating.Response.Electric {
   }
 }
 
-extension Interpolation.Heating.Response.GasOrBoiler {
+extension HeatingInterpolation.Response.GasOrBoiler {
 
   init(
     input: Double,
@@ -41,7 +41,7 @@ extension Interpolation.Heating.Response.GasOrBoiler {
   }
 }
 
-extension Interpolation.Heating.Response.HeatPump {
+extension HeatingInterpolation.Response.HeatPump {
   init(
     capacity: HeatPumpCapacity,
     heatLoss: Double,

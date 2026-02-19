@@ -21,6 +21,7 @@ extension CoolingContainer: Sendable where N: Sendable {}
 public enum CoolingTag {
   public enum AdjustmentMultiplier {}
   public enum Capacity {}
+  public enum CoolingLoad {}
   public enum Derating {}
 }
 
@@ -29,22 +30,32 @@ public typealias CoolingCapacityAdjustment = Tagged<
 >
 public typealias CoolingCapacity = Tagged<CoolingTag.Capacity, CoolingContainer<Double>>
 public typealias CoolingDerating = Tagged<CoolingTag.Derating, CoolingContainer<Percent>>
+public typealias CoolingLoad = Tagged<CoolingTag.CoolingLoad, CoolingContainer<Double>>
 
-extension CoolingCapacity {
-
-  public init(total: Double, sensible: Double) {
+extension Tagged {
+  public init<T>(total: T, sensible: T) where RawValue == CoolingContainer<T> {
     self.init(rawValue: .init(total: total, sensible: sensible))
   }
+}
 
+extension CoolingContainer where N: Numeric {
   /// The latent cooling capacity.
-  public var latent: Double {
-    rawValue.total - rawValue.sensible
+  public var latent: N {
+    total - sensible
   }
+}
 
+public protocol Divisible: Numeric {
+  static func / (lhs: Self, rhs: Self) -> Self
+}
+
+extension Double: Divisible {}
+
+extension CoolingContainer where N: Divisible, N: Comparable {
   /// The sensible heat ratio.
-  public var sensibleHeatRatio: Double {
-    guard rawValue.total > 0, rawValue.sensible > 0 else { return 0 }
-    return rawValue.sensible / rawValue.total
+  public var sensibleHeatRatio: N {
+    guard total > 0, sensible > 0 else { return 0 }
+    return sensible / total
   }
 
 }

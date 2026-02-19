@@ -1,90 +1,72 @@
 import Foundation
 import ManualSModels
 
-extension Interpolation.Cooling.Request {
-  func respond(
-    houseLoad: CoolingCapacity,
-    outdoorDesignTemperature: Double,
-    manufacturersAdjustments: CoolingCapacityAdjustment?
-  ) async -> Interpolation.Cooling.Response {
-    switch self {
+// FIX: Add altitude adjustments.
+extension CoolingInterpolation.Request {
+  func respond() async -> CoolingInterpolation.Response {
+    switch interpolation {
     case .noInterpolation(let request):
-      return await request.respond(
-        houseLoad: houseLoad,
-        manufacturersAdjustments: manufacturersAdjustments
+      return await .init(
+        interpolatedCapacity: request,
+        request: self
       )
     case .oneWayIndoor(let request):
       return await .init(
-        interpolatedCapacity: request.rawValue.indoorInterpolatedCapacity(),
-        houseLoad: houseLoad,
-        manufacturersAdjustments: manufacturersAdjustments
+        interpolatedCapacity: request.interpolatedCapacity(),
+        request: self
       )
     case .oneWayOutdoor(let request):
-      let interpolatedCapacity = await request.rawValue.outdoorInterpolatedCapacity(
-        outdoorDesignTemperature: outdoorDesignTemperature
+      let interpolatedCapacity = await request.interpolatedCapacity(
+        outdoorDesignTemperature: Double(outdoorDesignTemperature)
       )
       return await .init(
         interpolatedCapacity: interpolatedCapacity,
-        houseLoad: houseLoad,
-        manufacturersAdjustments: manufacturersAdjustments
+        request: self
       )
     case .twoWay(let request):
-      let aboveIndoor = await request.aboveDesign.oneWayIndoorRequest.indoorInterpolatedCapacity()
-      let belowIndoor = await request.belowDesign.oneWayIndoorRequest.indoorInterpolatedCapacity()
-      let oneWayOutdoor = request.oneWayOutdoorRequest(above: aboveIndoor, below: belowIndoor)
-      let interpolatedCapacity = await oneWayOutdoor.outdoorInterpolatedCapacity(
-        outdoorDesignTemperature: outdoorDesignTemperature
+      async let aboveIndoor = await request.aboveDesign.oneWayIndoorRequest.interpolatedCapacity()
+      async let belowIndoor = await request.belowDesign.oneWayIndoorRequest.interpolatedCapacity()
+      let oneWayOutdoor = await request.oneWayOutdoorRequest(above: aboveIndoor, below: belowIndoor)
+      let interpolatedCapacity = await oneWayOutdoor.interpolatedCapacity(
+        outdoorDesignTemperature: Double(outdoorDesignTemperature)
       )
 
       return await .init(
         interpolatedCapacity: interpolatedCapacity,
-        houseLoad: houseLoad,
-        manufacturersAdjustments: manufacturersAdjustments
+        request: self
       )
 
     }
   }
 }
 
-extension Interpolation.Cooling.Request.NoInterpolation {
-  func respond(
-    houseLoad: CoolingCapacity,
-    manufacturersAdjustments: CoolingCapacityAdjustment?
-  ) async -> Interpolation.Cooling.Response {
-    await .init(
-      interpolatedCapacity: capacity.capacity,
-      houseLoad: houseLoad,
-      manufacturersAdjustments: manufacturersAdjustments
-    )
-  }
-}
-
-extension Interpolation.Cooling.Response {
+extension CoolingInterpolation.Response {
 
   init(
     interpolatedCapacity: CoolingCapacity,
-    houseLoad: CoolingCapacity,
-    manufacturersAdjustments: CoolingCapacityAdjustment?
+    request: CoolingInterpolation.Request
   ) async {
 
-    let excessLatent = (interpolatedCapacity.latent - houseLoad.latent) / 2
+    let excessLatent = (interpolatedCapacity.latent - request.coolingLoad.latent) / 2
     var finalCapacity = interpolatedCapacity.adjust(excessLatent: excessLatent)
-    if let manufacturersAdjustments {
+    if let manufacturersAdjustments = request.manufacturersAdjustments {
       finalCapacity = finalCapacity.apply(manufacturersAdjustments)
     }
+
+    // FIX: Altitude adjustments here.
 
     self.init(
       interpolatedCapacity: interpolatedCapacity,
       excessLatent: Int(excessLatent),
       finalCapacityAtyDesign: finalCapacity,
-      capacityAsPercentOfLoad: houseLoad.capacityAsPercentOfLoad(finalCapacity)
+      capacityAsPercentOfLoad: request.coolingLoad.capacityAsPercentOfLoad(finalCapacity)
     )
   }
 }
 
-extension Interpolation.Cooling.Request.OneWay {
+extension CoolingInterpolation.Request.Interpolation.OneWayOutdoor {
 
-  func outdoorInterpolatedCapacity(
+  func interpolatedCapacity(
     outdoorDesignTemperature: Double
   ) async -> CoolingCapacity {
 
@@ -106,13 +88,17 @@ extension Interpolation.Cooling.Request.OneWay {
     )
 
   }
+}
 
-  func indoorInterpolatedCapacity() async -> CoolingCapacity {
+extension CoolingInterpolation.Request.Interpolation.OneWayIndoor {
+
+  func interpolatedCapacity() async -> CoolingCapacity {
     let total =
       belowDesign.capacity.total
       + ((aboveDesign.capacity.total - belowDesign.capacity.total)
-        / (aboveDesign.indoorWetBulbTemperature - belowDesign.indoorWetBulbTemperature))
-      * (63 - belowDesign.indoorWetBulbTemperature)
+        / (Double(aboveDesign.indoorWetBulbTemperature)
+          - Double(belowDesign.indoorWetBulbTemperature)))
+      * (63 - Double(belowDesign.indoorWetBulbTemperature))
 
     let sensible =
       belowDesign.capacity.sensible
@@ -122,18 +108,18 @@ extension Interpolation.Cooling.Request.OneWay {
 
     return .init(total: total, sensible: sensible)
   }
+}
 
-  private func calculateOutdoor(
-    outdoorDesignTemperature: Double,
-    belowCapacity: Double,
-    belowOutdoorTemperature: Double,
-    aboveCapacity: Double,
-    aboveOutdoorTemperature: Double
-  ) async -> Double {
-    belowCapacity
-      - (outdoorDesignTemperature - belowOutdoorTemperature)
-      * ((belowCapacity - aboveCapacity) / (aboveOutdoorTemperature - belowOutdoorTemperature))
-  }
+private func calculateOutdoor(
+  outdoorDesignTemperature: Double,
+  belowCapacity: Double,
+  belowOutdoorTemperature: Double,
+  aboveCapacity: Double,
+  aboveOutdoorTemperature: Double
+) async -> Double {
+  belowCapacity
+    - (outdoorDesignTemperature - belowOutdoorTemperature)
+    * ((belowCapacity - aboveCapacity) / (aboveOutdoorTemperature - belowOutdoorTemperature))
 }
 
 extension CoolingCapacity {
@@ -147,44 +133,43 @@ extension CoolingCapacity {
       sensible: rawValue.sensible * adjustments.sensible.decimal
     )
   }
+}
 
-  func capacityAsPercentOfLoad(_ finalCapacity: Self)
-    -> Interpolation.Cooling.Response.CapacityAsPercentOfLoad
+extension CoolingLoad {
+  func capacityAsPercentOfLoad(_ finalCapacity: CoolingCapacity)
+    -> CoolingInterpolation.Response.CapacityAsPercentOfLoad
   {
     .init(
       total: .init(decimal: finalCapacity.total / rawValue.total),
       sensible: .init(decimal: finalCapacity.sensible / rawValue.sensible),
-      latent: .init(decimal: finalCapacity.latent / latent)
+      latent: .init(decimal: finalCapacity.latent / rawValue.latent)
     )
   }
 }
 
-extension Interpolation.Cooling.Request.TwoWay.Envelope {
+extension CoolingInterpolation.Request.Interpolation.TwoWay.Envelope {
 
-  var oneWayIndoorRequest: Interpolation.Cooling.Request.OneWay {
-    .init(aboveDesign: aboveWetBulb, belowDesign: belowWetBulb)
+  var oneWayIndoorRequest: CoolingInterpolation.Request.Interpolation.OneWayIndoor {
+    .init(
+      aboveDesign: aboveWetBulb,
+      belowDesign: belowWetBulb
+    )
   }
 }
 
-extension Interpolation.Cooling.Request.TwoWay {
+extension CoolingInterpolation.Request.Interpolation.TwoWay {
 
   func oneWayOutdoorRequest(
     above: CoolingCapacity,
     below: CoolingCapacity
-  ) -> Interpolation.Cooling.Request.OneWay {
+  ) -> CoolingInterpolation.Request.Interpolation.OneWayOutdoor {
     .init(
       aboveDesign: .init(
-        cfm: self.aboveDesign.aboveWetBulb.cfm,
-        indoorTemperature: self.aboveDesign.aboveWetBulb.indoorTemperature,
-        indoorWetBulbTemperature: 63,
-        outdoorTemperature: self.aboveDesign.aboveWetBulb.outdoorTemperature,
+        outdoorTemperature: self.aboveDesign.outdoorTemperature,
         capacity: above
       ),
       belowDesign: .init(
-        cfm: self.belowDesign.belowWetBulb.cfm,
-        indoorTemperature: self.belowDesign.belowWetBulb.indoorTemperature,
-        indoorWetBulbTemperature: 63,
-        outdoorTemperature: self.belowDesign.belowWetBulb.outdoorTemperature,
+        outdoorTemperature: self.belowDesign.outdoorTemperature,
         capacity: below
       )
     )

@@ -26,26 +26,23 @@ public struct ManualSClient: Sendable {
   public var coolingSizeLimits:
     @Sendable (CoolingSizeLimitRequest) async throws -> SizingLimit.Cooling
 
-  // TODO: Add manufacturer adjustments
   public var coolingInterpolation:
-    @Sendable (CoolingLoad, OutdoorTemperature, Interpolation.Cooling.Request) async throws ->
-      Interpolation.Cooling.Response
+    @Sendable (CoolingInterpolation.Request) async throws -> CoolingInterpolation.Response
 
-  // FIX: Need to handle heat pumps
   public var heatingDerating: @Sendable (SystemType.Heating, Elevation) async throws -> Percent
   public var heatingSizeLimits: @Sendable (SystemType.Heating) async throws -> SizingLimit.Heating
 
   public var electricHeatingInterpolation:
     @Sendable (KW, HeatLoss) async throws ->
-      Interpolation.Heating.Response.Electric
+      HeatingInterpolation.Response.Electric
 
   public var gasOrBoilerHeatingInterpolation:
     @Sendable (Input, ManualSClient.AFUE, HeatLoss, Elevation) async throws ->
-      Interpolation.Heating.Response.GasOrBoiler
+      HeatingInterpolation.Response.GasOrBoiler
 
   public var heatPumpHeatingInterpolation:
     @Sendable (HeatPumpCapacity, HeatLoss, Elevation, OutdoorTemperature) async throws ->
-      Interpolation.Heating.Response.HeatPump
+      HeatingInterpolation.Response.HeatPump
 
   public var requiredKW: @Sendable (HeatLoss, CapacityAtDesign?) async throws -> Double
   public var thermalBalancePoint: @Sendable (ThermalBalancePointRequest) async throws -> Double
@@ -61,12 +58,8 @@ extension ManualSClient: DependencyKey {
       coolingSizeLimits: { request in
         try await request.respond()
       },
-      coolingInterpolation: { houseLoad, outdoorTemperature, request in
-        await request.respond(
-          houseLoad: houseLoad.rawValue,
-          outdoorDesignTemperature: outdoorTemperature.rawValue,
-          manufacturersAdjustments: nil
-        )
+      coolingInterpolation: { request in
+        await request.respond()
       },
       heatingDerating: { system, elevation in
         await .init(decimal: system.derating(elevation: elevation.rawValue))
