@@ -3,20 +3,20 @@ public enum CoolingInterpolation {
 
     public let interpolatedCapacity: CoolingCapacity
     public let excessLatent: Int
-    public let finalCapacityAtyDesign: CoolingCapacity
+    public let finalCapacityAtDesign: CoolingCapacity
     public let altitudeDeratings: CoolingDerating?
     public let capacityAsPercentOfLoad: CapacityAsPercentOfLoad
 
     public init(
       interpolatedCapacity: CoolingCapacity,
       excessLatent: Int,
-      finalCapacityAtyDesign: CoolingCapacity,
+      finalCapacityAtDesign: CoolingCapacity,
       altitudeDeratings: CoolingDerating? = nil,
       capacityAsPercentOfLoad: CapacityAsPercentOfLoad
     ) {
       self.interpolatedCapacity = interpolatedCapacity
       self.excessLatent = excessLatent
-      self.finalCapacityAtyDesign = finalCapacityAtyDesign
+      self.finalCapacityAtDesign = finalCapacityAtDesign
       self.altitudeDeratings = altitudeDeratings
       self.capacityAsPercentOfLoad = capacityAsPercentOfLoad
     }
@@ -62,6 +62,10 @@ public enum CoolingInterpolation {
       case oneWayIndoor(OneWayIndoor)
       case oneWayOutdoor(OneWayOutdoor)
       case twoWay(TwoWay)
+
+      public static func noInterpolation(total: Double, sensible: Double) -> Self {
+        .noInterpolation(.init(total: total, sensible: sensible))
+      }
 
       public struct OneWayOutdoor: Codable, Equatable, Sendable {
 

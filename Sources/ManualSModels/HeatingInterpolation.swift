@@ -3,6 +3,57 @@ import Tagged
 // TODO: Do we need to return size limits??
 public enum HeatingInterpolation {
 
+  public enum Request {
+    public struct Electric: Codable, Equatable, Sendable {
+      public let kilowatts: Int
+      public let heatingLoad: Int
+
+      public init(kilowatts: Int, heatingLoad: Int) {
+        self.kilowatts = kilowatts
+        self.heatingLoad = heatingLoad
+      }
+    }
+    public struct HeatPump: Codable, Equatable, Sendable {
+      public let capacity: HeatPumpCapacity
+      public let heatingLoad: Int
+      public let projectElevation: Int
+      public let outdoorDesignTemperature: Int
+
+      public init(
+        capacity: HeatPumpCapacity,
+        heatingLoad: Int,
+        projectElevation: Int = 0,
+        outdoorDesignTemperature: Int
+      ) {
+        self.capacity = capacity
+        self.heatingLoad = heatingLoad
+        self.projectElevation = projectElevation
+        self.outdoorDesignTemperature = outdoorDesignTemperature
+      }
+    }
+
+    public struct FurnaceOrBoiler: Codable, Equatable, Sendable {
+
+      public let inputBTU: Int
+      public let afue: Percent
+      public let heatingLoad: Int
+      public let projectElevation: Int
+
+      public init(
+        inputBTU: Int,
+        afue: Percent,
+        heatingLoad: Int,
+        projectElevation: Int = 0
+      ) {
+        self.inputBTU = inputBTU
+        self.afue = afue
+        self.heatingLoad = heatingLoad
+        self.projectElevation = projectElevation
+      }
+
+    }
+  }
+
   public enum Response {
 
     public struct GasOrBoiler: Codable, Equatable, Sendable {

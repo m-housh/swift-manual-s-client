@@ -7,13 +7,6 @@ import Testing
 @Suite
 struct ManualSClientTests {
 
-  let numberFormatter: NumberFormatter = {
-    let formatter = NumberFormatter()
-    formatter.numberStyle = .decimal
-    formatter.maximumFractionDigits = 2
-    return formatter
-  }()
-
   let houseLoad = HouseLoad(heating: 49667, cooling: .init(total: 17872, sensible: 13894))
 
   @Test
@@ -29,7 +22,7 @@ struct ManualSClientTests {
           outdoorDesignTemperature: 5
         )
       )
-      #expect(numberFormatter.string(for: sut) == "38.52")
+      #expect(sut.string() == "38.52")
     }
   }
 
@@ -49,7 +42,7 @@ struct ManualSClientTests {
     } operation: {
       @Dependency(\.manualS) var manualS
       let sut = try await manualS.requiredKW(heatLoss, capacityAtDesign)
-      #expect(numberFormatter.string(for: sut) == exepcted)
+      #expect(sut.string() == exepcted)
     }
   }
 
@@ -181,11 +174,10 @@ struct ManualSClientTests {
     } operation: {
       @Dependency(\.manualS) var manualS
       let sut = try await manualS.electricHeatingInterpolation(
-        15,
-        .init(rawValue: houseLoad.heating)
+        .init(kilowatts: 15, heatingLoad: Int(houseLoad.heating))
       )
-      #expect(numberFormatter.string(for: sut.requiredKW) == expected)
-      #expect(numberFormatter.string(for: sut.percentOfLoad.rawValue) == "103.08")
+      #expect(sut.requiredKW.string() == expected)
+      #expect(sut.percentOfLoad.rawValue.string() == "103.08")
     }
   }
 
@@ -197,14 +189,16 @@ struct ManualSClientTests {
     } operation: {
       @Dependency(\.manualS) var manualS
       let sut = try await manualS.heatPumpHeatingInterpolation(
-        .init(capacityAt47: 24600, capacityAt17: 15100),
-        49667,
-        0,
-        5
+        .init(
+          capacity: .init(capacityAt47: 24600, capacityAt17: 15100),
+          heatingLoad: 49667,
+          projectElevation: 0,
+          outdoorDesignTemperature: 5
+        )
       )
-      #expect(numberFormatter.string(for: sut.requiredKW) == "11.24")
+      #expect(sut.requiredKW.string() == "11.24")
       #expect(Int(sut.capacityAtDesign) == 11300)
-      #expect(numberFormatter.string(for: sut.balancePointTemperature) == "38.52")
+      #expect(sut.balancePointTemperature.string() == "38.52")
       #expect(sut.finalCapacity == .init(capacityAt47: 24600, capacityAt17: 15100))
     }
   }
@@ -216,14 +210,16 @@ struct ManualSClientTests {
     } operation: {
       @Dependency(\.manualS) var manualS
       let sut = try await manualS.gasOrBoilerHeatingInterpolation(
-        60000,  // furnace input
-        96,  // afue
-        49667,  // heat loss
-        0  // elevation
+        .init(
+          inputBTU: 60000,
+          afue: 96,
+          heatingLoad: 49667,
+          projectElevation: 0
+        )
       )
       #expect(sut.finalCapacity == 57600)
       #expect(sut.outputCapacity == 57600)
-      #expect(numberFormatter.string(for: sut.percentOfLoad.rawValue) == "115.97")
+      #expect(sut.percentOfLoad.string() == "115.97")
     }
   }
 
@@ -239,17 +235,17 @@ struct ManualSClientTests {
           manufacturersAdjustments: nil,
           outdoorDesignTemperature: 90,
           projectElevation: 0,
-          interpolation: .noInterpolation(.init(total: 22600, sensible: 16850))
+          interpolation: .noInterpolation(total: 22600, sensible: 16850)
         )
       )
       #expect(sut.interpolatedCapacity.total == 22600)
       #expect(sut.interpolatedCapacity.sensible == 16850)
       #expect(sut.excessLatent == 886)
-      #expect(sut.finalCapacityAtyDesign.sensible == 17736)
-      #expect(numberFormatter.string(for: sut.capacityAsPercentOfLoad.total.rawValue) == "126.45")
+      #expect(sut.finalCapacityAtDesign.sensible == 17736)
+      #expect(sut.capacityAsPercentOfLoad.total.string() == "126.45")
       #expect(
-        numberFormatter.string(for: sut.capacityAsPercentOfLoad.sensible.rawValue) == "127.65")
-      #expect(numberFormatter.string(for: sut.capacityAsPercentOfLoad.latent.rawValue) == "122.27")
+        sut.capacityAsPercentOfLoad.sensible.string() == "127.65")
+      #expect(sut.capacityAsPercentOfLoad.latent.string() == "122.27")
     }
   }
 
@@ -275,14 +271,99 @@ struct ManualSClientTests {
           )
         )
       )
-      #expect(numberFormatter.string(for: sut.interpolatedCapacity.total) == "23,402.4")
-      #expect(numberFormatter.string(for: sut.interpolatedCapacity.sensible) == "18,449.8")
+      #expect(sut.interpolatedCapacity.total.string() == "23,402.4")
+      #expect(sut.interpolatedCapacity.sensible.string() == "18,449.8")
       #expect(sut.excessLatent == 487)
-      #expect(sut.finalCapacityAtyDesign.sensible == 18937.1)
-      #expect(numberFormatter.string(for: sut.capacityAsPercentOfLoad.total.rawValue) == "130.94")
+      #expect(sut.finalCapacityAtDesign.sensible == 18937.1)
+      #expect(sut.capacityAsPercentOfLoad.total.string() == "130.94")
       #expect(
-        numberFormatter.string(for: sut.capacityAsPercentOfLoad.sensible.rawValue) == "136.3")
-      #expect(numberFormatter.string(for: sut.capacityAsPercentOfLoad.latent.rawValue) == "112.25")
+        sut.capacityAsPercentOfLoad.sensible.string() == "136.3")
+      #expect(sut.capacityAsPercentOfLoad.latent.string() == "112.25")
+    }
+  }
+
+  @Test
+  func coolingInterpolation_OneWayOutdoor() async throws {
+    try await withDependencies {
+      $0.manualS = .liveValue
+    } operation: {
+      @Dependency(\.manualS) var manualS
+      let sut = try await manualS.coolingInterpolation(
+        .init(
+          coolingLoad: houseLoad.cooling,
+          manufacturersAdjustments: nil,
+          outdoorDesignTemperature: 90,
+          projectElevation: 0,
+          interpolation: .oneWayOutdoor(
+            .init(
+              aboveDesign: .init(
+                outdoorTemperature: 95, capacity: .init(total: 22000, sensible: 16600)
+              ),
+              belowDesign: .init(
+                outdoorTemperature: 85, capacity: .init(total: 23200, sensible: 17100)
+              )
+            )
+          )
+        )
+      )
+      #expect(sut.interpolatedCapacity == .init(total: 22600, sensible: 16850))
+      #expect(sut.excessLatent == 886)
+      #expect(sut.finalCapacityAtDesign == .init(total: 22600, sensible: 17736))
+      #expect(sut.capacityAsPercentOfLoad.total.string() == "126.45")
+      #expect(sut.capacityAsPercentOfLoad.sensible.string() == "127.65")
+      #expect(sut.capacityAsPercentOfLoad.latent.string() == "122.27")
+    }
+  }
+
+  @Test
+  func coolingInterpolation_TwoWay() async throws {
+
+    try await withDependencies {
+      $0.manualS = .liveValue
+    } operation: {
+      @Dependency(\.manualS) var manualS
+      let sut = try await manualS.coolingInterpolation(
+        .init(
+          coolingLoad: houseLoad.cooling,
+          manufacturersAdjustments: nil,
+          outdoorDesignTemperature: 90,
+          projectElevation: 0,
+          interpolation: .twoWay(
+            .init(
+              aboveDesign: .init(
+                outdoorTemperature: 95,
+                aboveWetBulb: .init(
+                  indoorWetBulbTemperature: 67,
+                  capacity: .init(total: 24828, sensible: 15937)
+                ),
+                belowWetBulb: .init(
+                  indoorWetBulbTemperature: 62,
+                  capacity: .init(total: 23046, sensible: 19078)
+                )
+              ),
+              belowDesign: .init(
+                outdoorTemperature: 85,
+                aboveWetBulb: .init(
+                  indoorWetBulbTemperature: 67,
+                  capacity: .init(total: 25986, sensible: 16330)
+                ),
+                belowWetBulb: .init(
+                  indoorWetBulbTemperature: 62,
+                  capacity: .init(total: 24029, sensible: 19605)
+                )
+              )
+            )
+          )
+        )
+      )
+      #expect(sut.interpolatedCapacity.total.string(digits: 0) == "23,911")
+      #expect(sut.interpolatedCapacity.sensible.string(digits: 0) == "18,700")
+      #expect(sut.excessLatent == 616)
+      #expect(sut.finalCapacityAtDesign.total.string(digits: 0) == "23,911")
+      #expect(sut.finalCapacityAtDesign.sensible.string(digits: 0) == "19,317")
+      #expect(sut.capacityAsPercentOfLoad.total.string(digits: 0) == "134")
+      #expect(sut.capacityAsPercentOfLoad.sensible.string(digits: 0) == "139")
+      #expect(sut.capacityAsPercentOfLoad.latent.string(digits: 0) == "116")
     }
   }
 }

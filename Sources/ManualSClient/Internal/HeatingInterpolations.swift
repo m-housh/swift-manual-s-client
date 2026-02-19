@@ -1,67 +1,59 @@
 import Foundation
 import ManualSModels
 
-extension HeatingInterpolation.Response.Electric {
-
-  init(
-    inputKW: Double,
-    heatLoss: Double
-  ) async {
+extension HeatingInterpolation.Request.Electric {
+  func respond() async -> HeatingInterpolation.Response.Electric {
     let requiredKW = await calculateRequiredKW(
-      heatLoss: heatLoss, capacityAtDesign: 0
+      heatLoss: Double(heatingLoad), capacityAtDesign: 0
     )
 
-    self.init(
+    return .init(
       requiredKW: requiredKW,
-      percentOfLoad: .init(decimal: inputKW / requiredKW),
+      percentOfLoad: .init(decimal: Double(kilowatts) / requiredKW),
       sizingLimits: SystemType.Heating.electric.sizingLimit
     )
   }
 }
 
-extension HeatingInterpolation.Response.GasOrBoiler {
+extension HeatingInterpolation.Request.FurnaceOrBoiler {
 
-  init(
-    input: Double,
-    afue: Percent,
-    elevation: Double,
-    heatLoss: Double
-  ) async throws {
-    let output = input * afue.decimal
-    let altitudeDerating = await SystemType.Heating.furnace.derating(elevation: elevation)
+  func respond() async -> HeatingInterpolation.Response.GasOrBoiler {
+    let output = Double(inputBTU) * afue.decimal
+    let altitudeDerating = await SystemType.Heating.furnace.derating(
+      elevation: Double(projectElevation)
+    )
     let finalCapacity = output * altitudeDerating
 
-    self.init(
+    return .init(
       altitudeDerating: .init(decimal: altitudeDerating),
       outputCapacity: Int(output),
       finalCapacity: Int(finalCapacity),
-      percentOfLoad: .init(decimal: finalCapacity / heatLoss),
+      percentOfLoad: .init(decimal: finalCapacity / Double(heatingLoad)),
       sizingLimits: SystemType.Heating.furnace.sizingLimit
     )
   }
 }
 
-extension HeatingInterpolation.Response.HeatPump {
-  init(
-    capacity: HeatPumpCapacity,
-    heatLoss: Double,
-    elevation: Double,
-    outdoorTemperature: Double
-  ) async throws {
+extension HeatingInterpolation.Request.HeatPump {
 
+  func respond() async throws -> HeatingInterpolation.Response.HeatPump {
     let altitudeDerating = await Percent(
-      decimal: SystemType.Heating.heatPump.derating(elevation: elevation)
+      decimal: SystemType.Heating.heatPump.derating(elevation: Double(projectElevation))
     )
 
     let balancePoint = try await ManualSClient.ThermalBalancePointRequest(
-      capacity: capacity, heatLoss: heatLoss, outdoorDesignTemperature: outdoorTemperature
+      capacity: capacity,
+      heatLoss: Double(heatingLoad),
+      outdoorDesignTemperature: Double(outdoorDesignTemperature)
     ).respond()
 
-    let capacityAtDesign = await capacity.capacity(at: outdoorTemperature)
+    let capacityAtDesign = await capacity.capacity(at: Double(outdoorDesignTemperature))
     let requiredKW = await calculateRequiredKW(
-      heatLoss: heatLoss, capacityAtDesign: capacityAtDesign)
+      heatLoss: Double(heatingLoad),
+      capacityAtDesign: capacityAtDesign
+    )
 
-    await self.init(
+    return await .init(
       deratings: altitudeDerating,
       finalCapacity: capacity.derate(altitudeDerating),
       capacityAtDesign: capacityAtDesign,

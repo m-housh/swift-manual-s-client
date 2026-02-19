@@ -13,14 +13,9 @@ extension DependencyValues {
 @DependencyClient
 public struct ManualSClient: Sendable {
 
-  public typealias AFUE = Tagged<Tag.AFUE, Percent>
   public typealias CapacityAtDesign = Tagged<Tag.CapacityAtDesign, Double>
-  public typealias CoolingLoad = Tagged<Tag.CoolingLoad, CoolingCapacity>
   public typealias Elevation = Tagged<Tag.Elevation, Double>
   public typealias HeatLoss = Tagged<Tag.HeatLoss, Double>
-  public typealias Input = Tagged<Tag.Input, Int>
-  public typealias KW = Tagged<Tag.KW, Double>
-  public typealias OutdoorTemperature = Tagged<Tag.OutdoorTemperature, Double>
 
   public var coolingDerating: @Sendable (Elevation) async throws -> CoolingDerating
   public var coolingSizeLimits:
@@ -33,15 +28,15 @@ public struct ManualSClient: Sendable {
   public var heatingSizeLimits: @Sendable (SystemType.Heating) async throws -> SizingLimit.Heating
 
   public var electricHeatingInterpolation:
-    @Sendable (KW, HeatLoss) async throws ->
+    @Sendable (HeatingInterpolation.Request.Electric) async throws ->
       HeatingInterpolation.Response.Electric
 
   public var gasOrBoilerHeatingInterpolation:
-    @Sendable (Input, ManualSClient.AFUE, HeatLoss, Elevation) async throws ->
+    @Sendable (HeatingInterpolation.Request.FurnaceOrBoiler) async throws ->
       HeatingInterpolation.Response.GasOrBoiler
 
   public var heatPumpHeatingInterpolation:
-    @Sendable (HeatPumpCapacity, HeatLoss, Elevation, OutdoorTemperature) async throws ->
+    @Sendable (HeatingInterpolation.Request.HeatPump) async throws ->
       HeatingInterpolation.Response.HeatPump
 
   public var requiredKW: @Sendable (HeatLoss, CapacityAtDesign?) async throws -> Double
@@ -67,27 +62,14 @@ extension ManualSClient: DependencyKey {
       heatingSizeLimits: { system in
         system.sizingLimit
       },
-      electricHeatingInterpolation: { inputKW, heatLoss in
-        await .init(
-          inputKW: inputKW.rawValue,
-          heatLoss: heatLoss.rawValue
-        )
+      electricHeatingInterpolation: { request in
+        await request.respond()
       },
-      gasOrBoilerHeatingInterpolation: { input, afue, heatLoss, elevation in
-        try await .init(
-          input: Double(input.rawValue),
-          afue: afue.rawValue,
-          elevation: elevation.rawValue,
-          heatLoss: heatLoss.rawValue
-        )
+      gasOrBoilerHeatingInterpolation: { request in
+        await request.respond()
       },
-      heatPumpHeatingInterpolation: { capacity, heatLoss, elevation, outdoorTemperature in
-        try await .init(
-          capacity: capacity,
-          heatLoss: heatLoss.rawValue,
-          elevation: elevation.rawValue,
-          outdoorTemperature: outdoorTemperature.rawValue
-        )
+      heatPumpHeatingInterpolation: { request in
+        try await request.respond()
       },
       requiredKW: { heatLoss, capacityAtDesign in
         await calculateRequiredKW(
@@ -107,15 +89,9 @@ extension ManualSClient {
 
   /// A namespace for tagged types.
   public enum Tag {
-    public enum AFUE {}
     public enum CapacityAtDesign {}
-    public enum CoolingLoad {}
     public enum Elevation {}
     public enum HeatLoss {}
-    public enum HeatPumpCapacity {}
-    public enum Input {}
-    public enum OutdoorTemperature {}
-    public enum KW {}
   }
 
   public enum CoolingSizeLimitRequest: Codable, Equatable, Sendable {
