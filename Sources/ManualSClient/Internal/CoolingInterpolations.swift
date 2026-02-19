@@ -1,5 +1,6 @@
 import Foundation
 import ManualSModels
+import Tagged
 
 // FIX: Add altitude adjustments.
 extension CoolingInterpolation.Request {
@@ -53,12 +54,14 @@ extension CoolingInterpolation.Response {
       finalCapacity = finalCapacity.apply(manufacturersAdjustments)
     }
 
-    // FIX: Altitude adjustments here.
+    let altitudeDeratings = await CoolingDerating(elevation: Double(request.projectElevation))
+    finalCapacity = finalCapacity.apply(altitudeDeratings)
 
     self.init(
       interpolatedCapacity: interpolatedCapacity,
       excessLatent: Int(excessLatent),
       finalCapacityAtyDesign: finalCapacity,
+      altitudeDeratings: altitudeDeratings,
       capacityAsPercentOfLoad: request.coolingLoad.capacityAsPercentOfLoad(finalCapacity)
     )
   }
@@ -127,7 +130,7 @@ extension CoolingCapacity {
     .init(total: rawValue.total, sensible: rawValue.sensible + excessLatent)
   }
 
-  func apply(_ adjustments: CoolingCapacityAdjustment) -> Self {
+  func apply<N>(_ adjustments: Tagged<N, CoolingContainer<Percent>>) -> Self {
     .init(
       total: rawValue.total * adjustments.total.decimal,
       sensible: rawValue.sensible * adjustments.sensible.decimal
