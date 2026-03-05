@@ -37,11 +37,11 @@ public struct ManualSViewController: ViewController {
   ) async throws -> ViewResponse {
     switch route {
     case .index:
-      fatalError()
+      return .view { HomePage() }
     case .designInfo(let route):
       fatalError()
     case .shared(let route):
-      try await sharedController.view(for: route, on: request)
+      return try await sharedController.view(for: route, on: request)
     }
   }
 }

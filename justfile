@@ -10,8 +10,8 @@ install-deps:
 run-css:
 	@./tailwindcss -i Public/css/main.css -o Public/css/output.css --watch
 
-run:
-	@swift run App serve --log debug
+run *ARGS:
+	@swift run server serve --port 8081 {{ARGS}}
 
 build-docker file="Dockerfile":
 	@docker build -f {{file}} -t {{docker_image}}:{{docker_tag}} .
