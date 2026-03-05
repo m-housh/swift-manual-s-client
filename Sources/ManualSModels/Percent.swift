@@ -1,3 +1,5 @@
+@preconcurrency import URLRouting
+
 public struct Percent: Codable, Equatable, Sendable, RawRepresentable {
   public var rawValue: Double
 
@@ -62,3 +64,10 @@ extension Percent: ExpressibleByFloatLiteral {
 }
 
 extension Percent: ExpressibleByIntegerLiteral {}
+
+extension Percent {
+  public static func parser() -> AnyParserPrinter<Substring.UTF8View, Self> {
+    Double.parser().map(.memberwise(Self.init(rawValue:)))
+      .eraseToAnyParserPrinter()
+  }
+}
