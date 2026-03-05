@@ -11,6 +11,8 @@ public struct DesignInfo: Codable, Equatable, Identifiable, Sendable {
   public let summerIndoorTemperature: Int
   public let summerIndoorHumidity: Percent
   public let winterOutdoorTemperature: Int
+  public let createdAt: Date
+  public let updatedAt: Date
 
   public init(
     id: Tagged<DesignInfo, UUID>,
@@ -19,7 +21,9 @@ public struct DesignInfo: Codable, Equatable, Identifiable, Sendable {
     summerOutdoorTemperature: Int,
     summerIndoorTemperature: Int,
     summerIndoorHumidity: Percent,
-    winterOutdoorTemperature: Int
+    winterOutdoorTemperature: Int,
+    createdAt: Date,
+    updatedAt: Date
   ) {
     self.id = id
     self.projectID = projectID
@@ -28,6 +32,8 @@ public struct DesignInfo: Codable, Equatable, Identifiable, Sendable {
     self.summerIndoorTemperature = summerIndoorTemperature
     self.summerIndoorHumidity = summerIndoorHumidity
     self.winterOutdoorTemperature = winterOutdoorTemperature
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
   }
 }
 

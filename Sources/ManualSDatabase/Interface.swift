@@ -14,6 +14,7 @@ extension DependencyValues {
 
 public struct ManualSDatabase: Sendable {
 
+  public var designInfo: DesignInfoRepository
   public var houseLoads: HouseLoads
   public var migrations: SharedDatabase.Migrations
   public var shared: SharedDatabase
@@ -34,6 +35,15 @@ public struct ManualSDatabase: Sendable {
   }
 
   @DependencyClient
+  public struct DesignInfoRepository: Sendable {
+    public var create: @Sendable (DesignInfo.Create) async throws -> DesignInfo
+    public var delete: @Sendable (DesignInfo.ID) async throws -> Void
+    public var fetch: @Sendable (Project.ID) async throws -> DesignInfo?
+    public var get: @Sendable (DesignInfo.ID) async throws -> DesignInfo?
+    public var update: @Sendable (DesignInfo.ID, DesignInfo.Update) async throws -> DesignInfo
+  }
+
+  @DependencyClient
   public struct HouseLoads: Sendable {
     public var create: @Sendable (HouseLoad.Create) async throws -> HouseLoad
     public var delete: @Sendable (HouseLoad.ID) async throws -> Void
@@ -43,12 +53,17 @@ public struct ManualSDatabase: Sendable {
   }
 }
 
+extension ManualSDatabase.DesignInfoRepository: TestDependencyKey {
+  public static let testValue = Self()
+}
+
 extension ManualSDatabase.HouseLoads: TestDependencyKey {
   public static let testValue = Self()
 }
 
 extension ManualSDatabase: TestDependencyKey {
   public static let testValue = Self(
+    designInfo: .testValue,
     houseLoads: .testValue,
     migrations: .testValue,
     shared: .testValue
@@ -56,6 +71,7 @@ extension ManualSDatabase: TestDependencyKey {
 
   public static func live(on database: any Database) -> Self {
     .init(
+      designInfo: .live(database: database),
       houseLoads: .live(database: database),
       migrations: .live(),
       shared: .live(on: database)
