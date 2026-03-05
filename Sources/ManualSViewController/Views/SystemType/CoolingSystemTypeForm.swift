@@ -14,7 +14,7 @@ struct CoolingSystemTypeForm: HTML, Sendable {
         legend(.class("fieldset-legend")) { "Type" }
         Select(
           SystemType.EquipmentType.allCases,
-          value: { $0.rawValue },
+          value: \.rawValue,
           selected: {
             guard let systemType else {
               return $0 == .airConditioner
@@ -35,7 +35,7 @@ struct CoolingSystemTypeForm: HTML, Sendable {
         legend(.class("fieldset-legend")) { "Compressor" }
         Select(
           SystemType.CompressorType.allCases,
-          value: { $0.rawValue },
+          value: \.rawValue,
           selected: {
             guard let systemType else {
               return $0 == .singleSpeed
@@ -56,7 +56,7 @@ struct CoolingSystemTypeForm: HTML, Sendable {
         legend(.class("fieldset-legend")) { "Climate" }
         Select(
           SystemType.ClimateType.allCases,
-          value: { $0.rawValue },
+          value: \.rawValue,
           selected: {
             guard let systemType else {
               return $0 == .mildWinterOrLatentLoad

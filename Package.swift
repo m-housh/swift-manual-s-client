@@ -13,6 +13,7 @@ let package = Package(
   products: [
     .executable(name: "server", targets: ["server"]),
     .library(name: "ManualSClient", targets: ["ManualSClient"]),
+    .library(name: "ManualSDatabase", targets: ["ManualSDatabase"]),
     .library(name: "ManualSModels", targets: ["ManualSModels"]),
     .library(name: "ManualSRouter", targets: ["ManualSRouter"]),
     .library(name: "ManualSViewController", targets: ["ManualSViewController"]),
@@ -54,6 +55,15 @@ let package = Package(
     .testTarget(
       name: "ManualSClientTests",
       dependencies: ["ManualSClient"]
+    ),
+    .target(
+      name: "ManualSDatabase",
+      dependencies: [
+        .target(name: "ManualSModels"),
+        .product(name: "SharedDatabase", package: "swift-shared-manuals"),
+        .product(name: "Dependencies", package: "swift-dependencies"),
+        .product(name: "DependenciesMacros", package: "swift-dependencies"),
+      ],
     ),
     .target(
       name: "ManualSRouter",

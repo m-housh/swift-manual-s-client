@@ -7,7 +7,12 @@ import Testing
 @Suite
 struct ManualSClientTests {
 
-  let houseLoad = HouseLoad(heating: 49667, cooling: .init(total: 17872, sensible: 13894))
+  let houseLoad = HouseLoad(
+    id: .init(UUID(0)),
+    projectID: .init(UUID(1)),
+    heating: 49667,
+    cooling: .init(total: 17872, sensible: 13894)
+  )
 
   @Test
   func balancePoint() async throws {
