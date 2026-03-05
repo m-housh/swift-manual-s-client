@@ -11,7 +11,9 @@ struct ManualSClientTests {
     id: .init(UUID(0)),
     projectID: .init(UUID(1)),
     heating: 49667,
-    cooling: .init(total: 17872, sensible: 13894)
+    cooling: .init(total: 17872, sensible: 13894),
+    createdAt: Date(timeIntervalSince1970: 1_234_567_890),
+    updatedAt: Date(timeIntervalSince1970: 1_234_567_890)
   )
 
   @Test

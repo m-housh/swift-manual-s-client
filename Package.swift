@@ -65,6 +65,14 @@ let package = Package(
         .product(name: "DependenciesMacros", package: "swift-dependencies"),
       ],
     ),
+    .testTarget(
+      name: "ManualSDatabaseTests",
+      dependencies: [
+        .target(name: "ManualSDatabase"),
+        .product(name: "SharedTestSupport", package: "swift-shared-manuals"),
+        // .product(name: "IssueReportingTestSupport", package: "swift-dependencies"),
+      ]
+    ),
     .target(
       name: "ManualSRouter",
       dependencies: [
