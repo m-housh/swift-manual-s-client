@@ -11,16 +11,16 @@ env:
   IMAGE_NAME: manual-s
 
 jobs:
-  macos:
-    name: macOS Tests
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: swift-actions/setup-swift@v3
-        with:
-          swift-version: "6.2"
-      - name: Run tests
-        run: swift test
+  # macos:
+  #   name: macOS Tests
+  #   runs-on: macos-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: swift-actions/setup-swift@v3
+  #       with:
+  #         swift-version: "6.2"
+  #     - name: Run tests
+  #       run: swift test
 
   ubuntu:
     name: Linux Tests
