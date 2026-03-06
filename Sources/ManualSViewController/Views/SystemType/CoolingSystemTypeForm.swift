@@ -7,8 +7,7 @@ struct CoolingSystemTypeForm: HTML, Sendable {
   let systemType: SystemType.Cooling?
 
   var body: some HTML<HTMLTag.form> {
-    form {
-      h1(.class("text-2xl font-bold")) { "System Type" }
+    Form(title: "System Type") {
 
       fieldset(.class("fieldset")) {
         legend(.class("fieldset-legend")) { "Type" }

@@ -82,3 +82,13 @@ public enum SystemType {
     }
   }
 }
+
+#if DEBUG
+  extension SystemType.Cooling {
+    public static let mock = Self(
+      equipment: .heatPump,
+      compressor: .variableSpeed,
+      climate: .mildWinterOrLatentLoad
+    )
+  }
+#endif

@@ -1,3 +1,4 @@
+import Dependencies
 import Foundation
 import SharedModels
 import Tagged
@@ -67,3 +68,20 @@ extension HouseLoad {
   }
 
 }
+
+#if DEBUG
+  extension HouseLoad {
+    public static var mock: Self {
+      @Dependency(\.uuid) var uuid
+      @Dependency(\.date.now) var now
+      return .init(
+        id: .init(uuid()),
+        projectID: .init(uuid()),
+        heating: 49667,
+        cooling: .init(total: 24354, sensible: 22543),
+        createdAt: now,
+        updatedAt: now
+      )
+    }
+  }
+#endif

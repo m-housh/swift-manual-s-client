@@ -1,5 +1,5 @@
 {
-  "originHash" : "48a500d34fa01a9c0c90ba7689f36740854722c4d6d4076f14b0f18cd12a0517",
+  "originHash" : "e1a68a71da04ed490f024c73a1914a60930771eedb902458d39571ad077fedb4",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -385,7 +385,7 @@
       "location" : "https://github.com/m-housh/swift-shared-manuals.git",
       "state" : {
         "branch" : "main",
-        "revision" : "40272ba3d71ff0ab87d882a944c7b5abcc0115d6"
+        "revision" : "8608622697eabbbf32454264a390f6362c3770c0"
       }
     },
     {

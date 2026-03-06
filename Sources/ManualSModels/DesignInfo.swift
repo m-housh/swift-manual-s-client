@@ -1,3 +1,4 @@
+import Dependencies
 import Foundation
 import SharedModels
 import Tagged
@@ -88,3 +89,25 @@ extension DesignInfo {
     }
   }
 }
+
+#if DEBUG
+  extension DesignInfo {
+    public static var mock: Self {
+      @Dependency(\.uuid) var uuid
+      @Dependency(\.date.now) var now
+
+      return .init(
+        id: .init(uuid()),
+        projectID: .init(uuid()),
+        elevation: 800,
+        summerOutdoorTemperature: 90,
+        summerIndoorTemperature: 75,
+        summerIndoorHumidity: 50,
+        winterOutdoorTemperature: 5,
+        createdAt: now,
+        updatedAt: now
+      )
+
+    }
+  }
+#endif

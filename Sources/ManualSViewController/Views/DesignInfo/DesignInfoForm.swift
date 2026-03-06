@@ -9,13 +9,28 @@ struct DesignInfoForm: HTML, Sendable {
   let designInfo: DesignInfo?
 
   var body: some HTML<HTMLTag.form> {
-    form(.class("space-y-4")) {
-      h1(.class("text-3xl font-bold")) { "Design Information" }
-
+    Form(
+      title: "Design Information",
+      .class("space-y-4")
+    ) {
       input(.hidden, .value(projectID), .name("projectID"))
 
       fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Outdoor Temperature - Summer" }
+        legend(.class("fieldset-legend")) { "Outdoor Design - Temperature" }
+
+        label(.class("input w-full")) {
+          span(.class("label")) { SVG(.thermometerSnowflake) }
+          input(
+            .type(.number),
+            .name("winterOutdoorTemperature"),
+            .id("winterOutdoorTemperature"),
+            .value(designInfo?.winterOutdoorTemperature),
+            .min(0),
+            .required
+          )
+          span(.class("label min-w-[5rem]")) { "Winter" }
+        }
+
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.thermometerSun) }
           input(
@@ -27,56 +42,41 @@ struct DesignInfoForm: HTML, Sendable {
             .autofocus,
             .required
           )
+          span(.class("label min-w-[5rem]")) { "Summer" }
         }
       }
 
       fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Indoor Temperature - Summer" }
+        legend(.class("fieldset-legend")) { "Indoor Design - Summer" }
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.thermometer) }
           input(
             .type(.number),
             .name("summerIndoorTemperature"),
             .id("summerIndoorTemperature"),
-            .value(designInfo?.summerIndoorTemperature),
+            .value(designInfo?.summerIndoorTemperature ?? 75),
             .min(0),
             .required
           )
+          span(.class("label min-w-[7rem]")) { "Temperature" }
         }
-      }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Indoor Humidity - Summer" }
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.droplets) }
           input(
             .type(.number),
             .name("summerIndoorHumidity"),
             .id("summerIndoorHumidity"),
-            .value(designInfo?.summerIndoorHumidity.rawValue),
+            .value(designInfo?.summerIndoorHumidity.rawValue ?? 50),
             .min(0),
             .required
           )
+          span(.class("label min-w-[7rem]")) { "Humidity" }
         }
       }
 
       fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Outdoor Temperature - Winter" }
-        label(.class("input w-full")) {
-          span(.class("label")) { SVG(.thermometerSnowflake) }
-          input(
-            .type(.number),
-            .name("winterOutdoorTemperature"),
-            .id("winterOutdoorTemperature"),
-            .value(designInfo?.winterOutdoorTemperature),
-            .min(0),
-            .required
-          )
-        }
-      }
-
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Project Elevation" }
+        legend(.class("fieldset-legend")) { "Project - Elevation" }
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.mountain) }
           input(
