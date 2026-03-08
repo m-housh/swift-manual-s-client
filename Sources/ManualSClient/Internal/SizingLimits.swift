@@ -22,7 +22,7 @@ extension ManualSClient.CoolingSizeLimitRequest {
     }
 
     return .init(
-      oversizing: .init(total: Int(oversizingLimit), latent: 150),
+      oversizing: .init(total: .init(oversizingLimit), latent: 150),
       undersizing: .init(total: 90, sensible: 90, latent: 90)
     )
 

@@ -151,3 +151,15 @@ public enum CoolingInterpolation {
   }
 
 }
+
+#if DEBUG
+  extension CoolingInterpolation.Response {
+    public static let mock = Self(
+      interpolatedCapacity: .init(total: 23456, sensible: 17865),
+      excessLatent: 807,
+      finalCapacityAtDesign: .init(total: 23456, sensible: 17865),
+      altitudeDeratings: .init(total: 100, sensible: 100),
+      capacityAsPercentOfLoad: .init(total: 131.2, sensible: 134.4, latent: 120.3)
+    )
+  }
+#endif

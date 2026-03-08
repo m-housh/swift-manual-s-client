@@ -7,7 +7,11 @@ struct HeatPumpForm: HTML, Identifiable, Sendable {
 
   static let id = "heatPumpForm"
   var id: String { Self.id }
+
+  let altitudeAdjustment: Percent?
   let capacity: HeatPumpCapacity?
+  let proposedKW: Double?
+  let requiredKW: Double
 
   var body: some HTML<HTMLTag.form> {
     Form(
@@ -40,6 +44,69 @@ struct HeatPumpForm: HTML, Identifiable, Sendable {
           )
         }
       }
+
+      fieldset(.class("fieldset")) {
+        legend(.class("fieldset-legend")) { "Altitude Adjustment" }
+
+        input(
+          .type(.range),
+          .id("altitudeAdjustmentSlider"),
+          // .name("altitudeAdjustment"),
+          .value(altitudeAdjustment?.rawValue ?? 100),
+          .min(50),
+          .max(100),
+          .step(1),
+          .on(.change, "syncInputs('altitudeAdjustmentInput', 'altitudeAdjustmentSlider');")
+        )
+
+        label(.class("input w-full")) {
+          input(
+            .type(.number),
+            .id("altitudeAdjustmentInput"),
+            .name("altitudeAdjustment"),
+            .value(altitudeAdjustment?.rawValue ?? 100),
+            .min(0),
+            .max(100),
+            .step(1),
+            .on(.change, "syncInputs('altitudeAdjustmentSlider', 'altitudeAdjustmentInput');")
+          )
+          span(.class("label")) { SVG(.percent) }
+        }
+        // p(.class("text-sm italic")) { "Optional" }
+      }
+
+      fieldset(.class("fieldset")) {
+        div(.class("flex justify-between text-md")) {
+          // legend(.class("fieldset-legend justify-between")) {
+          div(.class("font-bold")) {
+            span { "Electric Heat" }
+          }
+
+          div(.class("flex justify-end space-x-2")) {
+            span(.class("font-bold")) { "Required KW:" }
+            NumberView(requiredKW)
+              .attributes(.class("italic"))
+          }
+        }
+
+        label(.class("input w-full")) {
+          span(.class("label")) { SVG(.zap) }
+          input(
+            .type(.number),
+            .name("proposedKW"),
+            .value(proposedKW),
+            .placeholder("Proposed KW"),
+            .min(0),
+            .step(0.5)
+          )
+        }
+        div {
+          span(.class("text-sm italic")) { "Optional" }
+        }
+      }
+
+      SubmitButton()
+        .attributes(.class("btn-block"))
     }
   }
 }

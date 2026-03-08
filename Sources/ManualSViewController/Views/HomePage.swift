@@ -53,11 +53,27 @@ struct HomePage: HTML, Sendable {
 
       HouseLoadView(houseLoad: houseLoad)
 
+      // Interpolation
+      div(.class("border")) {
+        div(.class("flex justify-between items-center w-full bg-primary border px-4 py-2")) {
+          Title { "Interpolation" }
+
+          button(.class("btn btn-primary"), .showModal(id: "noInterpolation")) {
+            "Open"
+          }
+
+          Modal(id: "noInterpolation", open: false, displayCloseButton: true) {
+            NoInterpolationForm()
+          }
+        }
+        NoInterpolationTable(response: .mock, sizingLimits: .mock)
+      }
+
       div {
         div(.class("flex justify-between items-center w-full bg-primary border px-4 py-2")) {
           Title { "Heating" }
 
-          div {
+          div(.class("flex space-x-4")) {
             label(.class("select select-secondary")) {
               span(.class("label")) { "Type" }
               Select(
@@ -78,7 +94,17 @@ struct HomePage: HTML, Sendable {
 
           Modal(id: "heatingForm", open: false, displayCloseButton: true) {
             // FIX: Should be dynamic based on select field.
-            HeatPumpForm(capacity: nil)
+            HeatPumpForm(
+              altitudeAdjustment: nil,
+              capacity: nil,
+              proposedKW: nil,
+              requiredKW: 14.55
+            )
+            // BoilerOrFurnaceForm(
+            //   altitudeAdjustment: 93,
+            //   inputBTU: nil,
+            //   interpolationType: .furnace
+            // )
           }
 
         }

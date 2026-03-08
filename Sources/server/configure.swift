@@ -1,3 +1,4 @@
+import Elementary
 import Fluent
 import FluentSQLiteDriver
 import ManualSViewController
@@ -52,7 +53,11 @@ private func addMiddleware(to app: Application, database: SharedDatabase) {
       dependencies.logger = request.logger
       dependencies.viewResponder = .live(
         title: "Manual-S",
-        head: { DefaultHead() }
+        head: {
+          DefaultHead {
+            script(.src("/js/main.js")) {}
+          }
+        }
       )
     }
   )

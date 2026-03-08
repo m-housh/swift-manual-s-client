@@ -15,24 +15,24 @@ public struct SizingLimit: Codable, Equatable, Sendable {
   }
 
   public struct CoolingOversizeLimit: Codable, Equatable, Sendable {
-    public let total: Int
-    public let latent: Int
+    public let total: Percent
+    public let latent: Percent
 
-    public init(total: Int, latent: Int) {
+    public init(total: Percent, latent: Percent) {
       self.total = total
       self.latent = latent
     }
   }
 
   public struct CoolingUndersizeLimit: Codable, Equatable, Sendable {
-    public let total: Int
-    public let sensible: Int
-    public let latent: Int
+    public let total: Percent
+    public let sensible: Percent
+    public let latent: Percent
 
     public init(
-      total: Int,
-      sensible: Int,
-      latent: Int
+      total: Percent,
+      sensible: Percent,
+      latent: Percent
     ) {
       self.total = total
       self.sensible = sensible
@@ -44,3 +44,12 @@ public struct SizingLimit: Codable, Equatable, Sendable {
 extension SizingLimit.Container: Codable where Over: Codable, Under: Codable {}
 extension SizingLimit.Container: Equatable where Over: Equatable, Under: Equatable {}
 extension SizingLimit.Container: Sendable where Over: Sendable, Under: Sendable {}
+
+#if DEBUG
+  extension SizingLimit.Cooling {
+    public static let mock = Self(
+      oversizing: .init(total: 115, latent: 150),
+      undersizing: .init(total: 90, sensible: 90, latent: 90)
+    )
+  }
+#endif
