@@ -1,5 +1,10 @@
+import Tagged
+
 public struct SizingLimit: Codable, Equatable, Sendable {
 
+  public typealias CoolingUndersizeLimit = Tagged<
+    TSLTag.CoolingUndersizeLimit, TSLContainer<Percent>
+  >
   public typealias Cooling = Container<CoolingOversizeLimit, CoolingUndersizeLimit>
   public typealias Heating = Container<Int, Int>
 
@@ -24,21 +29,6 @@ public struct SizingLimit: Codable, Equatable, Sendable {
     }
   }
 
-  public struct CoolingUndersizeLimit: Codable, Equatable, Sendable {
-    public let total: Percent
-    public let sensible: Percent
-    public let latent: Percent
-
-    public init(
-      total: Percent,
-      sensible: Percent,
-      latent: Percent
-    ) {
-      self.total = total
-      self.sensible = sensible
-      self.latent = latent
-    }
-  }
 }
 
 extension SizingLimit.Container: Codable where Over: Codable, Under: Codable {}
@@ -49,7 +39,7 @@ extension SizingLimit.Container: Sendable where Over: Sendable, Under: Sendable 
   extension SizingLimit.Cooling {
     public static let mock = Self(
       oversizing: .init(total: 115, latent: 150),
-      undersizing: .init(total: 90, sensible: 90, latent: 90)
+      undersizing: .init(.init(total: 90, sensible: 90, latent: 90))
     )
   }
 #endif

@@ -57,12 +57,14 @@ extension CoolingInterpolation.Response {
     let altitudeDeratings = await CoolingDerating(elevation: Double(request.projectElevation))
     finalCapacity = finalCapacity.apply(altitudeDeratings)
 
+    let capacityAsPercentOfLoad = request.coolingLoad.capacityAsPercentOfLoad(finalCapacity)
+
     self.init(
       interpolatedCapacity: interpolatedCapacity,
       excessLatent: excessLatent,
       finalCapacityAtDesign: finalCapacity,
       altitudeDeratings: altitudeDeratings,
-      capacityAsPercentOfLoad: request.coolingLoad.capacityAsPercentOfLoad(finalCapacity)
+      capacityAsPercentOfLoad: capacityAsPercentOfLoad
     )
   }
 }

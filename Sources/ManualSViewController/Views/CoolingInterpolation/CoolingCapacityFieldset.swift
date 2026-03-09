@@ -7,6 +7,17 @@ struct CoolingCapacityFieldset: HTML, Sendable {
 
   let capacity: CoolingCapacity?
   let title: String = "Cooling Capacity"
+  let totalName: String
+  let sensibleName: String
+
+  init(
+    capacity: CoolingCapacity? = nil,
+    namePrefix: String? = nil
+  ) {
+    self.capacity = capacity
+    self.totalName = namePrefix == nil ? "coolingTotal" : "\(namePrefix!)CoolingTotal"
+    self.sensibleName = namePrefix == nil ? "coolingSensible" : "\(namePrefix!)CoolingSensible"
+  }
 
   var body: some HTML<HTMLTag.fieldset> {
     fieldset {
@@ -37,7 +48,6 @@ struct CoolingCapacityFieldset: HTML, Sendable {
           )
         }
       }
-      // .attributes(.class("flex gap-4"), when: style == .horizontal)
     }
   }
 }

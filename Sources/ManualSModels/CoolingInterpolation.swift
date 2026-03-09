@@ -1,5 +1,10 @@
+import Tagged
+
 public enum CoolingInterpolation {
   public struct Response: Codable, Equatable, Sendable {
+    public typealias CapacityAsPercentOfLoad = Tagged<
+      TSLTag.CapacityAsPercentOfLoad, TSLContainer<Percent>
+    >
 
     public let interpolatedCapacity: CoolingCapacity
     public let excessLatent: Double
@@ -19,19 +24,6 @@ public enum CoolingInterpolation {
       self.finalCapacityAtDesign = finalCapacityAtDesign
       self.altitudeDeratings = altitudeDeratings
       self.capacityAsPercentOfLoad = capacityAsPercentOfLoad
-    }
-
-    public struct CapacityAsPercentOfLoad: Codable, Equatable, Sendable {
-
-      public let total: Percent
-      public let sensible: Percent
-      public let latent: Percent
-
-      public init(total: Percent, sensible: Percent, latent: Percent) {
-        self.total = total
-        self.sensible = sensible
-        self.latent = latent
-      }
     }
   }
 

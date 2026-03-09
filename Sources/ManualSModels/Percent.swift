@@ -71,3 +71,9 @@ extension Percent {
       .eraseToAnyParserPrinter()
   }
 }
+
+extension Percent: Comparable {
+  public static func < (lhs: Percent, rhs: Percent) -> Bool {
+    lhs.rawValue < rhs.rawValue
+  }
+}

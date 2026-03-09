@@ -60,7 +60,7 @@ private struct _AdjustmentFieldset: HTML, Sendable {
         )
 
         PercentField(
-          "Total",
+          "Sensible",
           percent: adjustments?.sensible,
           inputAttributes: .name(sensibleFieldName)
         )

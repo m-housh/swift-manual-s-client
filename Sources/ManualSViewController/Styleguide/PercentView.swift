@@ -26,4 +26,8 @@ struct PercentView: HTML, Sendable {
       }
     }
   }
+
+  static func multiplier(_ percent: Percent) -> Self {
+    .init(percent, includePercentSymbol: false, toValue: \.decimal)
+  }
 }

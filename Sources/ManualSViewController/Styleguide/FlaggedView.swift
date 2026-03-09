@@ -1,10 +1,6 @@
 import Elementary
+import ManualSModels
 import SharedStyleguide
-
-enum FlaggedState: String {
-  case success
-  case error
-}
 
 struct FlaggedView<Content: HTML>: HTML {
 
@@ -17,11 +13,20 @@ struct FlaggedView<Content: HTML>: HTML {
   }
 
   var body: some HTML<HTMLTag.div> {
-    div(.class("flex text-\(state.rawValue) gap-2")) {
+    div(.class("flex text-\(state.color) gap-2")) {
       _content
       div(.class("rotate-45 mt-1")) {
         SVG(.flag)
       }
+    }
+  }
+}
+
+extension FlaggedState {
+  var color: String {
+    switch self {
+    case .success: return rawValue
+    case .failure: return "error"
     }
   }
 }

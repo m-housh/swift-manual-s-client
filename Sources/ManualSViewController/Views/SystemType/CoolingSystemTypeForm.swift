@@ -2,12 +2,14 @@ import Elementary
 import ManualSModels
 import SharedStyleguide
 
-struct CoolingSystemTypeForm: HTML, Sendable {
+struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
+  static let id = "coolingSystemTypeForm"
 
   let systemType: SystemType.Cooling?
+  var id: String { Self.id }
 
   var body: some HTML<HTMLTag.form> {
-    Form(title: "System Type") {
+    Form(title: "System Type", .id(id)) {
 
       fieldset(.class("fieldset")) {
         legend(.class("fieldset-legend")) { "Type" }

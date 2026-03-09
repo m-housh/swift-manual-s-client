@@ -3,15 +3,19 @@ import ManualSModels
 import SharedModels
 import SharedStyleguide
 
-struct DesignInfoForm: HTML, Sendable {
+struct DesignInfoForm: HTML, Identifiable, Sendable {
+
+  static let id = "designInfoForm"
 
   let projectID: Project.ID
   let designInfo: DesignInfo?
+  var id: String { Self.id }
 
   var body: some HTML<HTMLTag.form> {
     Form(
       title: "Design Information",
-      .class("space-y-4")
+      .class("space-y-4"),
+      .id(id)
     ) {
       input(.hidden, .value(projectID), .name("projectID"))
 
