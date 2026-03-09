@@ -74,7 +74,7 @@ struct ManualSClientTests {
     } operation: {
       @Dependency(\.manualS) var manualS
       let sut = try await manualS.coolingSizeLimits(request)
-      #expect(sut.oversizing.total == expected)
+      #expect(sut.oversizing.total == Percent(Double(expected)))
       #expect(sut.oversizing.latent == 150)
       #expect(sut.undersizing.total == 90)
       #expect(sut.undersizing.sensible == 90)
