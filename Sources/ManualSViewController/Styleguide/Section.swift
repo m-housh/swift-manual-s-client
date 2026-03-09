@@ -14,6 +14,13 @@ struct Section<Content: HTML>: HTML {
     self._content = content()
   }
 
+  init(
+    _ title: String? = nil,
+    content: @autoclosure () -> Content
+  ) {
+    self.init(title, content: content)
+  }
+
   var body: some HTML<HTMLTag.section> {
     section {
       div(.class("divider")) {
@@ -27,131 +34,152 @@ struct Section<Content: HTML>: HTML {
   }
 }
 
-extension Section: Sendable where Content: Sendable {}
+struct SectionHeader<Form: HTML>: HTML {
+  private let extraContent: String?
+  private let formID: String
+  private let form: Form
+  private let tooltip: String
 
-extension Section {
-
-  init<Form: HTML, Body: HTML>(
-    _ title: String? = nil,
-    extraHeaderContent: String? = nil,
+  init(
+    _ extraContent: String? = nil,
+    tooltip: String,
     formID: String,
-    form: Form,
-    @HTMLBuilder content: () -> Body
-  )
-  where
-    Content == _HTMLTuple2<
-      _AttributedElement<
-        _AttributedElement<div<_HTMLTuple3<span<HTMLText>?, button<SVG>, Modal<Form>>>>
-      >, Body
-    >
-  {
-    self.init(title) {
-      div(.class("flex items-center px-4 py-2")) {
-        if let extraHeaderContent {
-          span(.class("text-base-content font-bold")) { extraHeaderContent }
-        }
+    @HTMLBuilder form: () -> Form
+  ) {
+    self.extraContent = extraContent
+    self.formID = formID
+    self.form = form()
+    self.tooltip = tooltip
+  }
 
-        button(.class("btn btn-secondary btn-ghost"), .showModal(id: formID)) {
-          SVG(.squarePen)
-        }
+  init(
+    _ extraContent: String? = nil,
+    tooltip: String,
+    formID: String,
+    form: @autoclosure () -> Form
+  ) {
+    self.init(extraContent, tooltip: tooltip, formID: formID, form: form)
+  }
 
-        Modal(id: formID, open: false, displayCloseButton: true) {
-          form
+  var body: some HTML<HTMLTag.div> {
+    div(.class("flex")) {
+      if let extraContent {
+        span(.class("text-base-content font-bold")) {
+          extraContent
         }
       }
-      .attributes(.class("justify-end"), when: extraHeaderContent == nil)
-      .attributes(.class("justify-between"), when: extraHeaderContent != nil)
 
-      content()
+      button(.class("btn btn-secondary btn-ghost"), .showModal(id: formID)) {
+        SVG(.squarePen)
+      }
+      .tooltip(tooltip, position: .left)
+
+      Modal(id: formID, open: false, displayCloseButton: true) {
+        form
+      }
     }
+    .attributes(.class("justify-between"), when: extraContent != nil)
+    .attributes(.class("justify-end"), when: extraContent == nil)
   }
+}
 
-  init<Form: HTML, Body: HTML>(
-    _ title: String? = nil,
-    extraHeaderContent: String? = nil,
-    formID: String,
-    form: Form,
-    content: @autoclosure () -> Body
-  )
-  where
-    Content == _HTMLTuple2<
-      _AttributedElement<
-        _AttributedElement<div<_HTMLTuple3<span<HTMLText>?, button<SVG>, Modal<Form>>>>
-      >, Body
-    >
-  {
+extension SectionHeader where Form: Identifiable, Form.ID == String {
+  init(
+    _ extraContent: String? = nil,
+    tooltip: String,
+    @HTMLBuilder form: () -> Form
+  ) where Form: Identifiable, Form.ID == String {
+    let form = form()
     self.init(
-      title,
-      extraHeaderContent: extraHeaderContent,
-      formID: formID,
-      form: form,
-      content: content
-    )
-  }
-
-  init<Form: HTML, Body: HTML>(
-    _ title: String? = nil,
-    extraHeaderContent: String? = nil,
-    form: Form,
-    @HTMLBuilder content: () -> Body
-  )
-  where
-    Content == _HTMLTuple2<
-      _AttributedElement<
-        _AttributedElement<div<_HTMLTuple3<span<HTMLText>?, button<SVG>, Modal<Form>>>>
-      >, Body
-    >,
-    Form: Identifiable, Form.ID == String
-  {
-    self.init(
-      title,
-      extraHeaderContent: extraHeaderContent,
+      extraContent,
+      tooltip: tooltip,
       formID: form.id,
-      form: form,
-      content: content
-    )
-  }
-
-  init<Form: HTML, Body: HTML>(
-    _ title: String? = nil,
-    extraHeaderContent: String? = nil,
-    form: Form,
-    content: @autoclosure () -> Body
-  )
-  where
-    Content == _HTMLTuple2<
-      _AttributedElement<
-        _AttributedElement<div<_HTMLTuple3<span<HTMLText>?, button<SVG>, Modal<Form>>>>
-      >, Body
-    >,
-    Form: Identifiable, Form.ID == String
-  {
-    self.init(
-      title,
-      extraHeaderContent: extraHeaderContent,
-      form: form,
-      content: content
-    )
-  }
-
-  init<Form: HTML>(
-    _ title: String? = nil,
-    extraHeaderContent: String? = nil,
-    form: Form
-  )
-  where
-    Content == _HTMLTuple2<
-      _AttributedElement<
-        _AttributedElement<div<_HTMLTuple3<span<HTMLText>?, button<SVG>, Modal<Form>>>>
-      >, EmptyHTML
-    >,
-    Form: Identifiable, Form.ID == String
-  {
-    self.init(
-      title,
-      extraHeaderContent: extraHeaderContent,
-      form: form,
-      content: EmptyHTML.init
+      form: form
     )
   }
 }
+
+// extension Section {
+//
+//   init<Form: HTML, Body: HTML>(
+//     _ title: String? = nil,
+//     extraHeaderContent: String? = nil,
+//     formID: String,
+//     form: Form,
+//     @HTMLBuilder content: () -> Body
+//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body> {
+//     self.init(title) {
+//       SectionHeader(
+//         extraHeaderContent,
+//         tooltip: "Edit \(title ?? "")",
+//         formID: formID,
+//         form: form
+//       )
+//       content()
+//     }
+//   }
+//
+//   init<Form: HTML, Body: HTML>(
+//     _ title: String? = nil,
+//     extraHeaderContent: String? = nil,
+//     formID: String,
+//     form: Form,
+//     content: @autoclosure () -> Body
+//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body> {
+//     self.init(
+//       title,
+//       extraHeaderContent: extraHeaderContent,
+//       formID: formID,
+//       form: form,
+//       content: content
+//     )
+//   }
+//
+//   init<Form: HTML, Body: HTML>(
+//     _ title: String? = nil,
+//     extraHeaderContent: String? = nil,
+//     form: Form,
+//     @HTMLBuilder content: () -> Body
+//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body>, Form: Identifiable, Form.ID == String {
+//     self.init(
+//       title,
+//       extraHeaderContent: extraHeaderContent,
+//       formID: form.id,
+//       form: form,
+//       content: content
+//     )
+//   }
+//
+//   init<Form: HTML, Body: HTML>(
+//     _ title: String? = nil,
+//     extraHeaderContent: String? = nil,
+//     form: Form,
+//     content: @autoclosure () -> Body
+//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body>, Form: Identifiable, Form.ID == String {
+//     self.init(
+//       title,
+//       extraHeaderContent: extraHeaderContent,
+//       form: form,
+//       content: content
+//     )
+//   }
+//
+//   init<Form: HTML>(
+//     _ title: String? = nil,
+//     extraHeaderContent: String? = nil,
+//     form: Form
+//   )
+//   where
+//     Content == _HTMLTuple2<SectionHeader<Form>, EmptyHTML>, Form: Identifiable, Form.ID == String
+//   {
+//     self.init(
+//       title,
+//       extraHeaderContent: extraHeaderContent,
+//       form: form,
+//       content: EmptyHTML.init
+//     )
+//   }
+// }
+
+extension Section: Sendable where Content: Sendable {}
+extension SectionHeader: Sendable where Form: Sendable {}
