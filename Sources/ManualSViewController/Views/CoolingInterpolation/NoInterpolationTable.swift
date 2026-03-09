@@ -7,32 +7,32 @@ struct NoInterpolationTable: HTML, Sendable {
   let response: CoolingInterpolation.Response
   let sizingLimits: SizingLimit.Cooling
 
-  private var totalSuccessColor: String {
+  private var totalFlaggedState: FlaggedState {
     let total = response.capacityAsPercentOfLoad.total
     if total.rawValue < sizingLimits.undersizing.total.rawValue
       || total.rawValue > sizingLimits.oversizing.total.rawValue
     {
-      return "error"
+      return .error
     }
-    return "success"
+    return .success
   }
 
-  private var sensibleSuccessColor: String {
+  private var sensibleFlaggedState: FlaggedState {
     let sensible = response.capacityAsPercentOfLoad.sensible
     if sensible.rawValue < sizingLimits.undersizing.sensible.rawValue {
-      return "error"
+      return .error
     }
-    return "success"
+    return .success
   }
 
-  private var latentSuccessColor: String {
+  private var latentFlaggedState: FlaggedState {
     let latent = response.capacityAsPercentOfLoad.latent
     if latent.rawValue < sizingLimits.undersizing.latent.rawValue
       || latent.rawValue > sizingLimits.oversizing.latent.rawValue
     {
-      return "error"
+      return .error
     }
-    return "success"
+    return .success
   }
 
   var body: some HTML<HTMLTag.table> {
@@ -78,28 +78,18 @@ struct NoInterpolationTable: HTML, Sendable {
         tr {
           td(.class("label")) { "Capacity as % of Design" }
           td {
-            div(.class("flex text-\(totalSuccessColor) gap-2")) {
+            FlaggedView(totalFlaggedState) {
               PercentView(response.capacityAsPercentOfLoad.total)
-              div(.class("rotate-45 mt-1")) {
-                SVG(.flag)
-              }
             }
           }
           td {
-
-            div(.class("flex text-\(sensibleSuccessColor) gap-2")) {
+            FlaggedView(sensibleFlaggedState) {
               PercentView(response.capacityAsPercentOfLoad.sensible)
-              div(.class("rotate-45 mt-1")) {
-                SVG(.flag)
-              }
             }
           }
           td {
-            div(.class("flex text-\(latentSuccessColor) gap-2")) {
+            FlaggedView(latentFlaggedState) {
               PercentView(response.capacityAsPercentOfLoad.latent)
-              div(.class("rotate-45 mt-1")) {
-                SVG(.flag)
-              }
             }
           }
           td {}
