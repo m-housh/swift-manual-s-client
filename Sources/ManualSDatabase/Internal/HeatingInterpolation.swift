@@ -123,14 +123,9 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
 
 extension HeatingInterpolationModel: Validatable {
   var body: some Validation<HeatingInterpolationModel> {
-    Validator.validate(\.interpolations, with: InterpolationsValidator())
-  }
-}
-
-private struct InterpolationsValidator: Validation {
-  public func validate(_ value: [HeatingInterpolation.Interpolation]) throws {
-    for item in value {
-      try item.validate()
-    }
+    Validator.validate(
+      \.interpolations,
+      with: [HeatingInterpolation.Interpolation].accumulating()
+    )
   }
 }

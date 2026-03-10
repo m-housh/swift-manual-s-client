@@ -1,5 +1,5 @@
 {
-  "originHash" : "ad8ad6f1d0dbcf8b06315f135174cdfd3a7b8a4a1401d0d00f746eebd618234f",
+  "originHash" : "295bac40a1cb20ffb538d9b674a96fbec045e5679891e353f31fde6437435d2b",
   "pins" : [
     {
       "identity" : "async-http-client",
@@ -438,8 +438,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/m-housh/swift-validations.git",
       "state" : {
-        "revision" : "5a117bc68eb180c35e9a2c0a5238cc27319fcfd9",
-        "version" : "0.3.6"
+        "revision" : "5e17dac00bdff1078c004161615b7f6babdf1412",
+        "version" : "0.3.7"
       }
     },
     {
