@@ -19,6 +19,7 @@ public struct ManualSDatabase: Sendable {
   public var migrations: SharedDatabase.Migrations
   public var proposedEquipment: ProposedEquipmentRepository
   public var shared: SharedDatabase
+  public var systemTypes: SystemTypeRepository
 
   public var users: SharedDatabase.Users {
     get { shared.users }
@@ -33,6 +34,17 @@ public struct ManualSDatabase: Sendable {
   public var projects: SharedDatabase.Projects {
     get { shared.projects }
     set { shared.projects = newValue }
+  }
+
+  @DependencyClient
+  public struct CoolingInterpolationRepository: Sendable {
+    public var create: @Sendable (CoolingInterpolation.Create) async throws -> CoolingInterpolation
+    public var delete: @Sendable (CoolingInterpolation.ID) async throws -> Void
+    public var fetch: @Sendable (Project.ID) async throws -> CoolingInterpolation?
+    public var get: @Sendable (CoolingInterpolation.ID) async throws -> CoolingInterpolation?
+    public var update:
+      @Sendable (CoolingInterpolation.ID, CoolingInterpolation.Update) async throws ->
+        CoolingInterpolation
   }
 
   @DependencyClient
@@ -62,6 +74,19 @@ public struct ManualSDatabase: Sendable {
     public var update:
       @Sendable (ProposedEquipment.ID, ProposedEquipment.Update) async throws -> ProposedEquipment
   }
+
+  @DependencyClient
+  public struct SystemTypeRepository: Sendable {
+    public var create: @Sendable (SystemType.Create) async throws -> SystemType
+    public var delete: @Sendable (SystemType.ID) async throws -> Void
+    public var fetch: @Sendable (Project.ID) async throws -> SystemType?
+    public var get: @Sendable (SystemType.ID) async throws -> SystemType?
+    public var update: @Sendable (SystemType.ID, SystemType.Update) async throws -> SystemType
+  }
+}
+
+extension ManualSDatabase.CoolingInterpolationRepository: TestDependencyKey {
+  public static let testValue = Self()
 }
 
 extension ManualSDatabase.DesignInfoRepository: TestDependencyKey {
@@ -76,13 +101,18 @@ extension ManualSDatabase.ProposedEquipmentRepository: TestDependencyKey {
   public static let testValue = Self()
 }
 
+extension ManualSDatabase.SystemTypeRepository: TestDependencyKey {
+  public static let testValue = Self()
+}
+
 extension ManualSDatabase: TestDependencyKey {
   public static let testValue = Self(
     designInfo: .testValue,
     houseLoads: .testValue,
     migrations: .testValue,
     proposedEquipment: .testValue,
-    shared: .testValue
+    shared: .testValue,
+    systemTypes: .testValue
   )
 
   public static func live(on database: any Database) -> Self {
@@ -91,7 +121,8 @@ extension ManualSDatabase: TestDependencyKey {
       houseLoads: .live(database: database),
       migrations: .live(),
       proposedEquipment: .live(database: database),
-      shared: .live(on: database)
+      shared: .live(on: database),
+      systemTypes: .live(database: database)
     )
   }
 }

@@ -9,7 +9,7 @@ struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
   var id: String { Self.id }
 
   var body: some HTML<HTMLTag.form> {
-    Form(title: "System Type", .id(id)) {
+    Form(title: "System Type") {
 
       fieldset(.class("fieldset")) {
         legend(.class("fieldset-legend")) { "Type" }

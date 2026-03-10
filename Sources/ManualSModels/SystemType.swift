@@ -1,4 +1,31 @@
-public enum SystemType {
+import Foundation
+import SharedModels
+import Tagged
+
+public struct SystemType: Codable, Equatable, Identifiable, Sendable {
+
+  public let id: Tagged<Self, UUID>
+  public let projectID: Project.ID
+  public let cooling: Cooling?
+  public let heating: Heating?
+  public let createdAt: Date
+  public let updatedAt: Date
+
+  public init(
+    id: Tagged<SystemType, UUID>,
+    projectID: Project.ID,
+    cooling: SystemType.Cooling? = nil,
+    heating: SystemType.Heating? = nil,
+    createdAt: Date,
+    updatedAt: Date
+  ) {
+    self.id = id
+    self.projectID = projectID
+    self.cooling = cooling
+    self.heating = heating
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+  }
 
   public struct Cooling: Codable, Equatable, Sendable {
 
@@ -79,6 +106,39 @@ public enum SystemType {
       case .heatPump:
         return "Heat Pump"
       }
+    }
+  }
+}
+
+extension SystemType {
+  public struct Create: Codable, Equatable, Sendable {
+
+    public let projectID: Project.ID
+    public let cooling: SystemType.Cooling?
+    public let heating: SystemType.Heating?
+
+    public init(
+      projectID: Project.ID,
+      cooling: SystemType.Cooling? = nil,
+      heating: SystemType.Heating? = nil
+    ) {
+      self.projectID = projectID
+      self.cooling = cooling
+      self.heating = heating
+    }
+  }
+
+  public struct Update: Codable, Equatable, Sendable {
+
+    public let cooling: SystemType.Cooling?
+    public let heating: SystemType.Heating?
+
+    public init(
+      cooling: SystemType.Cooling? = nil,
+      heating: SystemType.Heating? = nil
+    ) {
+      self.cooling = cooling
+      self.heating = heating
     }
   }
 }

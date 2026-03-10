@@ -1,6 +1,31 @@
+import CasePaths
+import Foundation
+import SharedModels
 import Tagged
+import Validations
 
-public enum CoolingInterpolation {
+public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
+
+  public let id: Tagged<Self, UUID>
+  public let projectID: Project.ID
+  public let interpolation: Interpolation
+  public let createdAt: Date
+  public let updatedAt: Date
+
+  public init(
+    id: Tagged<CoolingInterpolation, UUID>,
+    projectID: Project.ID,
+    interpolation: CoolingInterpolation.Interpolation,
+    createdAt: Date,
+    updatedAt: Date
+  ) {
+    self.id = id
+    self.projectID = projectID
+    self.interpolation = interpolation
+    self.createdAt = createdAt
+    self.updatedAt = updatedAt
+  }
+
   public struct Response: Codable, Equatable, Sendable {
     public typealias CapacityAsPercentOfLoad = Tagged<
       TSLTag.CapacityAsPercentOfLoad, TSLContainer<Percent>
@@ -33,14 +58,14 @@ public enum CoolingInterpolation {
     public let manufacturersAdjustments: CoolingCapacityAdjustment?
     public let outdoorDesignTemperature: Int
     public let projectElevation: Int
-    public let interpolation: Self.Interpolation
+    public let interpolation: CoolingInterpolation.Interpolation
 
     public init(
       coolingLoad: CoolingLoad,
       manufacturersAdjustments: CoolingCapacityAdjustment? = nil,
       outdoorDesignTemperature: Int,
       projectElevation: Int = 0,
-      interpolation: CoolingInterpolation.Request.Interpolation
+      interpolation: CoolingInterpolation.Interpolation
     ) {
       self.coolingLoad = coolingLoad
       self.manufacturersAdjustments = manufacturersAdjustments
@@ -48,101 +73,163 @@ public enum CoolingInterpolation {
       self.projectElevation = projectElevation
       self.interpolation = interpolation
     }
+  }
 
-    public enum Interpolation: Codable, Equatable, Sendable {
-      case noInterpolation(CoolingCapacity)
-      case oneWayIndoor(OneWayIndoor)
-      case oneWayOutdoor(OneWayOutdoor)
-      case twoWay(TwoWay)
+  @CasePathable
+  @dynamicMemberLookup
+  public enum Interpolation: Codable, Equatable, Sendable {
+    case noInterpolation(CoolingCapacity)
+    case oneWayIndoor(OneWayIndoor)
+    case oneWayOutdoor(OneWayOutdoor)
+    case twoWay(TwoWay)
 
-      public static func noInterpolation(total: Double, sensible: Double) -> Self {
-        .noInterpolation(.init(total: total, sensible: sensible))
+    public static func noInterpolation(total: Double, sensible: Double) -> Self {
+      .noInterpolation(.init(total: total, sensible: sensible))
+    }
+
+    public struct OneWayOutdoor: Codable, Equatable, Sendable {
+
+      public let aboveDesign: Envelope
+      public let belowDesign: Envelope
+
+      public init(
+        aboveDesign: Self.Envelope,
+        belowDesign: Self.Envelope
+      ) {
+        self.aboveDesign = aboveDesign
+        self.belowDesign = belowDesign
       }
 
-      public struct OneWayOutdoor: Codable, Equatable, Sendable {
+      public struct Envelope: Codable, Equatable, Sendable {
 
-        public let aboveDesign: Envelope
-        public let belowDesign: Envelope
+        public let outdoorTemperature: Int
+        public let capacity: CoolingCapacity
 
-        public init(
-          aboveDesign: Self.Envelope,
-          belowDesign: Self.Envelope
-        ) {
-          self.aboveDesign = aboveDesign
-          self.belowDesign = belowDesign
-        }
-
-        public struct Envelope: Codable, Equatable, Sendable {
-
-          public let outdoorTemperature: Int
-          public let capacity: CoolingCapacity
-
-          public init(outdoorTemperature: Int, capacity: CoolingCapacity) {
-            self.outdoorTemperature = outdoorTemperature
-            self.capacity = capacity
-          }
+        public init(outdoorTemperature: Int, capacity: CoolingCapacity) {
+          self.outdoorTemperature = outdoorTemperature
+          self.capacity = capacity
         }
       }
+    }
 
-      public struct OneWayIndoor: Codable, Equatable, Sendable {
+    public struct OneWayIndoor: Codable, Equatable, Sendable {
 
-        public let aboveDesign: Envelope
-        public let belowDesign: Envelope
+      public let aboveDesign: Envelope
+      public let belowDesign: Envelope
 
-        public init(
-          aboveDesign: Self.Envelope,
-          belowDesign: Self.Envelope
-        ) {
-          self.aboveDesign = aboveDesign
-          self.belowDesign = belowDesign
-        }
-
-        public struct Envelope: Codable, Equatable, Sendable {
-
-          public let indoorWetBulbTemperature: Int
-          public let capacity: CoolingCapacity
-
-          public init(indoorWetBulbTemperature: Int, capacity: CoolingCapacity) {
-            self.indoorWetBulbTemperature = indoorWetBulbTemperature
-            self.capacity = capacity
-          }
-        }
+      public init(
+        aboveDesign: Self.Envelope,
+        belowDesign: Self.Envelope
+      ) {
+        self.aboveDesign = aboveDesign
+        self.belowDesign = belowDesign
       }
 
-      public struct TwoWay: Codable, Equatable, Sendable {
+      public struct Envelope: Codable, Equatable, Sendable {
 
-        public let aboveDesign: Envelope
-        public let belowDesign: Envelope
+        public let indoorWetBulbTemperature: Int
+        public let capacity: CoolingCapacity
+
+        public init(indoorWetBulbTemperature: Int, capacity: CoolingCapacity) {
+          self.indoorWetBulbTemperature = indoorWetBulbTemperature
+          self.capacity = capacity
+        }
+      }
+    }
+
+    public struct TwoWay: Codable, Equatable, Sendable {
+
+      public let aboveDesign: Envelope
+      public let belowDesign: Envelope
+
+      public init(
+        aboveDesign: Envelope,
+        belowDesign: Envelope
+      ) {
+        self.aboveDesign = aboveDesign
+        self.belowDesign = belowDesign
+      }
+
+      public struct Envelope: Codable, Equatable, Sendable {
+
+        public let outdoorTemperature: Int
+        public let aboveWetBulb: OneWayIndoor.Envelope
+        public let belowWetBulb: OneWayIndoor.Envelope
 
         public init(
-          aboveDesign: Envelope,
-          belowDesign: Envelope
+          outdoorTemperature: Int,
+          aboveWetBulb: CoolingInterpolation.Interpolation.OneWayIndoor.Envelope,
+          belowWetBulb: CoolingInterpolation.Interpolation.OneWayIndoor.Envelope
         ) {
-          self.aboveDesign = aboveDesign
-          self.belowDesign = belowDesign
-        }
-
-        public struct Envelope: Codable, Equatable, Sendable {
-
-          public let outdoorTemperature: Int
-          public let aboveWetBulb: OneWayIndoor.Envelope
-          public let belowWetBulb: OneWayIndoor.Envelope
-
-          public init(
-            outdoorTemperature: Int,
-            aboveWetBulb: CoolingInterpolation.Request.Interpolation.OneWayIndoor.Envelope,
-            belowWetBulb: CoolingInterpolation.Request.Interpolation.OneWayIndoor.Envelope
-          ) {
-            self.outdoorTemperature = outdoorTemperature
-            self.aboveWetBulb = aboveWetBulb
-            self.belowWetBulb = belowWetBulb
-          }
+          self.outdoorTemperature = outdoorTemperature
+          self.aboveWetBulb = aboveWetBulb
+          self.belowWetBulb = belowWetBulb
         }
       }
     }
   }
 
 }
+extension CoolingInterpolation {
+  public struct Create: Codable, Equatable, Sendable {
+    public let projectID: Project.ID
+    public let interpolation: Interpolation
+
+    public init(
+      projectID: Project.ID,
+      interpolation: CoolingInterpolation.Interpolation,
+    ) {
+      self.projectID = projectID
+      self.interpolation = interpolation
+    }
+  }
+
+  public struct Update: Codable, Equatable, Sendable {
+    public let interpolation: Interpolation
+
+    public init(
+      interpolation: CoolingInterpolation.Interpolation
+    ) {
+      self.interpolation = interpolation
+    }
+  }
+}
+
+extension CoolingContainer: Validatable where N == Double {
+
+  public var body: some Validation<Self> {
+    Validator.accumulating {
+      Validator.validate(\.total, with: .greaterThan(0))
+        .errorLabel("total", inline: true)
+
+      Validator.accumulating {
+        Validator.validate(\.sensible, with: .greaterThan(0))
+        Validator.lessThanOrEquals(\.sensible, \.total)
+      }
+      .errorLabel("sensible", inline: true)
+
+    }
+  }
+}
+extension CoolingContainer: Validation where N == Double {}
+
+extension CoolingInterpolation.Interpolation: Validatable {
+
+  public var body: some Validation<Self> {
+    Validator.oneOf {
+      Validator.case(\.noInterpolation)
+    }
+  }
+}
+
+extension Tagged: @retroactive Validatable where RawValue: Validatable {
+
+  public var body: some Validation<Self> {
+    Validator.validate(\.rawValue)
+  }
+
+}
+extension Tagged: @retroactive Validation where RawValue: Validatable {}
 
 #if DEBUG
   extension CoolingInterpolation.Response {

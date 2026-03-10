@@ -21,6 +21,7 @@ let package = Package(
   dependencies: [
     // FIX: Use tagged version
     .package(url: "https://github.com/m-housh/swift-shared-manuals.git", branch: "main"),
+    .package(url: "https://github.com/m-housh/swift-validations.git", from: "0.3.6"),
     .package(url: "https://github.com/pointfreeco/swift-dependencies.git", from: "1.0.0"),
     .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
     .package(url: "https://github.com/pointfreeco/swift-url-routing.git", from: "0.6.2"),
@@ -42,7 +43,14 @@ let package = Package(
       dependencies: [
         .product(name: "Tagged", package: "swift-tagged"),
         .product(name: "SharedModels", package: "swift-shared-manuals"),
+        .product(name: "Validations", package: "swift-validations"),
       ],
+    ),
+    .testTarget(
+      name: "ManualSModelTests",
+      dependencies: [
+        .target(name: "ManualSModels")
+      ]
     ),
     .target(
       name: "ManualSClient",

@@ -69,7 +69,7 @@ extension CoolingInterpolation.Response {
   }
 }
 
-extension CoolingInterpolation.Request.Interpolation.OneWayOutdoor {
+extension CoolingInterpolation.Interpolation.OneWayOutdoor {
 
   func interpolatedCapacity(
     outdoorDesignTemperature: Double
@@ -95,7 +95,7 @@ extension CoolingInterpolation.Request.Interpolation.OneWayOutdoor {
   }
 }
 
-extension CoolingInterpolation.Request.Interpolation.OneWayIndoor {
+extension CoolingInterpolation.Interpolation.OneWayIndoor {
 
   func interpolatedCapacity() async -> CoolingCapacity {
     let total =
@@ -152,9 +152,9 @@ extension CoolingLoad {
   }
 }
 
-extension CoolingInterpolation.Request.Interpolation.TwoWay.Envelope {
+extension CoolingInterpolation.Interpolation.TwoWay.Envelope {
 
-  var oneWayIndoorRequest: CoolingInterpolation.Request.Interpolation.OneWayIndoor {
+  var oneWayIndoorRequest: CoolingInterpolation.Interpolation.OneWayIndoor {
     .init(
       aboveDesign: aboveWetBulb,
       belowDesign: belowWetBulb
@@ -162,12 +162,12 @@ extension CoolingInterpolation.Request.Interpolation.TwoWay.Envelope {
   }
 }
 
-extension CoolingInterpolation.Request.Interpolation.TwoWay {
+extension CoolingInterpolation.Interpolation.TwoWay {
 
   func oneWayOutdoorRequest(
     above: CoolingCapacity,
     below: CoolingCapacity
-  ) -> CoolingInterpolation.Request.Interpolation.OneWayOutdoor {
+  ) -> CoolingInterpolation.Interpolation.OneWayOutdoor {
     .init(
       aboveDesign: .init(
         outdoorTemperature: self.aboveDesign.outdoorTemperature,

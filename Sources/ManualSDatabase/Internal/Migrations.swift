@@ -10,6 +10,7 @@ extension SharedDatabase.Migrations {
         DesignInfo.Migrate(),
         HouseLoad.Migrate(),
         ProposedEquipment.Migrate(),
+        SystemType.Migrate(),
       ]
     }
   }
