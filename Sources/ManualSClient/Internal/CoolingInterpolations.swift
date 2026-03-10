@@ -4,19 +4,22 @@ import Tagged
 
 // FIX: Add altitude adjustments.
 extension CoolingInterpolation.Request {
-  func respond() async -> CoolingInterpolation.Response {
+  func respond() async throws -> CoolingInterpolation.Response {
     switch interpolation {
     case .noInterpolation(let request):
+      try request.validate()
       return await .init(
         interpolatedCapacity: request,
         request: self
       )
     case .oneWayIndoor(let request):
+      try request.validate()
       return await .init(
         interpolatedCapacity: request.interpolatedCapacity(),
         request: self
       )
     case .oneWayOutdoor(let request):
+      try request.validate()
       let interpolatedCapacity = await request.interpolatedCapacity(
         outdoorDesignTemperature: Double(outdoorDesignTemperature)
       )
@@ -25,6 +28,7 @@ extension CoolingInterpolation.Request {
         request: self
       )
     case .twoWay(let request):
+      try request.validate()
       async let aboveIndoor = await request.aboveDesign.oneWayIndoorRequest.interpolatedCapacity()
       async let belowIndoor = await request.belowDesign.oneWayIndoorRequest.interpolatedCapacity()
       let oneWayOutdoor = await request.oneWayOutdoorRequest(above: aboveIndoor, below: belowIndoor)

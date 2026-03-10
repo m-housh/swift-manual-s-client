@@ -54,7 +54,7 @@ extension ManualSClient: DependencyKey {
         try await request.respond()
       },
       coolingInterpolation: { request in
-        await request.respond()
+        try await request.respond()
       },
       heatingDerating: { system, elevation in
         await .init(decimal: system.derating(elevation: elevation.rawValue))

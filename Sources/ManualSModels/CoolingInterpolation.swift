@@ -195,6 +195,8 @@ extension CoolingInterpolation {
   }
 }
 
+// MARK: Validations
+
 extension CoolingContainer: Validatable where N == Double {
 
   public var body: some Validation<Self> {
@@ -218,18 +220,75 @@ extension CoolingInterpolation.Interpolation: Validatable {
   public var body: some Validation<Self> {
     Validator.oneOf {
       Validator.case(\.noInterpolation)
+      Validator.case(\.oneWayOutdoor)
+      Validator.case(\.oneWayIndoor)
+      Validator.case(\.twoWay)
     }
   }
 }
 
-extension Tagged: @retroactive Validatable where RawValue: Validatable {
+extension CoolingInterpolation.Interpolation.OneWayOutdoor.Envelope: Validatable {
+  public var body: some Validation<Self> {
+    Validator.validate(\.capacity)
+  }
+}
+
+extension CoolingInterpolation.Interpolation.OneWayOutdoor: Validatable {
 
   public var body: some Validation<Self> {
-    Validator.validate(\.rawValue)
+    Validator.accumulating {
+      Validator.validate(\.aboveDesign)
+      Validator.validate(\.belowDesign)
+      Validator.greaterThan(\.aboveDesign.outdoorTemperature, \.belowDesign.outdoorTemperature)
+        .errorLabel("outdoorTemperature", inline: true)
+    }
   }
-
 }
-extension Tagged: @retroactive Validation where RawValue: Validatable {}
+
+extension CoolingInterpolation.Interpolation.OneWayIndoor.Envelope: Validatable {
+  public var body: some Validation<Self> {
+    Validator.validate(\.capacity)
+  }
+}
+extension CoolingInterpolation.Interpolation.OneWayIndoor: Validatable {
+  public var body: some Validation<Self> {
+    Validator.accumulating {
+      Validator.validate(\.aboveDesign)
+      Validator.validate(\.belowDesign)
+      Validator.greaterThan(
+        \.aboveDesign.indoorWetBulbTemperature, \.belowDesign.indoorWetBulbTemperature
+      )
+      .errorLabel("wetBulb", inline: true)
+    }
+  }
+}
+
+extension CoolingInterpolation.Interpolation.TwoWay.Envelope: Validatable {
+  public var body: some Validation<Self> {
+    Validator.accumulating {
+      Validator.validate(\.outdoorTemperature, with: .greaterThan(0))
+      Validator.validate(\.aboveWetBulb)
+      Validator.validate(\.belowWetBulb)
+      Validator.greaterThan(
+        \.aboveWetBulb.indoorWetBulbTemperature, \.belowWetBulb.indoorWetBulbTemperature
+      )
+      .errorLabel("wetBulb", inline: true)
+    }
+  }
+}
+
+extension CoolingInterpolation.Interpolation.TwoWay: Validatable {
+  public var body: some Validation<Self> {
+    Validator.accumulating {
+      Validator.validate(\.aboveDesign)
+      Validator.validate(\.belowDesign)
+      Validator.greaterThan(\.aboveDesign.outdoorTemperature, \.belowDesign.outdoorTemperature)
+        .errorLabel("outdoorTemperature", inline: true)
+    }
+  }
+}
+
+// MARK: Mocks
 
 #if DEBUG
   extension CoolingInterpolation.Response {

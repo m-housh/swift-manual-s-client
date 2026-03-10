@@ -10,7 +10,7 @@ extension ManualSDatabase.CoolingInterpolationRepository {
     .init(
       create: { request in
         let model = request.toModel()
-        try await model.save(on: database)
+        try await model.validateAndSave(on: database)
         return try model.toDTO()
       },
       delete: { id in
@@ -36,7 +36,7 @@ extension ManualSDatabase.CoolingInterpolationRepository {
         }
         model.applyUpdates(updates)
         if model.hasChanges {
-          try await model.save(on: database)
+          try await model.validateAndSave(on: database)
         }
         return try model.toDTO()
       }
@@ -118,5 +118,11 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
     if updates.interpolation != self.interpolation {
       self.interpolation = updates.interpolation
     }
+  }
+}
+
+extension CoolingInterpolationModel: Validatable {
+  var body: some Validation<CoolingInterpolationModel> {
+    Validator.validate(\.interpolation)
   }
 }
