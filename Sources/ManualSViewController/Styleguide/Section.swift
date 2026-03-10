@@ -38,17 +38,20 @@ struct SectionHeader<Form: HTML>: HTML {
   private let extraContent: String?
   private let formID: String
   private let form: Form
+  private let modalAttributes: [HTMLAttribute<HTMLTag.div>]
   private let tooltip: String
 
   init(
     _ extraContent: String? = nil,
     tooltip: String,
     formID: String,
+    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [],
     @HTMLBuilder form: () -> Form
   ) {
     self.extraContent = extraContent
     self.formID = formID
     self.form = form()
+    self.modalAttributes = modalAttributes
     self.tooltip = tooltip
   }
 
@@ -56,9 +59,11 @@ struct SectionHeader<Form: HTML>: HTML {
     _ extraContent: String? = nil,
     tooltip: String,
     formID: String,
+    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [],
     form: @autoclosure () -> Form
   ) {
-    self.init(extraContent, tooltip: tooltip, formID: formID, form: form)
+    self.init(
+      extraContent, tooltip: tooltip, formID: formID, modalAttributes: modalAttributes, form: form)
   }
 
   var body: some HTML<HTMLTag.div> {
@@ -74,7 +79,7 @@ struct SectionHeader<Form: HTML>: HTML {
       }
       .tooltip(tooltip, position: .left)
 
-      Modal(id: formID, open: false, displayCloseButton: true) {
+      Modal(id: formID, open: false, displayCloseButton: true, attributes: modalAttributes) {
         form
       }
     }
@@ -87,6 +92,7 @@ extension SectionHeader where Form: Identifiable, Form.ID == String {
   init(
     _ extraContent: String? = nil,
     tooltip: String,
+    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [],
     @HTMLBuilder form: () -> Form
   ) where Form: Identifiable, Form.ID == String {
     let form = form()
@@ -94,92 +100,11 @@ extension SectionHeader where Form: Identifiable, Form.ID == String {
       extraContent,
       tooltip: tooltip,
       formID: form.id,
+      modalAttributes: modalAttributes,
       form: form
     )
   }
 }
-
-// extension Section {
-//
-//   init<Form: HTML, Body: HTML>(
-//     _ title: String? = nil,
-//     extraHeaderContent: String? = nil,
-//     formID: String,
-//     form: Form,
-//     @HTMLBuilder content: () -> Body
-//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body> {
-//     self.init(title) {
-//       SectionHeader(
-//         extraHeaderContent,
-//         tooltip: "Edit \(title ?? "")",
-//         formID: formID,
-//         form: form
-//       )
-//       content()
-//     }
-//   }
-//
-//   init<Form: HTML, Body: HTML>(
-//     _ title: String? = nil,
-//     extraHeaderContent: String? = nil,
-//     formID: String,
-//     form: Form,
-//     content: @autoclosure () -> Body
-//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body> {
-//     self.init(
-//       title,
-//       extraHeaderContent: extraHeaderContent,
-//       formID: formID,
-//       form: form,
-//       content: content
-//     )
-//   }
-//
-//   init<Form: HTML, Body: HTML>(
-//     _ title: String? = nil,
-//     extraHeaderContent: String? = nil,
-//     form: Form,
-//     @HTMLBuilder content: () -> Body
-//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body>, Form: Identifiable, Form.ID == String {
-//     self.init(
-//       title,
-//       extraHeaderContent: extraHeaderContent,
-//       formID: form.id,
-//       form: form,
-//       content: content
-//     )
-//   }
-//
-//   init<Form: HTML, Body: HTML>(
-//     _ title: String? = nil,
-//     extraHeaderContent: String? = nil,
-//     form: Form,
-//     content: @autoclosure () -> Body
-//   ) where Content == _HTMLTuple2<SectionHeader<Form>, Body>, Form: Identifiable, Form.ID == String {
-//     self.init(
-//       title,
-//       extraHeaderContent: extraHeaderContent,
-//       form: form,
-//       content: content
-//     )
-//   }
-//
-//   init<Form: HTML>(
-//     _ title: String? = nil,
-//     extraHeaderContent: String? = nil,
-//     form: Form
-//   )
-//   where
-//     Content == _HTMLTuple2<SectionHeader<Form>, EmptyHTML>, Form: Identifiable, Form.ID == String
-//   {
-//     self.init(
-//       title,
-//       extraHeaderContent: extraHeaderContent,
-//       form: form,
-//       content: EmptyHTML.init
-//     )
-//   }
-// }
 
 extension Section: Sendable where Content: Sendable {}
 extension SectionHeader: Sendable where Form: Sendable {}

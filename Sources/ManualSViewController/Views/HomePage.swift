@@ -44,13 +44,16 @@ struct HomePage: HTML, Sendable {
       }
 
       Section("Proposed Equipment") {
-        SectionHeader(tooltip: "Edit proposed equipment") {
+        SectionHeader(
+          tooltip: "Edit proposed equipment",
+          modalAttributes: [.class("max-w-none w-[90%]")]
+        ) {
           ProposedEquipmentForm(proposedEquipment: proposedEquipment)
         }
         ProposedEquipmentView(proposedEquipment: proposedEquipment)
       }
 
-      Section("Manual J") {
+      Section("Manual-J") {
         SectionHeader(tooltip: "Edit manual-j") {
           HouseLoadForm(houseLoad: houseLoad)
         }

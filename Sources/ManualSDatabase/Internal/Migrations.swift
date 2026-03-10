@@ -9,6 +9,7 @@ extension SharedDatabase.Migrations {
       try await SharedDatabase.Migrations.liveValue.allMigrations() + [
         DesignInfo.Migrate(),
         HouseLoad.Migrate(),
+        ProposedEquipment.Migrate(),
       ]
     }
   }

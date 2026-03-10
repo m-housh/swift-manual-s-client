@@ -17,6 +17,7 @@ public struct ManualSDatabase: Sendable {
   public var designInfo: DesignInfoRepository
   public var houseLoads: HouseLoads
   public var migrations: SharedDatabase.Migrations
+  public var proposedEquipment: ProposedEquipmentRepository
   public var shared: SharedDatabase
 
   public var users: SharedDatabase.Users {
@@ -51,6 +52,16 @@ public struct ManualSDatabase: Sendable {
     public var get: @Sendable (HouseLoad.ID) async throws -> HouseLoad?
     public var update: @Sendable (HouseLoad.ID, HouseLoad.Update) async throws -> HouseLoad
   }
+
+  @DependencyClient
+  public struct ProposedEquipmentRepository: Sendable {
+    public var create: @Sendable (ProposedEquipment.Create) async throws -> ProposedEquipment
+    public var delete: @Sendable (ProposedEquipment.ID) async throws -> Void
+    public var fetch: @Sendable (Project.ID) async throws -> ProposedEquipment?
+    public var get: @Sendable (ProposedEquipment.ID) async throws -> ProposedEquipment?
+    public var update:
+      @Sendable (ProposedEquipment.ID, ProposedEquipment.Update) async throws -> ProposedEquipment
+  }
 }
 
 extension ManualSDatabase.DesignInfoRepository: TestDependencyKey {
@@ -61,11 +72,16 @@ extension ManualSDatabase.HouseLoads: TestDependencyKey {
   public static let testValue = Self()
 }
 
+extension ManualSDatabase.ProposedEquipmentRepository: TestDependencyKey {
+  public static let testValue = Self()
+}
+
 extension ManualSDatabase: TestDependencyKey {
   public static let testValue = Self(
     designInfo: .testValue,
     houseLoads: .testValue,
     migrations: .testValue,
+    proposedEquipment: .testValue,
     shared: .testValue
   )
 
@@ -74,6 +90,7 @@ extension ManualSDatabase: TestDependencyKey {
       designInfo: .live(database: database),
       houseLoads: .live(database: database),
       migrations: .live(),
+      proposedEquipment: .live(database: database),
       shared: .live(on: database)
     )
   }
