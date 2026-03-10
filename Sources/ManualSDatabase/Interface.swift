@@ -14,7 +14,9 @@ extension DependencyValues {
 
 public struct ManualSDatabase: Sendable {
 
+  public var coolingInterpolations: CoolingInterpolationRepository
   public var designInfo: DesignInfoRepository
+  public var heatingInterpolations: HeatingInterpolationRepository
   public var houseLoads: HouseLoads
   public var migrations: SharedDatabase.Migrations
   public var proposedEquipment: ProposedEquipmentRepository
@@ -57,6 +59,17 @@ public struct ManualSDatabase: Sendable {
   }
 
   @DependencyClient
+  public struct HeatingInterpolationRepository: Sendable {
+    public var create: @Sendable (HeatingInterpolation.Create) async throws -> HeatingInterpolation
+    public var delete: @Sendable (HeatingInterpolation.ID) async throws -> Void
+    public var fetch: @Sendable (Project.ID) async throws -> HeatingInterpolation?
+    public var get: @Sendable (HeatingInterpolation.ID) async throws -> HeatingInterpolation?
+    public var update:
+      @Sendable (HeatingInterpolation.ID, HeatingInterpolation.Update) async throws ->
+        HeatingInterpolation
+  }
+
+  @DependencyClient
   public struct HouseLoads: Sendable {
     public var create: @Sendable (HouseLoad.Create) async throws -> HouseLoad
     public var delete: @Sendable (HouseLoad.ID) async throws -> Void
@@ -93,6 +106,10 @@ extension ManualSDatabase.DesignInfoRepository: TestDependencyKey {
   public static let testValue = Self()
 }
 
+extension ManualSDatabase.HeatingInterpolationRepository: TestDependencyKey {
+  public static let testValue = Self()
+}
+
 extension ManualSDatabase.HouseLoads: TestDependencyKey {
   public static let testValue = Self()
 }
@@ -107,7 +124,9 @@ extension ManualSDatabase.SystemTypeRepository: TestDependencyKey {
 
 extension ManualSDatabase: TestDependencyKey {
   public static let testValue = Self(
+    coolingInterpolations: .testValue,
     designInfo: .testValue,
+    heatingInterpolations: .testValue,
     houseLoads: .testValue,
     migrations: .testValue,
     proposedEquipment: .testValue,
@@ -117,7 +136,9 @@ extension ManualSDatabase: TestDependencyKey {
 
   public static func live(on database: any Database) -> Self {
     .init(
+      coolingInterpolations: .live(database: database),
       designInfo: .live(database: database),
+      heatingInterpolations: .live(database: database),
       houseLoads: .live(database: database),
       migrations: .live(),
       proposedEquipment: .live(database: database),

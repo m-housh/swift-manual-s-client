@@ -5,7 +5,7 @@ import SharedDatabase
 import SharedModels
 import Validations
 
-extension ManualSDatabase.CoolingInterpolationRepository {
+extension ManualSDatabase.HeatingInterpolationRepository {
   public static func live(database: any Database) -> Self {
     .init(
       create: { request in
@@ -14,24 +14,24 @@ extension ManualSDatabase.CoolingInterpolationRepository {
         return try model.toDTO()
       },
       delete: { id in
-        guard let model = try await CoolingInterpolationModel.find(id, on: database) else {
+        guard let model = try await HeatingInterpolationModel.find(id, on: database) else {
           throw NotFoundError()
         }
         try await model.delete(on: database)
       },
       fetch: { projectID in
-        try await CoolingInterpolationModel.query(on: database)
+        try await HeatingInterpolationModel.query(on: database)
           .filter(\.$projectID == projectID.rawValue)
           .first()
           .map { try $0.toDTO() }
       },
       get: { id in
-        try await CoolingInterpolationModel
+        try await HeatingInterpolationModel
           .find(id, on: database)
           .map { try $0.toDTO() }
       },
       update: { id, updates in
-        guard let model = try await CoolingInterpolationModel.find(id, on: database) else {
+        guard let model = try await HeatingInterpolationModel.find(id, on: database) else {
           throw NotFoundError()
         }
         model.applyUpdates(updates)
@@ -44,22 +44,22 @@ extension ManualSDatabase.CoolingInterpolationRepository {
   }
 }
 
-extension CoolingInterpolation.Create {
-  func toModel() -> CoolingInterpolationModel {
+extension HeatingInterpolation.Create {
+  func toModel() -> HeatingInterpolationModel {
     .init(
       id: nil,
       projectID: projectID,
-      interpolation: interpolation
+      interpolations: interpolations
     )
   }
 }
 
-extension CoolingInterpolation {
+extension HeatingInterpolation {
   struct Migrate: AsyncMigration {
     func prepare(on database: any Database) async throws {
-      try await database.schema(CoolingInterpolationModel.schema)
+      try await database.schema(HeatingInterpolationModel.schema)
         .id()
-        .field("interpolation", .dictionary)
+        .field("interpolations", .array)
         .field("createdAt", .string)
         .field("updatedAt", .string)
         .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
@@ -68,14 +68,14 @@ extension CoolingInterpolation {
     }
 
     func revert(on database: any Database) async throws {
-      try await database.schema(CoolingInterpolationModel.schema).delete()
+      try await database.schema(HeatingInterpolationModel.schema).delete()
     }
   }
 }
 
-final class CoolingInterpolationModel: Model, @unchecked Sendable {
+final class HeatingInterpolationModel: Model, @unchecked Sendable {
 
-  static let schema = "coolingInterpolation"
+  static let schema = "heatingInterpolation"
 
   @ID(key: .id)
   var id: UUID?
@@ -83,8 +83,8 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
   @Field(key: "projectID")
   var projectID: UUID
 
-  @Field(key: "interpolation")
-  var interpolation: CoolingInterpolation.Interpolation
+  @Field(key: "interpolations")
+  var interpolations: [HeatingInterpolation.Interpolation]
 
   @Timestamp(key: "createdAt", on: .create, format: .iso8601)
   var createdAt: Date?
@@ -97,32 +97,40 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
   public init(
     id: SystemType.ID? = nil,
     projectID: Project.ID,
-    interpolation: CoolingInterpolation.Interpolation
+    interpolations: [HeatingInterpolation.Interpolation]
   ) {
     self.id = id?.rawValue
     self.projectID = projectID.rawValue
-    self.interpolation = interpolation
+    self.interpolations = interpolations
   }
 
-  func toDTO() throws -> CoolingInterpolation {
+  func toDTO() throws -> HeatingInterpolation {
     .init(
       id: .init(try requireID()),
       projectID: .init(projectID),
-      interpolation: interpolation,
+      interpolations: interpolations,
       createdAt: createdAt!,
       updatedAt: updatedAt!
     )
   }
 
-  func applyUpdates(_ updates: CoolingInterpolation.Update) {
-    if updates.interpolation != self.interpolation {
-      self.interpolation = updates.interpolation
+  func applyUpdates(_ updates: HeatingInterpolation.Update) {
+    if updates.interpolations != self.interpolations {
+      self.interpolations = updates.interpolations
     }
   }
 }
 
-extension CoolingInterpolationModel: Validatable {
-  var body: some Validation<CoolingInterpolationModel> {
-    Validator.validate(\.interpolation)
+extension HeatingInterpolationModel: Validatable {
+  var body: some Validation<HeatingInterpolationModel> {
+    Validator.validate(\.interpolations, with: InterpolationsValidator())
+  }
+}
+
+private struct InterpolationsValidator: Validation {
+  public func validate(_ value: [HeatingInterpolation.Interpolation]) throws {
+    for item in value {
+      try item.validate()
+    }
   }
 }
