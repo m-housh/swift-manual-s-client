@@ -39,7 +39,17 @@ public struct ManualSViewController: ViewController {
     case .index:
       return .view { HomePage() }
     case .designInfo(let route):
-      fatalError()
+      switch route {
+      case .index:
+        return .view {
+          await ResultView {
+            try await Task.sleep(for: .seconds(1.5))
+            return DesignInfoView(projectID: .init(UUID(0)), designInfo: .mock)
+          }
+        }
+      case .submit(_):
+        fatalError()
+      }
     case .shared(let route):
       return try await sharedController.view(for: route, on: request)
     }

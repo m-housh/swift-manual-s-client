@@ -1,7 +1,9 @@
 import Dependencies
 import Elementary
+import ElementaryHTMX
 import Foundation
 import ManualSModels
+import ManualSRouter
 import SharedModels
 import SharedStyleguide
 import SharedViews
@@ -32,7 +34,9 @@ struct HomePage: HTML, Sendable {
             SectionHeader(tooltip: "Edit design info") {
               DesignInfoForm(projectID: projectID, designInfo: designInfo)
             }
-            DesignInfoView(projectID: projectID, designInfo: designInfo)
+            LoadableView(route: .designInfo(.index)) {
+              DesignInfoView(projectID: projectID, designInfo: designInfo)
+            }
           }
         }
       }
