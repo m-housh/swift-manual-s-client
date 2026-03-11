@@ -88,6 +88,12 @@ let package = Package(
         .product(name: "URLRouting", package: "swift-url-routing"),
       ]
     ),
+    .testTarget(
+      name: "ManualSRouteTests",
+      dependencies: [
+        .target(name: "ManualSRouter")
+      ]
+    ),
     .target(
       name: "ManualSViewController",
       dependencies: [

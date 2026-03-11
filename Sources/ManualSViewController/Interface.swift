@@ -52,6 +52,8 @@ public struct ManualSViewController: ViewController {
       }
     case .shared(let route):
       return try await sharedController.view(for: route, on: request)
+    default:
+      fatalError()
     }
   }
 }
