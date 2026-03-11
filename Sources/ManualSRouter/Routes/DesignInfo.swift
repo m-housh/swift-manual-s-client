@@ -9,6 +9,7 @@ extension DesignInfo {
   public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
     case submit(DesignInfo.Create)
+    case update(DesignInfo.ID, DesignInfo.Update)
 
     static let path = "design-info"
 
@@ -34,6 +35,33 @@ extension DesignInfo {
             Field("winterOutdoorTemperature") { Int.parser() }
           }
           .map(.memberwise(DesignInfo.Create.init))
+        }
+      }
+      Route(.case(Self.update)) {
+        Path {
+          path
+          DesignInfo.ID.parser()
+        }
+        Method.patch
+        Body {
+          FormData {
+            Optionally {
+              Field("elevation") { Int.parser() }
+            }
+            Optionally {
+              Field("summerOutdoorTemperature") { Int.parser() }
+            }
+            Optionally {
+              Field("summerIndoorTemperature") { Int.parser() }
+            }
+            Optionally {
+              Field("summerIndoorHumidity") { Percent.parser() }
+            }
+            Optionally {
+              Field("winterOutdoorTemperature") { Int.parser() }
+            }
+          }
+          .map(.memberwise(DesignInfo.Update.init))
         }
       }
     }

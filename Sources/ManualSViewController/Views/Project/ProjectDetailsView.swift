@@ -23,19 +23,16 @@ struct ProjectDetailsView: HTML, Sendable {
         div(.class("w-full md:w-[50%]")) {
           Section("Project") {
             SectionHeader(tooltip: "Edit project") {
-              ProjectForm(project: .mock)
+              ProjectForm(project: project)
             }
-            ProjectTable(project: .mock)
+            ProjectTable(project: project)
           }
         }
 
         div(.class("w-full md:w-[50%]")) {
           Section("Design Info") {
-            SectionHeader(tooltip: "Edit design info") {
-              DesignInfoForm(projectID: project.id, designInfo: designInfo)
-            }
             LoadableView(route: .projectDetail(project.id, .designInfo(.index))) {
-              DesignInfoView(projectID: project.id, designInfo: designInfo)
+              DesignInfoSection(projectID: project.id, designInfo: nil)
             }
           }
         }

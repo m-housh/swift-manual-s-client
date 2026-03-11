@@ -1,5 +1,6 @@
 import Elementary
 import ManualSModels
+import ManualSRouter
 import SharedModels
 import SharedStyleguide
 
@@ -11,11 +12,20 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
   let designInfo: DesignInfo?
   var id: String { Self.id }
 
+  var route: String {
+    ManualSRoute.router.path(for: .projectDetail(projectID, .designInfo(.index)))
+      .appendingPath(designInfo?.id)
+  }
+
   var body: some HTML<HTMLTag.form> {
     Form(
       title: "Design Information",
       .class("space-y-4"),
-      .id(id)
+      designInfo == nil
+        ? .hx.post(route)
+        : .hx.patch(route),
+      .hx.target(id: DesignInfoSection.id),
+      .hx.swap(.outerHTML)
     ) {
       input(.hidden, .value(projectID), .name("projectID"))
 
@@ -43,7 +53,6 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
             .id("summerOutdoorTemperature"),
             .value(designInfo?.summerOutdoorTemperature),
             .min(0),
-            .autofocus,
             .required
           )
           span(.class("label min-w-[5rem]")) { "Summer" }

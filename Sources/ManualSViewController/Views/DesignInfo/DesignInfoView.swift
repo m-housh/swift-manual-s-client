@@ -3,7 +3,7 @@ import ManualSModels
 import SharedModels
 import SharedStyleguide
 
-struct DesignInfoView: HTML, Sendable {
+struct DesignInfoTable: HTML, Sendable {
   let projectID: Project.ID
   let designInfo: DesignInfo?
 

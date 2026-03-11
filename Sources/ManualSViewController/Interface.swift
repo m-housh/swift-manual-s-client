@@ -16,19 +16,8 @@ public struct ManualSViewController: ViewController {
 
   let sharedController = SharedViewController(
     auth: AuthViewController(),
-    projects: ProjectViewController { _ in
-      // FIX: Navigate to project detail view.
-      await ResultView {
-        @Dependency(\.auth) var auth
-        @Dependency(\.sharedDatabase) var database
-        let user = try auth.currentUser()
-        return try await (
-          user.id,
-          database.projects.fetch(user.id, .first)
-        )
-      } onSuccess: { userID, projects in
-        ProjectsTable(userID: userID, projects: projects)
-      }
+    projects: ProjectViewController { project in
+      ProjectDetailsView(project: project)
     },
     users: UserViewController()
   )
@@ -42,10 +31,8 @@ public struct ManualSViewController: ViewController {
 
     switch route {
     case .index:
-      return .redirect(to: "/projects")
-    // return .redirect {
-    //   // HomePage()
-    // }
+      return .redirect(to: ManualSRoute.router.path(for: .shared(.project(.index))))
+
     case .projectDetail(let projectID, let route):
       switch route {
       case .index:
@@ -62,12 +49,24 @@ public struct ManualSViewController: ViewController {
         case .index:
           return .view {
             await ResultView {
-              try await Task.sleep(for: .seconds(1.5))
-              return DesignInfoView(projectID: projectID, designInfo: .mock)
+              let designInfo = try await database.designInfo.fetch(projectID)
+              return DesignInfoSection(projectID: projectID, designInfo: designInfo)
             }
           }
-        case .submit(_):
-          fatalError()
+        case .submit(let form):
+          return .view {
+            await ResultView {
+              let designInfo = try await database.designInfo.create(form)
+              return DesignInfoSection(projectID: projectID, designInfo: designInfo)
+            }
+          }
+        case .update(let designInfoID, let updates):
+          return .view {
+            await ResultView {
+              let designInfo = try await database.designInfo.update(designInfoID, updates)
+              return DesignInfoSection(projectID: projectID, designInfo: designInfo)
+            }
+          }
         }
       default:
         fatalError()
