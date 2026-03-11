@@ -1,6 +1,7 @@
 import AuthClient
 import Dependencies
 import Elementary
+import ManualSDatabase
 import ManualSRouter
 import SharedDatabase
 import SharedMiddleware
@@ -16,6 +17,7 @@ public struct ManualSViewController: ViewController {
   let sharedController = SharedViewController(
     auth: AuthViewController(),
     projects: ProjectViewController { _ in
+      // FIX: Navigate to project detail view.
       await ResultView {
         @Dependency(\.auth) var auth
         @Dependency(\.sharedDatabase) var database
@@ -35,25 +37,43 @@ public struct ManualSViewController: ViewController {
     for route: ManualSRoute,
     on request: Request
   ) async throws -> ViewResponse {
+
+    @Dependency(\.database) var database
+
     switch route {
     case .index:
-      return .view { HomePage() }
-    case .designInfo(let route):
+      return .redirect(to: "/projects")
+    // return .redirect {
+    //   // HomePage()
+    // }
+    case .projectDetail(let projectID, let route):
       switch route {
       case .index:
         return .view {
           await ResultView {
-            try await Task.sleep(for: .seconds(1.5))
-            return DesignInfoView(projectID: .init(UUID(0)), designInfo: .mock)
+            guard let project = try await database.projects.get(projectID) else {
+              throw NotFoundError()
+            }
+            return ProjectDetailsView(project: project)
           }
         }
-      case .submit(_):
+      case .designInfo(let route):
+        switch route {
+        case .index:
+          return .view {
+            await ResultView {
+              try await Task.sleep(for: .seconds(1.5))
+              return DesignInfoView(projectID: projectID, designInfo: .mock)
+            }
+          }
+        case .submit(_):
+          fatalError()
+        }
+      default:
         fatalError()
       }
     case .shared(let route):
       return try await sharedController.view(for: route, on: request)
-    default:
-      fatalError()
     }
   }
 }

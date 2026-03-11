@@ -1,6 +1,7 @@
 import Elementary
 import Fluent
 import FluentSQLiteDriver
+import ManualSDatabase
 import ManualSViewController
 import SharedDatabase
 import SharedMiddleware
@@ -19,15 +20,15 @@ func configure(
   try await app.autoMigrate()
 }
 
-private func setupDatabase(on app: Application) async throws -> SharedDatabase {
+private func setupDatabase(on app: Application) async throws -> ManualSDatabase {
   let dbFile = Environment.get("SQLITE_FILE") ?? "db.sqlite"
   app.databases.use(.sqlite(.file(dbFile)), as: .sqlite)
-  let sharedDB = SharedDatabase.live(on: app.db)
-  try await app.migrations.add(sharedDB.migrations())
-  return sharedDB
+  let db = ManualSDatabase.live(on: app.db)
+  try await app.migrations.add(db.migrations())
+  return db
 }
 
-private func addMiddleware(to app: Application, database: SharedDatabase) {
+private func addMiddleware(to app: Application, database: ManualSDatabase) {
   // cors middleware should come before default error middleware using `at: .beginning`
   let corsConfiguration = CORSMiddleware.Configuration(
     allowedOrigin: .all,
@@ -48,7 +49,8 @@ private func addMiddleware(to app: Application, database: SharedDatabase) {
   // Dependencies
   app.middleware.use(
     DependenciesMiddleware { dependencies, request in
-      dependencies.sharedDatabase = database
+      dependencies.sharedDatabase = database.shared
+      dependencies.database = database
       dependencies.auth = .live(on: request)
       dependencies.logger = request.logger
       dependencies.viewResponder = .live(

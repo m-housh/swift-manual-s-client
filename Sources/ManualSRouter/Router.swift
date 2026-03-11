@@ -7,51 +7,69 @@ import Tagged
 
 public enum ManualSRoute: Sendable, Routeable {
   case index
-  case designInfo(DesignInfo.ViewRoute)
-  case houseLoads(HouseLoad.ViewRoute)
-  case interpolations(Interpolations)
-  case proposedEquipment(ProposedEquipment.ViewRoute)
+  case projectDetail(Project.ID, ProjectDetail)
   case shared(SharedRoute)
-  case systemTypes(SystemType.ViewRoute)
 
   public static let router = OneOf {
     Route(.case(Self.index)) {
       Method.get
     }
-    Route(.case(Self.designInfo)) {
-      DesignInfo.ViewRoute.router
-    }
-    Route(.case(Self.houseLoads)) {
-      HouseLoad.ViewRoute.router
-    }
-    Route(.case(Self.interpolations)) {
-      Interpolations.router
-    }
-    Route(.case(Self.proposedEquipment)) {
-      ProposedEquipment.ViewRoute.router
+    Route(.case(Self.projectDetail)) {
+      Path {
+        "projects"
+        Project.ID.parser()
+      }
+      ProjectDetail.router
     }
     Route(.case(Self.shared)) {
       SharedRoute.router
     }
-    Route(.case(Self.systemTypes)) {
-      SystemType.ViewRoute.router
-    }
   }
 
-  public enum Interpolations: Sendable, Routeable {
-    case cooling(CoolingInterpolation.ViewRoute)
-    case heating(HeatingInterpolation.ViewRoute)
-
-    static let path = "interpolations"
+  public enum ProjectDetail: Sendable, Routeable {
+    case index
+    case designInfo(DesignInfo.ViewRoute)
+    case houseLoads(HouseLoad.ViewRoute)
+    case interpolations(Interpolations)
+    case proposedEquipment(ProposedEquipment.ViewRoute)
+    case systemTypes(SystemType.ViewRoute)
 
     public static let router = OneOf {
-      Route(.case(Self.cooling)) {
-        Path { path }
-        CoolingInterpolation.ViewRoute.router
+      Route(.case(Self.index)) {
+        Method.get
       }
-      Route(.case(Self.heating)) {
-        Path { path }
-        HeatingInterpolation.ViewRoute.router
+      Route(.case(Self.designInfo)) {
+        DesignInfo.ViewRoute.router
+      }
+      Route(.case(Self.houseLoads)) {
+        HouseLoad.ViewRoute.router
+      }
+      Route(.case(Self.interpolations)) {
+        Interpolations.router
+      }
+      Route(.case(Self.proposedEquipment)) {
+        ProposedEquipment.ViewRoute.router
+      }
+      Route(.case(Self.systemTypes)) {
+        SystemType.ViewRoute.router
+      }
+    }
+
+    public enum Interpolations: Sendable, Routeable {
+      case cooling(CoolingInterpolation.ViewRoute)
+      case heating(HeatingInterpolation.ViewRoute)
+
+      static let path = "interpolations"
+
+      public static let router = OneOf {
+        Route(.case(Self.cooling)) {
+          Path { path }
+          CoolingInterpolation.ViewRoute.router
+        }
+        Route(.case(Self.heating)) {
+          Path { path }
+          HeatingInterpolation.ViewRoute.router
+        }
       }
     }
   }
