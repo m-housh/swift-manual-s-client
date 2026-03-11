@@ -7,7 +7,7 @@ import Tagged
 import Validations
 
 extension ProposedEquipment {
-  public enum ViewRoute: Sendable, Routeable {
+  public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
     case submit(ProposedEquipment.FormIntermediate)
     case update(ProposedEquipment.ID, ProposedEquipment.FormIntermediate)

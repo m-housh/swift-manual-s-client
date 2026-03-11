@@ -6,7 +6,7 @@ import Tagged
 @preconcurrency import URLRouting
 
 extension DesignInfo {
-  public enum ViewRoute: Sendable, Routeable {
+  public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
     case submit(DesignInfo.Create)
 

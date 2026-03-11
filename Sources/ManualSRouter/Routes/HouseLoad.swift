@@ -7,7 +7,7 @@ import Tagged
 
 extension HouseLoad {
 
-  public enum ViewRoute: Sendable, Routeable {
+  public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
     case submit(HouseLoad.Create)
     case update(HouseLoad.ID, HouseLoad.Update)

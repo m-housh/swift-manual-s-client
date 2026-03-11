@@ -7,7 +7,7 @@ import Tagged
 
 extension SystemType {
   // TODO: Add path for getting cooling vs. heating system types.
-  public enum ViewRoute: Sendable, Routeable {
+  public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
     case submit(SystemType.Create)
     case update(SystemType.ID, SystemType.Update)
