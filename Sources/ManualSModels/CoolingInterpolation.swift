@@ -4,11 +4,11 @@ import SharedModels
 import Tagged
 import Validations
 
-// FIX: Need to have manufacturer's adjustements in interpolations.
 public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
 
   public let id: Tagged<Self, UUID>
   public let projectID: Project.ID
+  public let designAirflow: Int
   public let interpolation: Interpolation
   public let manufacturersAdjustments: CoolingCapacityAdjustment?
   public let createdAt: Date
@@ -17,6 +17,7 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
   public init(
     id: Tagged<CoolingInterpolation, UUID>,
     projectID: Project.ID,
+    designAirflow: Int,
     interpolation: CoolingInterpolation.Interpolation,
     manufacturersAdjustemnts: CoolingCapacityAdjustment?,
     createdAt: Date,
@@ -24,6 +25,7 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
   ) {
     self.id = id
     self.projectID = projectID
+    self.designAirflow = designAirflow
     self.interpolation = interpolation
     self.manufacturersAdjustments = manufacturersAdjustemnts
     self.createdAt = createdAt
@@ -177,15 +179,18 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
 extension CoolingInterpolation {
   public struct Create: Codable, Equatable, Sendable {
     public let projectID: Project.ID
+    public let designAirflow: Int
     public let interpolation: Interpolation
     public let manufacturersAdjustments: CoolingCapacityAdjustment?
 
     public init(
       projectID: Project.ID,
+      designAirflow: Int,
       interpolation: CoolingInterpolation.Interpolation,
       manufacturersAdjustments: CoolingCapacityAdjustment?
     ) {
       self.projectID = projectID
+      self.designAirflow = designAirflow
       self.interpolation = interpolation
       self.manufacturersAdjustments = manufacturersAdjustments
     }
@@ -193,12 +198,15 @@ extension CoolingInterpolation {
 
   public struct Update: Codable, Equatable, Sendable {
     public let interpolation: Interpolation
+    public let designAirflow: Int?
     public let manufacturersAdjustments: CoolingCapacityAdjustment?
 
     public init(
+      designAirflow: Int?,
       interpolation: CoolingInterpolation.Interpolation,
       manufacturersAdjustments: CoolingCapacityAdjustment?
     ) {
+      self.designAirflow = designAirflow
       self.interpolation = interpolation
       self.manufacturersAdjustments = manufacturersAdjustments
     }

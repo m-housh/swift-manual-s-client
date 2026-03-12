@@ -34,8 +34,7 @@ struct HouseLoadForm: HTML, Identifiable, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Heating" }
+      Fieldset("Heating") {
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.flame) }
           input(
@@ -49,34 +48,8 @@ struct HouseLoadForm: HTML, Identifiable, Sendable {
         }
       }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Cooling" }
-
-        label(.class("input w-full")) {
-          span(.class("label")) { SVG(.leaf) }
-          input(
-            .type(.number),
-            .name("coolingTotal"),
-            .value(houseLoad?.cooling.total),
-            .min(0),
-            .step(1),
-            .required
-          )
-          span(.class("label min-w-[5rem]")) { "Total" }
-        }
-        label(.class("input w-full")) {
-          span(.class("label")) { SVG(.thermometerSun) }
-          input(
-            .type(.number),
-            .name("coolingSensible"),
-            .value(houseLoad?.cooling.sensible),
-            .min(0),
-            .step(1),
-            .required
-          )
-          span(.class("label min-w-[5rem]")) { "Sensible" }
-        }
-      }
+      CoolingContainerFieldset(load: houseLoad?.cooling)
+        .coolingContainerFieldsetStyle(.vstack())
 
       SubmitButton()
         .attributes(.class("btn-block mt-6"))

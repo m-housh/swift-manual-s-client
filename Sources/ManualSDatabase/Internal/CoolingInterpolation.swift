@@ -50,7 +50,8 @@ extension CoolingInterpolation.Create {
       id: nil,
       projectID: projectID,
       interpolation: interpolation,
-      manufacturersAdjustments: manufacturersAdjustments
+      manufacturersAdjustments: manufacturersAdjustments,
+      designAirflow: designAirflow
     )
   }
 }
@@ -62,6 +63,7 @@ extension CoolingInterpolation {
         .id()
         .field("interpolation", .dictionary)
         .field("manufacturersAdjustments", .dictionary)
+        .field("designAirflow", .int, .required)
         .field("createdAt", .string)
         .field("updatedAt", .string)
         .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
@@ -85,10 +87,13 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
   @Field(key: "projectID")
   var projectID: UUID
 
+  @Field(key: "designAirflow")
+  var designAirflow: Int
+
   @Field(key: "interpolation")
   var interpolation: CoolingInterpolation.Interpolation
 
-  @Field(key: "manufacturersAdjustemnts")
+  @Field(key: "manufacturersAdjustments")
   var manufacturersAdjustments: CoolingCapacityAdjustment?
 
   @Timestamp(key: "createdAt", on: .create, format: .iso8601)
@@ -103,18 +108,21 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
     id: SystemType.ID? = nil,
     projectID: Project.ID,
     interpolation: CoolingInterpolation.Interpolation,
-    manufacturersAdjustments: CoolingCapacityAdjustment?
+    manufacturersAdjustments: CoolingCapacityAdjustment?,
+    designAirflow: Int
   ) {
     self.id = id?.rawValue
     self.projectID = projectID.rawValue
     self.interpolation = interpolation
     self.manufacturersAdjustments = manufacturersAdjustments
+    self.designAirflow = designAirflow
   }
 
   func toDTO() throws -> CoolingInterpolation {
     .init(
       id: .init(try requireID()),
       projectID: .init(projectID),
+      designAirflow: designAirflow,
       interpolation: interpolation,
       manufacturersAdjustemnts: manufacturersAdjustments,
       createdAt: createdAt!,
@@ -129,12 +137,16 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
     if updates.manufacturersAdjustments != self.manufacturersAdjustments {
       self.manufacturersAdjustments = manufacturersAdjustments
     }
+    if updates.designAirflow != self.designAirflow {
+      self.designAirflow = designAirflow
+    }
   }
 }
 
 extension CoolingInterpolationModel: Validatable {
   var body: some Validation<CoolingInterpolationModel> {
     Validator.validate(\.interpolation)
+    Validator.validate(\.designAirflow, with: .greaterThan(0))
     Validator.validate(\.manufacturersAdjustments?.total.decimal) {
       Validator {
         Double.greaterThan(0)

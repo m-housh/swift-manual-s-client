@@ -21,6 +21,7 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
         NoInterpolationForm(
           projectID: projectID,
           interpolationID: interpolation?.id,
+          designAirflow: interpolation?.designAirflow,
           capacity: noInterpolationCapacity
         )
       }

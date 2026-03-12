@@ -91,6 +91,7 @@ struct ProjectDetailsView: HTML, Sendable {
       }
 
     }
+    .fieldsetStyle(.roundedBox)
   }
 
   // TODO: Move to routes.
@@ -173,7 +174,7 @@ struct ProjectDetailsView: HTML, Sendable {
           // FIX: needs to handle different interpolations.
           SectionHeader(
             tooltip: "Edit interpolation",
-            modalAttributes: [.class("max-w-none w-[90%]")]
+            modalAttributes: [.class("max-w-none w-[90%] min-h-[80%]")]
           ) {
             CoolingInterpolationForm(
               projectID: projectID, designInfo: designInfo, interpolation: interpolation
@@ -195,6 +196,7 @@ struct ProjectDetailsView: HTML, Sendable {
           )
         }
       }
+      .fieldsetStyle(.roundedBox)
     }
 
   }

@@ -29,8 +29,7 @@ struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Type" }
+      Fieldset("Type") {
         Select(
           SystemType.EquipmentType.allCases,
           value: \.rawValue,
@@ -50,8 +49,7 @@ struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
         )
       }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Compressor" }
+      Fieldset("Compressor") {
         Select(
           SystemType.CompressorType.allCases,
           value: \.rawValue,
@@ -71,8 +69,7 @@ struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
         )
       }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Climate" }
+      Fieldset("Climate") {
         Select(
           SystemType.ClimateType.allCases,
           value: \.rawValue,

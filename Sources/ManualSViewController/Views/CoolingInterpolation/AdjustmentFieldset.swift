@@ -49,8 +49,7 @@ private struct _AdjustmentFieldset: HTML, Sendable {
   }
 
   var body: some HTML<HTMLTag.fieldset> {
-    fieldset {
-      legend(.class("fieldset-legend")) { title }
+    Fieldset(title) {
 
       div(.class("flex gap-4")) {
         PercentField(

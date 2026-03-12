@@ -10,6 +10,7 @@ import SharedStyleguide
 import SharedViews
 import Vapor
 
+// FIX: Need to redirect to projects / home page after signup flow is complete
 public struct ManualSViewController: ViewController {
 
   public init() {}

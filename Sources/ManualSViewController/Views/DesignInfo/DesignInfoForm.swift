@@ -29,8 +29,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
     ) {
       input(.hidden, .value(projectID), .name("projectID"))
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Outdoor Design - Temperature" }
+      Fieldset("Outdoor Design - Temperature") {
 
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.thermometerSnowflake) }
@@ -59,8 +58,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
         }
       }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Indoor Design - Summer" }
+      Fieldset("Indoor Design - Summer") {
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.thermometer) }
           input(
@@ -88,8 +86,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
         }
       }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Project - Elevation" }
+      Fieldset("Project - Elevation") {
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.mountain) }
           input(

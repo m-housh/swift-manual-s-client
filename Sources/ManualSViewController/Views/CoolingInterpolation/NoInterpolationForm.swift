@@ -11,6 +11,7 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
   var id: String { Self.id }
   let projectID: Project.ID
   let interpolationID: CoolingInterpolation.ID?
+  let designAirflow: Int?
   let capacity: CoolingCapacity?
 
   var route: String {
@@ -30,7 +31,10 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      CoolingCapacityFieldset(capacity: capacity)
+      DesignAirflowFieldset(designAirflow: designAirflow)
+
+      CoolingContainerFieldset(capacity: capacity)
+
       ManufacturersAdjustmentFieldset(adjustments: nil)
 
       SubmitButton()

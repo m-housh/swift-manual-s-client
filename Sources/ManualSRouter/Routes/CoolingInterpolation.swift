@@ -5,7 +5,6 @@ import SharedModels
 import Tagged
 @preconcurrency import URLRouting
 
-// FIX: Need manufacturer's adjustment fields in forms.
 extension CoolingInterpolation {
 
   public enum ViewRoute: Equatable, Sendable, Routeable {
@@ -96,6 +95,7 @@ extension CoolingInterpolation.Interpolation {
       Field("coolingSensible") { Double.parser() }
       Field("manufacturersAdjustmentTotal") { Double.parser() }
       Field("manufacturersAdjustmentSensible") { Double.parser() }
+      Field("designAirflow") { Int.parser() }
     }
     .map(.memberwise(CoolingInterpolation.Interpolation.NoInterpolationIntermediate.init))
 
@@ -104,19 +104,22 @@ extension CoolingInterpolation.Interpolation {
     let coolingSensible: Double
     let manufacturersAdjustmentTotal: Double
     let manufacturersAdjustmentSensible: Double
+    let designAirflow: Int
 
     public init(
       projectID: Project.ID,
       coolingTotal: Double,
       coolingSensible: Double,
       manufacturersAdjustmentTotal: Double,
-      manufacturersAdjustmentSensible: Double
+      manufacturersAdjustmentSensible: Double,
+      designAirflow: Int
     ) {
       self.projectID = projectID
       self.coolingTotal = coolingTotal
       self.coolingSensible = coolingSensible
       self.manufacturersAdjustmentTotal = manufacturersAdjustmentTotal
       self.manufacturersAdjustmentSensible = manufacturersAdjustmentSensible
+      self.designAirflow = designAirflow
     }
 
     var manufacturersAdjustments: CoolingCapacityAdjustment {
@@ -135,13 +138,18 @@ extension CoolingInterpolation.Interpolation {
     func toCreate() -> CoolingInterpolation.Create {
       .init(
         projectID: projectID,
+        designAirflow: designAirflow,
         interpolation: toInterpolation(),
         manufacturersAdjustments: manufacturersAdjustments
       )
     }
 
     func toUpdate() -> CoolingInterpolation.Update {
-      .init(interpolation: toInterpolation(), manufacturersAdjustments: manufacturersAdjustments)
+      .init(
+        designAirflow: designAirflow,
+        interpolation: toInterpolation(),
+        manufacturersAdjustments: manufacturersAdjustments
+      )
     }
   }
 }
@@ -159,6 +167,7 @@ extension CoolingInterpolation.Interpolation.OneWayOutdoor {
       Field("belowDesignSensibleCapacity") { Double.parser() }
       Field("manufacturersAdjustmentTotal") { Double.parser() }
       Field("manufacturersAdjustmentSensible") { Double.parser() }
+      Field("designAirflow") { Int.parser() }
     }
     .map(.memberwise(CoolingInterpolation.Interpolation.OneWayOutdoor.FormIntermediate.init))
 
@@ -171,6 +180,7 @@ extension CoolingInterpolation.Interpolation.OneWayOutdoor {
     let belowDesignSensibleCapacity: Double
     let manufacturersAdjustmentTotal: Double
     let manufacturersAdjustmentSensible: Double
+    let designAirflow: Int
 
     public init(
       projectID: Project.ID,
@@ -181,7 +191,8 @@ extension CoolingInterpolation.Interpolation.OneWayOutdoor {
       belowDesignTotalCapacity: Double,
       belowDesignSensibleCapacity: Double,
       manufacturersAdjustmentTotal: Double,
-      manufacturersAdjustmentSensible: Double
+      manufacturersAdjustmentSensible: Double,
+      designAirflow: Int
     ) {
       self.projectID = projectID
       self.aboveDesignOutdoorTemperature = aboveDesignOutdoorTemperature
@@ -192,6 +203,7 @@ extension CoolingInterpolation.Interpolation.OneWayOutdoor {
       self.belowDesignSensibleCapacity = belowDesignSensibleCapacity
       self.manufacturersAdjustmentTotal = manufacturersAdjustmentTotal
       self.manufacturersAdjustmentSensible = manufacturersAdjustmentSensible
+      self.designAirflow = designAirflow
     }
 
     var manufacturersAdjustments: CoolingCapacityAdjustment {
@@ -217,12 +229,17 @@ extension CoolingInterpolation.Interpolation.OneWayOutdoor {
 
     func toCreate() -> CoolingInterpolation.Create {
       .init(
-        projectID: projectID, interpolation: toInterpolation(),
+        projectID: projectID,
+        designAirflow: designAirflow,
+        interpolation: toInterpolation(),
         manufacturersAdjustments: manufacturersAdjustments)
     }
 
     func toUpdate() -> CoolingInterpolation.Update {
-      .init(interpolation: toInterpolation(), manufacturersAdjustments: manufacturersAdjustments)
+      .init(
+        designAirflow: designAirflow,
+        interpolation: toInterpolation(),
+        manufacturersAdjustments: manufacturersAdjustments)
     }
   }
 }
@@ -240,6 +257,7 @@ extension CoolingInterpolation.Interpolation.OneWayIndoor {
       Field("belowDesignSensibleCapacity") { Double.parser() }
       Field("manufacturersAdjustmentTotal") { Double.parser() }
       Field("manufacturersAdjustmentSensible") { Double.parser() }
+      Field("designAirflow") { Int.parser() }
     }
     .map(.memberwise(CoolingInterpolation.Interpolation.OneWayIndoor.FormIntermediate.init))
 
@@ -252,6 +270,7 @@ extension CoolingInterpolation.Interpolation.OneWayIndoor {
     let belowDesignSensibleCapacity: Double
     let manufacturersAdjustmentTotal: Double
     let manufacturersAdjustmentSensible: Double
+    let designAirflow: Int
 
     public init(
       projectID: Project.ID,
@@ -262,7 +281,8 @@ extension CoolingInterpolation.Interpolation.OneWayIndoor {
       belowDesignTotalCapacity: Double,
       belowDesignSensibleCapacity: Double,
       manufacturersAdjustmentTotal: Double,
-      manufacturersAdjustmentSensible: Double
+      manufacturersAdjustmentSensible: Double,
+      designAirflow: Int
     ) {
       self.projectID = projectID
       self.aboveDesignIndoorWetBulb = aboveDesignIndoorWetBulb
@@ -273,6 +293,7 @@ extension CoolingInterpolation.Interpolation.OneWayIndoor {
       self.belowDesignSensibleCapacity = belowDesignSensibleCapacity
       self.manufacturersAdjustmentTotal = manufacturersAdjustmentTotal
       self.manufacturersAdjustmentSensible = manufacturersAdjustmentSensible
+      self.designAirflow = designAirflow
     }
 
     func toInterpolation() -> CoolingInterpolation.Interpolation {
@@ -298,12 +319,17 @@ extension CoolingInterpolation.Interpolation.OneWayIndoor {
 
     func toCreate() -> CoolingInterpolation.Create {
       .init(
-        projectID: projectID, interpolation: toInterpolation(),
+        projectID: projectID,
+        designAirflow: designAirflow,
+        interpolation: toInterpolation(),
         manufacturersAdjustments: manufacturersAdjustments)
     }
 
     func toUpdate() -> CoolingInterpolation.Update {
-      .init(interpolation: toInterpolation(), manufacturersAdjustments: manufacturersAdjustments)
+      .init(
+        designAirflow: designAirflow,
+        interpolation: toInterpolation(),
+        manufacturersAdjustments: manufacturersAdjustments)
     }
   }
 }
@@ -329,6 +355,7 @@ extension CoolingInterpolation.Interpolation.TwoWay {
       Field("belowDesignBelowSensibleCapacity") { Double.parser() }
       Field("manufacturersAdjustmentTotal") { Double.parser() }
       Field("manufacturersAdjustmentSensible") { Double.parser() }
+      Field("designAirflow") { Int.parser() }
     }
     .map(.memberwise(CoolingInterpolation.Interpolation.TwoWay.FormIntermediate.init))
 
@@ -349,6 +376,7 @@ extension CoolingInterpolation.Interpolation.TwoWay {
     let belowDesignBelowSensibleCapacity: Double
     let manufacturersAdjustmentTotal: Double
     let manufacturersAdjustmentSensible: Double
+    let designAirflow: Int
 
     public init(
       projectID: Project.ID,
@@ -367,7 +395,8 @@ extension CoolingInterpolation.Interpolation.TwoWay {
       belowDesignBelowTotalCapacity: Double,
       belowDesignBelowSensibleCapacity: Double,
       manufacturersAdjustmentTotal: Double,
-      manufacturersAdjustmentSensible: Double
+      manufacturersAdjustmentSensible: Double,
+      designAirflow: Int
     ) {
       self.projectID = projectID
       self.aboveDesignOutdoorTemperature = aboveDesignOutdoorTemperature
@@ -386,6 +415,7 @@ extension CoolingInterpolation.Interpolation.TwoWay {
       self.belowDesignBelowSensibleCapacity = belowDesignBelowSensibleCapacity
       self.manufacturersAdjustmentTotal = manufacturersAdjustmentTotal
       self.manufacturersAdjustmentSensible = manufacturersAdjustmentSensible
+      self.designAirflow = designAirflow
     }
 
     func toInterpolation() -> CoolingInterpolation.Interpolation {
@@ -431,12 +461,17 @@ extension CoolingInterpolation.Interpolation.TwoWay {
 
     func toCreate() -> CoolingInterpolation.Create {
       .init(
-        projectID: projectID, interpolation: toInterpolation(),
+        projectID: projectID,
+        designAirflow: designAirflow,
+        interpolation: toInterpolation(),
         manufacturersAdjustments: manufacturersAdjustments)
     }
 
     func toUpdate() -> CoolingInterpolation.Update {
-      .init(interpolation: toInterpolation(), manufacturersAdjustments: manufacturersAdjustments)
+      .init(
+      designAirflow: designAirflow,
+      interpolation: toInterpolation(),
+      manufacturersAdjustments: manufacturersAdjustments)
     }
   }
 }

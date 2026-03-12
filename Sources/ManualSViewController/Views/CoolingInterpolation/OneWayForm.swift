@@ -34,8 +34,7 @@ struct OneWayForm: HTML, Sendable {
     form(.class("space-y-4")) {
       FormTitle { "One Way - \(style.rawValue.capitalized)" }
 
-      fieldset(.class("fieldset bg-base-200 border-base-300 rounded-box border p-4")) {
-        legend(.class("fieldset-legend")) { "Below" }
+      Fieldset("Below") {
         p(.class("text-accent text-sm italic pb-6")) {
           style.description(.below)
         }
@@ -69,11 +68,11 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { "Return Wet Bulb" }
         }
 
-        CoolingCapacityFieldset(capacity: nil, namePrefix: "below")
+        CoolingContainerFieldset(capacity: nil, namePrefix: "below")
+          .fieldsetStyle(.plain)
       }
 
-      fieldset(.class("fieldset bg-base-200 border-base-300 rounded-box border p-4")) {
-        legend(.class("fieldset-legend")) { "Above" }
+      Fieldset("Above") {
         p(.class("text-accent text-sm italic pb-6")) {
           style.description(.above)
         }
@@ -108,15 +107,16 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { "Return Wet Bulb" }
         }
 
-        CoolingCapacityFieldset(capacity: nil, namePrefix: "above")
+        CoolingContainerFieldset(capacity: nil, namePrefix: "above")
+          .fieldsetStyle(.plain)
       }
 
       ManufacturersAdjustmentFieldset(adjustments: nil)
-        .attributes(.class("bg-base-200 border-base-300 rounded-box border p-4"))
 
       SubmitButton()
         .attributes(.class("btn-block my-6"))
     }
+    .fieldsetStyle(.roundedBox)
   }
 }
 
