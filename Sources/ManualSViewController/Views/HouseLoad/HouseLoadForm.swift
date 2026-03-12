@@ -1,20 +1,38 @@
 import Elementary
 import ElementaryHTMX
 import ManualSModels
+import ManualSRouter
+import SharedModels
 import SharedStyleguide
 
 struct HouseLoadForm: HTML, Identifiable, Sendable {
   static let id = "houseLoadForm"
 
+  let projectID: Project.ID
   let houseLoad: HouseLoad?
   var id: String { Self.id }
 
+  var route: String {
+    ManualSRoute.router.path(for: .projectDetail(projectID, .houseLoads(.index)))
+      .appendingPath(houseLoad?.id)
+  }
+
   var body: some HTML<HTMLTag.form> {
-    Form(title: "House Load", .class("space-y-4")) {
+    Form(
+      title: "House Load",
+      .class("space-y-4"),
+      houseLoad == nil
+        ? .hx.post(route)
+        : .hx.patch(route),
+      .hx.target(id: ProjectDetailsView._Section.id(.houseLoad())),
+      .hx.swap(.outerHTML)
+    ) {
 
       if let houseLoad {
         input(.hidden, .name("id"), .value(houseLoad.id))
       }
+
+      input(.hidden, .name("projectID"), .value(projectID))
 
       fieldset(.class("fieldset")) {
         legend(.class("fieldset-legend")) { "Heating" }

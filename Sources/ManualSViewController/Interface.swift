@@ -164,6 +164,40 @@ extension ManualSRoute.ProjectDetail {
         }
       }
 
+    case .houseLoads(let route):
+      switch route {
+      case .index:
+        return .view {
+          await ResultView {
+            let houseLoads = try await database.houseLoads.fetch(projectID)
+            return ProjectDetailsView._Section(
+              projectID: projectID,
+              section: .houseLoad(houseLoads)
+            )
+          }
+        }
+      case .submit(let form):
+        return .view {
+          await ResultView {
+            let houseLoads = try await database.houseLoads.create(form)
+            return ProjectDetailsView._Section(
+              projectID: projectID,
+              section: .houseLoad(houseLoads)
+            )
+          }
+        }
+      case .update(let id, let updates):
+        return .view {
+          await ResultView {
+            let houseLoads = try await database.houseLoads.update(id, updates)
+            return ProjectDetailsView._Section(
+              projectID: projectID,
+              section: .houseLoad(houseLoads)
+            )
+          }
+        }
+      }
+
     default:
       fatalError()
     }

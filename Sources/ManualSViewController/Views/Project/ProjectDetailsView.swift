@@ -38,12 +38,7 @@ struct ProjectDetailsView: HTML, Sendable {
 
       NotLoadedSection(.init(projectID: project.id, section: .proposedEquipment()))
 
-      Section("Manual-J") {
-        SectionHeader(tooltip: "Edit manual-j") {
-          HouseLoadForm(houseLoad: houseLoad)
-        }
-        HouseLoadView(houseLoad: houseLoad)
-      }
+      NotLoadedSection(.init(projectID: project.id, section: .houseLoad()))
 
       Section("Interpolation") {
         SectionHeader(tooltip: "Edit interpolation", formID: "noInterpolation") {
@@ -183,6 +178,12 @@ struct ProjectDetailsView: HTML, Sendable {
           }
           ProposedEquipmentView(proposedEquipment: proposedEquipment)
 
+        case .houseLoad(let houseLoad):
+          SectionHeader(tooltip: "Edit manual-j") {
+            HouseLoadForm(projectID: projectID, houseLoad: houseLoad)
+          }
+          HouseLoadView(houseLoad: houseLoad)
+
         }
       }
     }
@@ -197,12 +198,14 @@ extension ProjectDetailsView._Section {
     case designInfo(DesignInfo? = nil)
     case coolingSystemType(SystemType? = nil)
     case proposedEquipment(ProposedEquipment? = nil)
+    case houseLoad(HouseLoad? = nil)
 
     var id: String {
       switch self {
       case .designInfo: return "designInfoSection"
       case .coolingSystemType: return "coolingSystemTypeSection"
       case .proposedEquipment: return "proposedEquipmentSection"
+      case .houseLoad: return "houseLoadSection"
       }
     }
 
@@ -211,6 +214,7 @@ extension ProjectDetailsView._Section {
       case .designInfo: return "Design Info"
       case .coolingSystemType: return "System Type"
       case .proposedEquipment: return "Proposed Equipment"
+      case .houseLoad: return "Manual-J"
       }
     }
   }
@@ -223,6 +227,8 @@ extension ProjectDetailsView._Section {
       return .projectDetail(projectID, .systemTypes(.index))
     case .proposedEquipment:
       return .projectDetail(projectID, .proposedEquipment(.index))
+    case .houseLoad:
+      return .projectDetail(projectID, .houseLoads(.index))
     }
   }
 

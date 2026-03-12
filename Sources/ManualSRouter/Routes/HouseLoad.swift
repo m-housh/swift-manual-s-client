@@ -37,7 +37,7 @@ extension HouseLoad {
           path
           HouseLoad.ID.parser()
         }
-        Method.post
+        Method.patch
         Body {
           FormData {
             Optionally {
