@@ -169,10 +169,15 @@ struct ProjectDetailsView: HTML, Sendable {
           }
           HouseLoadView(houseLoad: houseLoad)
 
-        case .coolingInterpolation(let interpolation):
+        case .coolingInterpolation(let interpolation, let designInfo):
           // FIX: needs to handle different interpolations.
-          SectionHeader(tooltip: "Edit interpolation", formID: "noInterpolation") {
-            OneWayForm(style: .indoor, outdoorDesignTemperature: 92)
+          SectionHeader(
+            tooltip: "Edit interpolation",
+            modalAttributes: [.class("max-w-none w-[90%]")]
+          ) {
+            CoolingInterpolationForm(
+              projectID: projectID, designInfo: designInfo, interpolation: interpolation
+            )
           }
 
           NoInterpolationTable(
@@ -203,7 +208,7 @@ extension ProjectDetailsView.Section {
     case coolingSystemType(SystemType? = nil)
     case proposedEquipment(ProposedEquipment? = nil)
     case houseLoad(HouseLoad? = nil)
-    case coolingInterpolation(CoolingInterpolation? = nil)
+    case coolingInterpolation(CoolingInterpolation? = nil, DesignInfo? = nil)
     case coolingInterpolationResult(CoolingInterpolation.Response? = nil)
 
     var id: String {

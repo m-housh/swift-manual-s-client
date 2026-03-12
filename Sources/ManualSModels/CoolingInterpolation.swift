@@ -4,11 +4,13 @@ import SharedModels
 import Tagged
 import Validations
 
+// FIX: Need to have manufacturer's adjustements in interpolations.
 public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
 
   public let id: Tagged<Self, UUID>
   public let projectID: Project.ID
   public let interpolation: Interpolation
+  public let manufacturersAdjustments: CoolingCapacityAdjustment?
   public let createdAt: Date
   public let updatedAt: Date
 
@@ -16,12 +18,14 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
     id: Tagged<CoolingInterpolation, UUID>,
     projectID: Project.ID,
     interpolation: CoolingInterpolation.Interpolation,
+    manufacturersAdjustemnts: CoolingCapacityAdjustment?,
     createdAt: Date,
     updatedAt: Date
   ) {
     self.id = id
     self.projectID = projectID
     self.interpolation = interpolation
+    self.manufacturersAdjustments = manufacturersAdjustemnts
     self.createdAt = createdAt
     self.updatedAt = updatedAt
   }
@@ -174,23 +178,29 @@ extension CoolingInterpolation {
   public struct Create: Codable, Equatable, Sendable {
     public let projectID: Project.ID
     public let interpolation: Interpolation
+    public let manufacturersAdjustments: CoolingCapacityAdjustment?
 
     public init(
       projectID: Project.ID,
       interpolation: CoolingInterpolation.Interpolation,
+      manufacturersAdjustments: CoolingCapacityAdjustment?
     ) {
       self.projectID = projectID
       self.interpolation = interpolation
+      self.manufacturersAdjustments = manufacturersAdjustments
     }
   }
 
   public struct Update: Codable, Equatable, Sendable {
     public let interpolation: Interpolation
+    public let manufacturersAdjustments: CoolingCapacityAdjustment?
 
     public init(
-      interpolation: CoolingInterpolation.Interpolation
+      interpolation: CoolingInterpolation.Interpolation,
+      manufacturersAdjustments: CoolingCapacityAdjustment?
     ) {
       self.interpolation = interpolation
+      self.manufacturersAdjustments = manufacturersAdjustments
     }
   }
 }
