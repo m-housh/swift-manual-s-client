@@ -50,24 +50,25 @@ public struct ManualSViewController: ViewController {
           return .view {
             await ResultView {
               let designInfo = try await database.designInfo.fetch(projectID)
-              return DesignInfoSection(projectID: projectID, designInfo: designInfo)
+              return ProjectDetailsView._Section.designInfo(projectID, designInfo)
             }
           }
         case .submit(let form):
           return .view {
             await ResultView {
               let designInfo = try await database.designInfo.create(form)
-              return DesignInfoSection(projectID: projectID, designInfo: designInfo)
+              return ProjectDetailsView._Section.designInfo(projectID, designInfo)
             }
           }
         case .update(let designInfoID, let updates):
           return .view {
             await ResultView {
               let designInfo = try await database.designInfo.update(designInfoID, updates)
-              return DesignInfoSection(projectID: projectID, designInfo: designInfo)
+              return ProjectDetailsView._Section.designInfo(projectID, designInfo)
             }
           }
         }
+
       default:
         fatalError()
       }

@@ -30,11 +30,7 @@ struct ProjectDetailsView: HTML, Sendable {
         }
 
         div(.class("w-full md:w-[50%]")) {
-          Section("Design Info") {
-            LoadableView(route: .projectDetail(project.id, .designInfo(.index))) {
-              DesignInfoSection(projectID: project.id, designInfo: nil)
-            }
-          }
+          NotLoadedSection(.designInfo(project.id, nil))
         }
       }
 
@@ -143,4 +139,84 @@ struct ProjectDetailsView: HTML, Sendable {
       }
     }
   }
+
+  struct NotLoadedSection: HTML, Sendable {
+    let section: ProjectDetailsView._Section
+
+    init(_ section: ProjectDetailsView._Section) {
+      self.section = section
+    }
+
+    var body: some HTML {
+      // Section(section.title) {
+      Elementary.section {
+        div(.class("divider")) {
+          Title { section.title }
+            .attributes(.class("text-secondary"))
+        }
+        LoadableView(route: section.route) {
+          section
+        }
+      }
+    }
+  }
+
+  // FIX: Rename when all sections have migrated.
+  enum _Section: HTML, Sendable {
+
+    case designInfo(Project.ID, DesignInfo?)
+
+    var body: some HTML {
+      div(.id(ID(self).id)) {
+        switch self {
+        case .designInfo(let projectID, let designInfo):
+          SectionHeader(tooltip: "Edit design info") {
+            DesignInfoForm(projectID: projectID, designInfo: designInfo)
+          }
+          DesignInfoTable(projectID: projectID, designInfo: designInfo)
+        }
+      }
+    }
+
+    var route: ManualSRoute {
+      switch self {
+      case .designInfo(let projectID, _):
+        return .projectDetail(projectID, .designInfo(.index))
+      }
+    }
+
+  }
+}
+
+extension ProjectDetailsView._Section {
+
+  static func id(_ key: ID) -> String {
+    key.id
+  }
+
+  var id: ID { ID(self) }
+
+  var title: String { id.title }
+
+  enum ID: String, Sendable {
+    case designInfo
+
+    var id: String {
+      "\(rawValue)Section"
+    }
+
+    var title: String {
+      switch self {
+      case .designInfo: return "Design Info"
+      }
+    }
+
+    init(_ section: ProjectDetailsView._Section) {
+      switch section {
+      case .designInfo:
+        self = .designInfo
+      }
+    }
+  }
+
 }
