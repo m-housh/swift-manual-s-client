@@ -24,7 +24,7 @@ struct HouseLoadForm: HTML, Identifiable, Sendable {
       houseLoad == nil
         ? .hx.post(route)
         : .hx.patch(route),
-      .hx.target(id: ProjectDetailsView._Section.id(.houseLoad())),
+      .hx.target(id: ProjectDetailsView.Section.id(.houseLoad())),
       .hx.swap(.outerHTML)
     ) {
 

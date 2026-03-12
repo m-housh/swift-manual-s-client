@@ -63,7 +63,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let designInfo = try await database.designInfo.fetch(projectID)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .designInfo(designInfo)
             )
@@ -73,7 +73,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let designInfo = try await database.designInfo.create(form)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .designInfo(designInfo)
             )
@@ -83,7 +83,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let designInfo = try await database.designInfo.update(designInfoID, updates)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .designInfo(designInfo)
             )
@@ -97,7 +97,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let systemTypes = try await database.systemTypes.fetch(projectID)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .coolingSystemType(systemTypes)
             )
@@ -107,7 +107,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let systemTypes = try await database.systemTypes.create(form)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .coolingSystemType(systemTypes)
             )
@@ -117,7 +117,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let systemTypes = try await database.systemTypes.update(id, updates)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .coolingSystemType(systemTypes)
             )
@@ -131,7 +131,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let proposedEquipment = try await database.proposedEquipment.fetch(projectID)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .proposedEquipment(proposedEquipment)
             )
@@ -145,7 +145,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let proposedEquipment = try await database.proposedEquipment.create(form.toCreate())
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .proposedEquipment(proposedEquipment)
             )
@@ -156,7 +156,7 @@ extension ManualSRoute.ProjectDetail {
           await ResultView {
             let proposedEquipment = try await database.proposedEquipment.update(
               id, updates.toUpdate())
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .proposedEquipment(proposedEquipment)
             )
@@ -170,7 +170,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let houseLoads = try await database.houseLoads.fetch(projectID)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .houseLoad(houseLoads)
             )
@@ -180,7 +180,7 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let houseLoads = try await database.houseLoads.create(form)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .houseLoad(houseLoads)
             )
@@ -190,9 +190,44 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let houseLoads = try await database.houseLoads.update(id, updates)
-            return ProjectDetailsView._Section(
+            return ProjectDetailsView.Section(
               projectID: projectID,
               section: .houseLoad(houseLoads)
+            )
+          }
+        }
+      }
+
+    case .interpolations(.cooling(let route)):
+      switch route {
+      case .index:
+        return .view {
+          await ResultView {
+            let interpolation = try await database.coolingInterpolations.fetch(projectID)
+            return ProjectDetailsView.Section(
+              projectID: projectID,
+              section: .coolingInterpolation(interpolation)
+            )
+          }
+        }
+      case .submit(let form):
+        return .view {
+          await ResultView {
+            let interpolation = try await database.coolingInterpolations.create(form.toCreate())
+            return ProjectDetailsView.Section(
+              projectID: projectID,
+              section: .coolingInterpolation(interpolation)
+            )
+          }
+        }
+      case .update(let id, let updates):
+        return .view {
+          await ResultView {
+            let interpolation = try await database.coolingInterpolations.update(
+              id, updates.toUpdate())
+            return ProjectDetailsView.Section(
+              projectID: projectID,
+              section: .coolingInterpolation(interpolation)
             )
           }
         }

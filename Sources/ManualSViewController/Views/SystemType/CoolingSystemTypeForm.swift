@@ -23,7 +23,7 @@ struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
       systemTypeID == nil
         ? .hx.post(route)
         : .hx.patch(route),
-      .hx.target(id: ProjectDetailsView._Section.id(.coolingSystemType())),
+      .hx.target(id: ProjectDetailsView.Section.id(.coolingSystemType())),
       .hx.swap(.outerHTML)
     ) {
 

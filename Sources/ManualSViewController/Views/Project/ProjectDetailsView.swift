@@ -11,54 +11,39 @@ import SharedViews
 struct ProjectDetailsView: HTML, Sendable {
 
   let project: Project
-  let designInfo: DesignInfo? = .mock
-  let systemType: SystemType.Cooling? = .mock
-  let proposedEquipment: ProposedEquipment? = .mock
-  let houseLoad: HouseLoad? = .mock
   let heatingFormType: HeatingFormType = .none
 
   var body: some HTML {
     div(.class("flex flex-col m-10 space-y-6")) {
       div(.class("flex flex-wrap md:flex-nowrap")) {
+
         div(.class("w-full md:w-[50%]")) {
-          Section("Project") {
-            SectionHeader(tooltip: "Edit project") {
-              ProjectForm(project: project)
-            }
-            ProjectTable(project: project)
+          div(.class("divider")) {
+            Title { "Project" }
+              .attributes(.class("text-secondary"))
           }
+          SectionHeader(tooltip: "Edit project") {
+            ProjectForm(project: project)
+          }
+          ProjectTable(project: project)
         }
+
+        div(.class("divider divider-horizontal")) {}
 
         div(.class("w-full md:w-[50%]")) {
-          NotLoadedSection(.init(projectID: project.id, section: .designInfo()))
+          LoadableSection(.init(projectID: project.id, section: .designInfo()))
         }
       }
 
-      NotLoadedSection(.init(projectID: project.id, section: .coolingSystemType()))
+      LoadableSection(.init(projectID: project.id, section: .coolingSystemType()))
 
-      NotLoadedSection(.init(projectID: project.id, section: .proposedEquipment()))
+      LoadableSection(.init(projectID: project.id, section: .proposedEquipment()))
 
-      NotLoadedSection(.init(projectID: project.id, section: .houseLoad()))
+      LoadableSection(.init(projectID: project.id, section: .houseLoad()))
 
-      Section("Interpolation") {
-        SectionHeader(tooltip: "Edit interpolation", formID: "noInterpolation") {
-          OneWayForm(style: .indoor, outdoorDesignTemperature: 92)
-        }
+      LoadableSection(.init(projectID: project.id, section: .coolingInterpolation()))
 
-        NoInterpolationTable(
-          designAirflow: 800,
-          capacity: .init(total: 23456, sensible: 17865),
-          manufacturersAdjustments: nil
-        )
-      }
-
-      Section("Interpolation Result") {
-        CoolingInterpolationResponseTable(
-          response: .mock,
-          sizingLimits: .mock,
-          flaggedCapacities: .mock
-        )
-      }
+      // NotLoadedSection(.init(projectID: project.id, section: .coolingInterpolationResult()))
 
       div(.class("divider")) {}
 
@@ -123,10 +108,10 @@ struct ProjectDetailsView: HTML, Sendable {
     }
   }
 
-  struct NotLoadedSection: HTML, Sendable {
-    let section: ProjectDetailsView._Section
+  struct LoadableSection: HTML, Sendable {
+    let section: ProjectDetailsView.Section
 
-    init(_ section: ProjectDetailsView._Section) {
+    init(_ section: ProjectDetailsView.Section) {
       self.section = section
     }
 
@@ -145,7 +130,7 @@ struct ProjectDetailsView: HTML, Sendable {
   }
 
   // FIX: Rename when all sections have migrated.
-  struct _Section: HTML, Sendable {
+  struct Section: HTML, Sendable {
 
     let projectID: Project.ID
     let section: SectionRoute
@@ -184,6 +169,25 @@ struct ProjectDetailsView: HTML, Sendable {
           }
           HouseLoadView(houseLoad: houseLoad)
 
+        case .coolingInterpolation(let interpolation):
+          // FIX: needs to handle different interpolations.
+          SectionHeader(tooltip: "Edit interpolation", formID: "noInterpolation") {
+            OneWayForm(style: .indoor, outdoorDesignTemperature: 92)
+          }
+
+          NoInterpolationTable(
+            designAirflow: 800,
+            capacity: .init(total: 23456, sensible: 17865),
+            manufacturersAdjustments: nil
+          )
+
+        case .coolingInterpolationResult(let result):
+          // FIX:
+          CoolingInterpolationResponseTable(
+            response: result,
+            sizingLimits: .mock,
+            flaggedCapacities: .mock
+          )
         }
       }
     }
@@ -191,7 +195,7 @@ struct ProjectDetailsView: HTML, Sendable {
   }
 }
 
-extension ProjectDetailsView._Section {
+extension ProjectDetailsView.Section {
 
   enum SectionRoute: Equatable, Sendable {
 
@@ -199,6 +203,8 @@ extension ProjectDetailsView._Section {
     case coolingSystemType(SystemType? = nil)
     case proposedEquipment(ProposedEquipment? = nil)
     case houseLoad(HouseLoad? = nil)
+    case coolingInterpolation(CoolingInterpolation? = nil)
+    case coolingInterpolationResult(CoolingInterpolation.Response? = nil)
 
     var id: String {
       switch self {
@@ -206,6 +212,8 @@ extension ProjectDetailsView._Section {
       case .coolingSystemType: return "coolingSystemTypeSection"
       case .proposedEquipment: return "proposedEquipmentSection"
       case .houseLoad: return "houseLoadSection"
+      case .coolingInterpolation: return "coolingInterpolationSection"
+      case .coolingInterpolationResult: return "coolingInterpolationResultSection"
       }
     }
 
@@ -215,6 +223,8 @@ extension ProjectDetailsView._Section {
       case .coolingSystemType: return "System Type"
       case .proposedEquipment: return "Proposed Equipment"
       case .houseLoad: return "Manual-J"
+      case .coolingInterpolation: return "Interpolation"
+      case .coolingInterpolationResult: return "Interpolation Result"
       }
     }
   }
@@ -229,6 +239,11 @@ extension ProjectDetailsView._Section {
       return .projectDetail(projectID, .proposedEquipment(.index))
     case .houseLoad:
       return .projectDetail(projectID, .houseLoads(.index))
+    case .coolingInterpolation:
+      return .projectDetail(projectID, .interpolations(.cooling(.index)))
+    case .coolingInterpolationResult:
+      // FIX:
+      fatalError()
     }
   }
 

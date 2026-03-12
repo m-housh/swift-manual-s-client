@@ -1,39 +1,6 @@
 import Elementary
 import SharedStyleguide
 
-struct Section<Content: HTML>: HTML {
-
-  private let title: String?
-  private let _content: Content
-
-  init(
-    _ title: String? = nil,
-    @HTMLBuilder content: () -> Content
-  ) {
-    self.title = title
-    self._content = content()
-  }
-
-  init(
-    _ title: String? = nil,
-    content: @autoclosure () -> Content
-  ) {
-    self.init(title, content: content)
-  }
-
-  var body: some HTML<HTMLTag.section> {
-    section {
-      div(.class("divider")) {
-        if let title {
-          Title { title }
-            .attributes(.class("text-secondary"))
-        }
-      }
-      _content
-    }
-  }
-}
-
 struct SectionHeader<Form: HTML>: HTML {
   private let extraContent: String?
   private let formID: String
@@ -106,5 +73,4 @@ extension SectionHeader where Form: Identifiable, Form.ID == String {
   }
 }
 
-extension Section: Sendable where Content: Sendable {}
 extension SectionHeader: Sendable where Form: Sendable {}

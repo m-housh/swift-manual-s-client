@@ -23,7 +23,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
       proposedEquipment == nil
         ? .hx.post(route)
         : .hx.patch(route),
-      .hx.target(id: ProjectDetailsView._Section.id(.proposedEquipment())),
+      .hx.target(id: ProjectDetailsView.Section.id(.proposedEquipment())),
       .hx.swap(.outerHTML)
     ) {
       FormTitle { "Proposed Equipment" }
