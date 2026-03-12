@@ -1,15 +1,33 @@
 import Elementary
 import ManualSModels
+import ManualSRouter
+import SharedModels
 import SharedStyleguide
 
 struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {
   static let id = "coolingSystemTypeForm"
 
+  let projectID: Project.ID
+  let systemTypeID: SystemType.ID?
   let systemType: SystemType.Cooling?
   var id: String { Self.id }
 
+  var route: String {
+    ManualSRoute.router.path(for: .projectDetail(projectID, .systemTypes(.index)))
+      .appendingPath(systemTypeID)
+  }
+
   var body: some HTML<HTMLTag.form> {
-    Form(title: "System Type") {
+    Form(
+      title: "System Type",
+      systemTypeID == nil
+        ? .hx.post(route)
+        : .hx.patch(route),
+      .hx.target(id: ProjectDetailsView._Section.id(.coolingSystemType())),
+      .hx.swap(.outerHTML)
+    ) {
+
+      input(.hidden, .name("projectID"), .value(projectID))
 
       fieldset(.class("fieldset")) {
         legend(.class("fieldset-legend")) { "Type" }

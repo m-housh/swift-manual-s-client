@@ -30,25 +30,13 @@ struct ProjectDetailsView: HTML, Sendable {
         }
 
         div(.class("w-full md:w-[50%]")) {
-          NotLoadedSection(.designInfo(project.id, nil))
+          NotLoadedSection(.init(projectID: project.id, section: .designInfo()))
         }
       }
 
-      Section("System Type") {
-        SectionHeader(systemType?.label, tooltip: "Edit system type") {
-          CoolingSystemTypeForm(systemType: systemType)
-        }
-      }
+      NotLoadedSection(.init(projectID: project.id, section: .coolingSystemType()))
 
-      Section("Proposed Equipment") {
-        SectionHeader(
-          tooltip: "Edit proposed equipment",
-          modalAttributes: [.class("max-w-none w-[90%]")]
-        ) {
-          ProposedEquipmentForm(proposedEquipment: proposedEquipment)
-        }
-        ProposedEquipmentView(proposedEquipment: proposedEquipment)
-      }
+      NotLoadedSection(.init(projectID: project.id, section: .proposedEquipment()))
 
       Section("Manual-J") {
         SectionHeader(tooltip: "Edit manual-j") {
@@ -162,26 +150,40 @@ struct ProjectDetailsView: HTML, Sendable {
   }
 
   // FIX: Rename when all sections have migrated.
-  enum _Section: HTML, Sendable {
+  struct _Section: HTML, Sendable {
 
-    case designInfo(Project.ID, DesignInfo?)
+    let projectID: Project.ID
+    let section: SectionRoute
 
     var body: some HTML {
-      div(.id(ID(self).id)) {
-        switch self {
-        case .designInfo(let projectID, let designInfo):
+      div(.id(id)) {
+        switch section {
+
+        case .designInfo(let designInfo):
           SectionHeader(tooltip: "Edit design info") {
             DesignInfoForm(projectID: projectID, designInfo: designInfo)
           }
           DesignInfoTable(projectID: projectID, designInfo: designInfo)
-        }
-      }
-    }
 
-    var route: ManualSRoute {
-      switch self {
-      case .designInfo(let projectID, _):
-        return .projectDetail(projectID, .designInfo(.index))
+        case .coolingSystemType(let systemType):
+          SectionHeader(systemType?.cooling?.label, tooltip: "Edit system type") {
+            CoolingSystemTypeForm(
+              projectID: projectID,
+              systemTypeID: systemType?.id,
+              systemType: systemType?.cooling
+            )
+          }
+
+        case .proposedEquipment(let proposedEquipment):
+          SectionHeader(
+            tooltip: "Edit proposed equipment",
+            modalAttributes: [.class("max-w-none w-[90%]")]
+          ) {
+            ProposedEquipmentForm(projectID: projectID, proposedEquipment: proposedEquipment)
+          }
+          ProposedEquipmentView(proposedEquipment: proposedEquipment)
+
+        }
       }
     }
 
@@ -190,33 +192,43 @@ struct ProjectDetailsView: HTML, Sendable {
 
 extension ProjectDetailsView._Section {
 
-  static func id(_ key: ID) -> String {
-    key.id
-  }
+  enum SectionRoute: Equatable, Sendable {
 
-  var id: ID { ID(self) }
-
-  var title: String { id.title }
-
-  enum ID: String, Sendable {
-    case designInfo
+    case designInfo(DesignInfo? = nil)
+    case coolingSystemType(SystemType? = nil)
+    case proposedEquipment(ProposedEquipment? = nil)
 
     var id: String {
-      "\(rawValue)Section"
+      switch self {
+      case .designInfo: return "designInfoSection"
+      case .coolingSystemType: return "coolingSystemTypeSection"
+      case .proposedEquipment: return "proposedEquipmentSection"
+      }
     }
 
     var title: String {
       switch self {
       case .designInfo: return "Design Info"
-      }
-    }
-
-    init(_ section: ProjectDetailsView._Section) {
-      switch section {
-      case .designInfo:
-        self = .designInfo
+      case .coolingSystemType: return "System Type"
+      case .proposedEquipment: return "Proposed Equipment"
       }
     }
   }
 
+  var route: ManualSRoute {
+    switch section {
+    case .designInfo:
+      return .projectDetail(projectID, .designInfo(.index))
+    case .coolingSystemType:
+      return .projectDetail(projectID, .systemTypes(.index))
+    case .proposedEquipment:
+      return .projectDetail(projectID, .proposedEquipment(.index))
+    }
+  }
+
+  static func id(_ key: SectionRoute) -> String {
+    key.id
+  }
+  var title: String { section.title }
+  var id: String { section.id }
 }

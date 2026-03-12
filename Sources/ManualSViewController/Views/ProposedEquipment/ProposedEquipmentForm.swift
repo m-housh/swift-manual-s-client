@@ -1,6 +1,8 @@
 import Elementary
 import ElementaryHTMX
 import ManualSModels
+import ManualSRouter
+import SharedModels
 import SharedStyleguide
 
 struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
@@ -8,14 +10,28 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
   static let id = "proposedEquipmentForm"
 
   var id: String { Self.id }
+  let projectID: Project.ID
   let proposedEquipment: ProposedEquipment?
 
+  var route: String {
+    ManualSRoute.router.path(for: .projectDetail(projectID, .proposedEquipment(.index)))
+      .appendingPath(proposedEquipment?.id)
+  }
+
   var body: some HTML<HTMLTag.form> {
-    Form {
+    Form(
+      proposedEquipment == nil
+        ? .hx.post(route)
+        : .hx.patch(route),
+      .hx.target(id: ProjectDetailsView._Section.id(.proposedEquipment())),
+      .hx.swap(.outerHTML)
+    ) {
       FormTitle { "Proposed Equipment" }
       if let proposedEquipment {
         input(.hidden, .value(proposedEquipment.id), .name("id"))
       }
+
+      input(.hidden, .name("projectID"), .value(projectID))
 
       fieldset(.class("fieldset")) {
         legend(.class("fieldset-legend")) { "Efficiencies" }
@@ -64,24 +80,26 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             selected: { proposedEquipment?.fanSpeed == $0 },
             label: \.label
           )
+          .attributes(.name("fanSpeed"))
         }
       }
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Equipment" }
-        // FIX: Add new equipment field when clicked
-        button(
-          .class("btn")
-        ) {
-          SVG(.circlePlus)
-        }
-      }
+      // fieldset(.class("fieldset")) {
+      //   legend(.class("fieldset-legend")) { "Equipment" }
+      //   // FIX: Add new equipment field when clicked
+      // }
 
-      EquipmentTable(equipment: proposedEquipment?.equipment ?? [])
+      label { "Equipment" }
+
+      EquipmentTable(projectID: projectID, equipment: proposedEquipment?.equipment ?? [])
+
+      SubmitButton()
+        .attributes(.type(.submit), .class("btn-block"))
     }
   }
 
   struct EquipmentTable: HTML, Sendable {
+    let projectID: Project.ID
     let equipment: [ProposedEquipment.Equipment]
 
     var body: some HTML<HTMLTag.table> {
@@ -91,10 +109,22 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             th { "Manufacturer" }
             th { "Type" }
             th { "Model" }
-            th {}
+            th {
+              div(.class("flex justify-end")) {
+                button(
+                  .class("btn"),
+                  .hx.get(
+                    route: ManualSRoute.projectDetail(projectID, .proposedEquipment(.equipmentRow))),
+                  .hx.target(id: "equipmentTable"),
+                  .hx.swap(.beforeEnd)
+                ) {
+                  SVG(.circlePlus)
+                }
+              }
+            }
           }
         }
-        tbody {
+        tbody(.id("equipmentTable")) {
           for item in equipment {
             Row(equipment: item)
           }
@@ -103,7 +133,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
     }
 
     struct Row: HTML, Sendable {
-      let equipment: ProposedEquipment.Equipment
+      let equipment: ProposedEquipment.Equipment?
 
       var body: some HTML<HTMLTag.tr> {
         tr(.hx.ext("remove")) {
@@ -111,7 +141,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             input(
               .class("input"),
               .name("equipment[manufacturer]"),
-              .value(equipment.manufacturer),
+              .value(equipment?.manufacturer),
               .required
             )
           }
@@ -119,7 +149,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             Select(
               ProposedEquipment.EquipmentType.allCases,
               value: \.rawValue,
-              selected: { equipment.equipmentType == $0 },
+              selected: { equipment?.equipmentType == $0 },
               label: \.label
             )
             .attributes(
@@ -132,16 +162,18 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             input(
               .class("input"),
               .name("equipment[model]"),
-              .value(equipment.model),
+              .value(equipment?.model),
               .required
             )
           }
           td {
-            button(
-              .class("btn btn-error btn-ghost"),
-              .data("remove", value: "true")
-            ) {
-              SVG(.trash)
+            div(.class("flex justify-end")) {
+              button(
+                .class("btn btn-error btn-ghost"),
+                .data("remove", value: "true")
+              ) {
+                SVG(.trash)
+              }
             }
           }
         }

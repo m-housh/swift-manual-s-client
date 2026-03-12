@@ -5,7 +5,7 @@ import SharedModels
 import Tagged
 @preconcurrency import URLRouting
 
-public enum ManualSRoute: Sendable, Routeable {
+public enum ManualSRoute: Equatable, Sendable, Routeable {
   case index
   case projectDetail(Project.ID, ProjectDetail)
   case shared(SharedRoute)
@@ -26,7 +26,7 @@ public enum ManualSRoute: Sendable, Routeable {
     }
   }
 
-  public enum ProjectDetail: Sendable, Routeable {
+  public enum ProjectDetail: Equatable, Sendable, Routeable {
     case index
     case designInfo(DesignInfo.ViewRoute)
     case houseLoads(HouseLoad.ViewRoute)
@@ -55,7 +55,7 @@ public enum ManualSRoute: Sendable, Routeable {
       }
     }
 
-    public enum Interpolations: Sendable, Routeable {
+    public enum Interpolations: Equatable, Sendable, Routeable {
       case cooling(CoolingInterpolation.ViewRoute)
       case heating(HeatingInterpolation.ViewRoute)
 

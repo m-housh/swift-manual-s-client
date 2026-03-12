@@ -24,7 +24,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
       designInfo == nil
         ? .hx.post(route)
         : .hx.patch(route),
-      .hx.target(id: ProjectDetailsView._Section.id(.designInfo)),
+      .hx.target(id: ProjectDetailsView._Section.id(.designInfo())),
       .hx.swap(.outerHTML)
     ) {
       input(.hidden, .value(projectID), .name("projectID"))

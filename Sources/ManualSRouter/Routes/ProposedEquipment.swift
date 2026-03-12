@@ -9,6 +9,7 @@ import Validations
 extension ProposedEquipment {
   public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
+    case equipmentRow
     case submit(ProposedEquipment.FormIntermediate)
     case update(ProposedEquipment.ID, ProposedEquipment.FormIntermediate)
 
@@ -17,6 +18,13 @@ extension ProposedEquipment {
     public static let router = OneOf {
       Route(.case(Self.index)) {
         Path { path }
+        Method.get
+      }
+      Route(.case(Self.equipmentRow)) {
+        Path {
+          path
+          "equipment-row"
+        }
         Method.get
       }
       Route(.case(Self.submit)) {
