@@ -33,7 +33,6 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
 
       tab(title: "One Way - Indoor", checked: oneWayIndoor != nil)
       tabContent {
-        // FIX:
         OneWayForm(
           style: .indoor,
           outdoorDesignTemperature: Double(designInfo?.summerOutdoorTemperature ?? 90),
@@ -47,7 +46,6 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
 
       tab(title: "One Way - Outdoor", checked: oneWayOutdoor != nil)
       tabContent {
-        // FIX:
         OneWayForm(
           style: .outdoor,
           outdoorDesignTemperature: Double(designInfo?.summerOutdoorTemperature ?? 90),
@@ -61,8 +59,15 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
 
       tab(title: "Two Way", checked: twoWay != nil)
       tabContent {
-        // FIX:
-        span(.class("text-error font-bold")) { "Two Way: Implement Me!!!" }
+        TwoWayForm(
+          projectID: projectID,
+          outdoorDesignTemperature: Double(designInfo?.summerOutdoorTemperature ?? 90),
+          interpolationID: interpolation?.id,
+          designAirflow: interpolation?.designAirflow,
+          manufacturersAdjustments: interpolation?.manufacturersAdjustments,
+          twoWay: twoWay
+        )
+
       }
     }
   }

@@ -7,14 +7,14 @@ import SharedStyleguide
 
 struct OneWayForm: HTML, Sendable {
 
-  let style: Style
-  let outdoorDesignTemperature: Double
-  let projectID: Project.ID
-  let interpolationID: CoolingInterpolation.ID?
-  let designAirflow: Int?
-  let manufacturersAdjustments: CoolingCapacityAdjustment?
-  let oneWayIndoor: CoolingInterpolation.Interpolation.OneWayIndoor?
-  let oneWayOutdoor: CoolingInterpolation.Interpolation.OneWayOutdoor?
+  private let style: Style
+  private let outdoorDesignTemperature: Double
+  private let projectID: Project.ID
+  private let interpolationID: CoolingInterpolation.ID?
+  private let designAirflow: Int?
+  private let manufacturersAdjustments: CoolingCapacityAdjustment?
+  private let oneWayIndoor: CoolingInterpolation.Interpolation.OneWayIndoor?
+  private let oneWayOutdoor: CoolingInterpolation.Interpolation.OneWayOutdoor?
 
   init(
     style: OneWayForm.Style,
@@ -39,42 +39,6 @@ struct OneWayForm: HTML, Sendable {
   private var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
       .appendingPath(interpolationID)
-  }
-
-  private var belowWetBulb: Int {
-    guard style == .indoor else { return 63 }
-    return 62
-  }
-
-  private var belowTemp: Double {
-    guard style == .outdoor else { return outdoorDesignTemperature }
-    let evenDecimal = floor(outdoorDesignTemperature / 10)
-    return (evenDecimal - 0.5) * 10.0
-  }
-
-  private var belowCapacity: CoolingCapacity? {
-    switch style {
-    case .indoor: return oneWayIndoor?.belowDesign.capacity
-    case .outdoor: return oneWayOutdoor?.belowDesign.capacity
-    }
-  }
-
-  private var aboveWetBulb: Int {
-    guard style == .indoor else { return 63 }
-    return 67
-  }
-
-  private var aboveTemp: Double {
-    guard style == .outdoor else { return outdoorDesignTemperature }
-    let evenDecimal = floor(outdoorDesignTemperature / 10)
-    return (evenDecimal + 0.5) * 10.0
-  }
-
-  private var aboveCapacity: CoolingCapacity? {
-    switch style {
-    case .indoor: return oneWayIndoor?.aboveDesign.capacity
-    case .outdoor: return oneWayOutdoor?.aboveDesign.capacity
-    }
   }
 
   var body: some HTML<HTMLTag.form> {
@@ -122,7 +86,7 @@ struct OneWayForm: HTML, Sendable {
           .attributes(.disabled, when: style == .outdoor)
           .attributes(.required, when: style == .indoor)
 
-          span(.class("label")) { "Return Wet Bulb" }
+          span(.class("label")) { "Wet Bulb" }
         }
 
         TotalSensibleFieldset(.coolingCapacity(belowCapacity), namePrefix: "below")
@@ -175,6 +139,43 @@ struct OneWayForm: HTML, Sendable {
     }
     .fieldsetStyle(.roundedBox)
   }
+
+  private var belowWetBulb: Int {
+    guard style == .indoor else { return 63 }
+    return 62
+  }
+
+  private var belowTemp: Double {
+    guard style == .outdoor else { return outdoorDesignTemperature }
+    let evenDecimal = floor(outdoorDesignTemperature / 10)
+    return (evenDecimal - 0.5) * 10.0
+  }
+
+  private var belowCapacity: CoolingCapacity? {
+    switch style {
+    case .indoor: return oneWayIndoor?.belowDesign.capacity
+    case .outdoor: return oneWayOutdoor?.belowDesign.capacity
+    }
+  }
+
+  private var aboveWetBulb: Int {
+    guard style == .indoor else { return 63 }
+    return 67
+  }
+
+  private var aboveTemp: Double {
+    guard style == .outdoor else { return outdoorDesignTemperature }
+    let evenDecimal = floor(outdoorDesignTemperature / 10)
+    return (evenDecimal + 0.5) * 10.0
+  }
+
+  private var aboveCapacity: CoolingCapacity? {
+    switch style {
+    case .indoor: return oneWayIndoor?.aboveDesign.capacity
+    case .outdoor: return oneWayOutdoor?.aboveDesign.capacity
+    }
+  }
+
 }
 
 extension OneWayForm {

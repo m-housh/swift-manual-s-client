@@ -187,6 +187,7 @@ struct ProjectDetailsView: HTML, Sendable {
 
             InterpolationTable(projectID: projectID, coolingInterpolation: interpolation)
 
+            // FIX: The results need to be reinterpreted if house load changes.
             div(.id("coolingInterpolationResult")) {
               if let interpolation {
                 div(.class("divider")) {
@@ -194,7 +195,9 @@ struct ProjectDetailsView: HTML, Sendable {
                 }
                 LoadableView(
                   route: .projectDetail(
-                    projectID, .interpolations(.cooling(.result(interpolation.id))))
+                    projectID,
+                    .interpolations(.cooling(.result(interpolation.id)))
+                  )
                 ) {}
               }
             }
