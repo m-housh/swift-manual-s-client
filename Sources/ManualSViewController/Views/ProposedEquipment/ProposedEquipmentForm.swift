@@ -33,65 +33,72 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Efficiencies" }
-        label(.class("input w-full")) {
-          span(.class("label")) { "AFUE" }
-          input(
-            .type(.number),
-            .id("afue"),
-            .name("afue"),
-            .value(proposedEquipment?.afue?.rawValue),
-            .min(0),
-            .max(100),
-            .step(1)
-          )
-        }
+      Fieldset("Efficiencies") {
+        div(.class("grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2")) {
 
-        label(.class("input w-full")) {
-          span(.class("label")) { "SEER" }
-          input(
-            .type(.number),
-            .id("seer"),
-            .name("seer"),
-            .value(proposedEquipment?.seer),
-            .min(0),
-            .step(0.1)
-          )
-        }
+          label(.class("select w-full")) {
+            span(.class("label")) { "Fan Speed" }
+            Select(
+              ProposedEquipment.FanSpeed.allCases,
+              value: \.rawValue,
+              selected: { proposedEquipment?.fanSpeed == $0 },
+              label: \.label
+            )
+            .attributes(.name("fanSpeed"))
+          }
 
-        label(.class("input w-full")) {
-          span(.class("label")) { "HSPF" }
-          input(
-            .type(.number),
-            .id("hspf"),
-            .name("hspf"),
-            .value(proposedEquipment?.hspf),
-            .min(0),
-            .step(0.1)
-          )
-        }
+          label(.class("input w-full")) {
+            span(.class("label")) { "AFUE" }
+            input(
+              .type(.number),
+              .id("afue"),
+              .name("afue"),
+              .value(proposedEquipment?.afue?.rawValue),
+              .placeholder("97"),
+              .min(0),
+              .max(100),
+              .step(1)
+            )
+          }
 
-        label(.class("select w-full")) {
-          span(.class("label")) { "Fan Speed" }
-          Select(
-            ProposedEquipment.FanSpeed.allCases,
-            value: \.rawValue,
-            selected: { proposedEquipment?.fanSpeed == $0 },
-            label: \.label
-          )
-          .attributes(.name("fanSpeed"))
+          label(.class("input w-full")) {
+            span(.class("label")) { "SEER" }
+            input(
+              .type(.number),
+              .id("seer"),
+              .name("seer"),
+              .value(proposedEquipment?.seer),
+              .placeholder("16"),
+              .min(0),
+              .step(0.1)
+            )
+          }
+
+          label(.class("input w-full")) {
+            span(.class("label")) { "HSPF" }
+            input(
+              .type(.number),
+              .id("hspf"),
+              .name("hspf"),
+              .value(proposedEquipment?.hspf),
+              .placeholder("9.5"),
+              .min(0),
+              .step(0.1)
+            )
+          }
+
         }
       }
 
-      // fieldset(.class("fieldset")) {
-      //   legend(.class("fieldset-legend")) { "Equipment" }
-      //   // FIX: Add new equipment field when clicked
-      // }
-
-      label { "Equipment" }
-
-      EquipmentTable(projectID: projectID, equipment: proposedEquipment?.equipment ?? [])
+      Fieldset("Equipment") {
+        // label { "Equipment" }
+        p(.class("text-accent font-bold italic")) {
+          """
+          Equipment used for the project.
+          """
+        }
+        EquipmentTable(projectID: projectID, equipment: proposedEquipment?.equipment ?? [])
+      }
 
       SubmitButton()
         .attributes(.type(.submit), .class("btn-block"))
