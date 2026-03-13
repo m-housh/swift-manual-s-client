@@ -68,7 +68,7 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { "Return Wet Bulb" }
         }
 
-        CoolingContainerFieldset(capacity: nil, namePrefix: "below")
+        TotalSensibleFieldset(.coolingCapacity(nil), namePrefix: "below")
           .fieldsetStyle(.plain)
       }
 
@@ -107,11 +107,11 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { "Return Wet Bulb" }
         }
 
-        CoolingContainerFieldset(capacity: nil, namePrefix: "above")
+        TotalSensibleFieldset(.coolingCapacity(nil), namePrefix: "above")
           .fieldsetStyle(.plain)
       }
 
-      ManufacturersAdjustmentFieldset(adjustments: nil)
+      TotalSensibleFieldset(.manufacturersAdjustments(nil))
 
       SubmitButton()
         .attributes(.class("btn-block my-6"))

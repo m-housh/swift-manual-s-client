@@ -48,7 +48,8 @@ struct HouseLoadForm: HTML, Identifiable, Sendable {
         }
       }
 
-      CoolingContainerFieldset(load: houseLoad?.cooling)
+      // CoolingContainerFieldset(load: houseLoad?.cooling)
+      TotalSensibleFieldset(.coolingLoad(houseLoad?.cooling))
         .coolingContainerFieldsetStyle(.vstack())
 
       SubmitButton()

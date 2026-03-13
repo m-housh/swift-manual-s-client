@@ -13,6 +13,7 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
   let interpolationID: CoolingInterpolation.ID?
   let designAirflow: Int?
   let capacity: CoolingCapacity?
+  let manufacturersAdjustments: CoolingCapacityAdjustment?
 
   var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
@@ -33,9 +34,9 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
 
       DesignAirflowFieldset(designAirflow: designAirflow)
 
-      CoolingContainerFieldset(capacity: capacity)
+      TotalSensibleFieldset(.coolingCapacity(capacity))
 
-      ManufacturersAdjustmentFieldset(adjustments: nil)
+      TotalSensibleFieldset(.manufacturersAdjustments(manufacturersAdjustments))
 
       SubmitButton()
         .attributes(.class("btn-block"))

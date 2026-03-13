@@ -17,18 +17,18 @@ struct AltitudeAdjustmentFieldset: HTML, Sendable {
   }
 }
 
-struct ManufacturersAdjustmentFieldset: HTML, Sendable {
-
-  let adjustments: CoolingCapacityAdjustment?
-
-  var body: some HTML<HTMLTag.fieldset> {
-    _AdjustmentFieldset(
-      "Manufacturer's Adjustments",
-      adjustments: adjustments,
-      fieldNamePrefix: "manufacturersAdjustment"
-    )
-  }
-}
+// struct ManufacturersAdjustmentFieldset: HTML, Sendable {
+//
+//   let adjustments: CoolingCapacityAdjustment?
+//
+//   var body: some HTML<HTMLTag.fieldset> {
+//     _AdjustmentFieldset(
+//       "Manufacturer's Adjustments",
+//       adjustments: adjustments,
+//       fieldNamePrefix: "manufacturersAdjustment"
+//     )
+//   }
+// }
 
 private struct _AdjustmentFieldset: HTML, Sendable {
 

@@ -22,7 +22,8 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
           projectID: projectID,
           interpolationID: interpolation?.id,
           designAirflow: interpolation?.designAirflow,
-          capacity: noInterpolationCapacity
+          capacity: noInterpolationCapacity,
+          manufacturersAdjustments: interpolation?.manufacturersAdjustments
         )
       }
 
