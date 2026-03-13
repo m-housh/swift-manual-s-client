@@ -169,11 +169,11 @@ extension CoolingInterpolation.Interpolation.OneWayOutdoor {
     fileprivate static let parser = FormData {
       Field("projectID") { Project.ID.parser() }
       Field("aboveDesignOutdoorTemperature") { Int.parser() }
-      Field("aboveDesignTotalCapacity") { Double.parser() }
-      Field("aboveDesignSensibleCapacity") { Double.parser() }
+      Field("aboveTotal") { Double.parser() }
+      Field("aboveSensible") { Double.parser() }
       Field("belowDesignOutdoorTemperature") { Int.parser() }
-      Field("belowDesignTotalCapacity") { Double.parser() }
-      Field("belowDesignSensibleCapacity") { Double.parser() }
+      Field("belowTotal") { Double.parser() }
+      Field("belowSensible") { Double.parser() }
       Field("manufacturersAdjustmentTotal") { Double.parser() }
       Field("manufacturersAdjustmentSensible") { Double.parser() }
       Field("designAirflow") { Int.parser() }
@@ -258,12 +258,12 @@ extension CoolingInterpolation.Interpolation.OneWayIndoor {
 
     fileprivate static let parser = FormData {
       Field("projectID") { Project.ID.parser() }
-      Field("aboveDesignIndoorWetBulb") { Int.parser() }
-      Field("aboveDesignTotalCapacity") { Double.parser() }
-      Field("aboveDesignSensibleCapacity") { Double.parser() }
-      Field("belowDesignIndoorWetBulb") { Int.parser() }
-      Field("belowDesignTotalCapacity") { Double.parser() }
-      Field("belowDesignSensibleCapacity") { Double.parser() }
+      Field("aboveWetBulb") { Int.parser() }
+      Field("aboveTotal") { Double.parser() }
+      Field("aboveSensible") { Double.parser() }
+      Field("belowWetBulb") { Int.parser() }
+      Field("belowTotal") { Double.parser() }
+      Field("belowSensible") { Double.parser() }
       Field("manufacturersAdjustmentTotal") { Double.parser() }
       Field("manufacturersAdjustmentSensible") { Double.parser() }
       Field("designAirflow") { Int.parser() }

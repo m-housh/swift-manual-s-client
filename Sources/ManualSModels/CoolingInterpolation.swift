@@ -1,4 +1,5 @@
 import CasePaths
+import CasePathsCore
 import Foundation
 import SharedModels
 import Tagged
@@ -30,6 +31,12 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
     self.manufacturersAdjustments = manufacturersAdjustemnts
     self.createdAt = createdAt
     self.updatedAt = updatedAt
+  }
+
+  public subscript<Member>(
+    dynamicMember keyPath: CaseKeyPath<Interpolation, Member>
+  ) -> Member? {
+    interpolation[case: keyPath]
   }
 
   public struct Response: Codable, Equatable, Sendable {

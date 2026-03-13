@@ -15,7 +15,7 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
   let capacity: CoolingCapacity?
   let manufacturersAdjustments: CoolingCapacityAdjustment?
 
-  var route: String {
+  private var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
       .appendingPath(interpolationID)
   }

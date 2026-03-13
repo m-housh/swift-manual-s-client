@@ -1,5 +1,7 @@
 import Elementary
 import Foundation
+import ManualSModels
+import ManualSRouter
 import SharedModels
 import SharedStyleguide
 
@@ -7,6 +9,37 @@ struct OneWayForm: HTML, Sendable {
 
   let style: Style
   let outdoorDesignTemperature: Double
+  let projectID: Project.ID
+  let interpolationID: CoolingInterpolation.ID?
+  let designAirflow: Int?
+  let manufacturersAdjustments: CoolingCapacityAdjustment?
+  let oneWayIndoor: CoolingInterpolation.Interpolation.OneWayIndoor?
+  let oneWayOutdoor: CoolingInterpolation.Interpolation.OneWayOutdoor?
+
+  init(
+    style: OneWayForm.Style,
+    outdoorDesignTemperature: Double,
+    projectID: Project.ID,
+    interpolationID: CoolingInterpolation.ID? = nil,
+    designAirflow: Int? = nil,
+    manufacturersAdjustments: CoolingCapacityAdjustment? = nil,
+    oneWayIndoor: CoolingInterpolation.Interpolation.OneWayIndoor? = nil,
+    oneWayOutdoor: CoolingInterpolation.Interpolation.OneWayOutdoor? = nil
+  ) {
+    self.style = style
+    self.outdoorDesignTemperature = outdoorDesignTemperature
+    self.projectID = projectID
+    self.interpolationID = interpolationID
+    self.designAirflow = designAirflow
+    self.manufacturersAdjustments = manufacturersAdjustments
+    self.oneWayIndoor = oneWayIndoor
+    self.oneWayOutdoor = oneWayOutdoor
+  }
+
+  private var route: String {
+    ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
+      .appendingPath(interpolationID)
+  }
 
   private var belowWetBulb: Int {
     guard style == .indoor else { return 63 }
@@ -17,6 +50,13 @@ struct OneWayForm: HTML, Sendable {
     guard style == .outdoor else { return outdoorDesignTemperature }
     let evenDecimal = floor(outdoorDesignTemperature / 10)
     return (evenDecimal - 0.5) * 10.0
+  }
+
+  private var belowCapacity: CoolingCapacity? {
+    switch style {
+    case .indoor: return oneWayIndoor?.belowDesign.capacity
+    case .outdoor: return oneWayOutdoor?.belowDesign.capacity
+    }
   }
 
   private var aboveWetBulb: Int {
@@ -30,9 +70,26 @@ struct OneWayForm: HTML, Sendable {
     return (evenDecimal + 0.5) * 10.0
   }
 
+  private var aboveCapacity: CoolingCapacity? {
+    switch style {
+    case .indoor: return oneWayIndoor?.aboveDesign.capacity
+    case .outdoor: return oneWayOutdoor?.aboveDesign.capacity
+    }
+  }
+
   var body: some HTML<HTMLTag.form> {
-    form(.class("space-y-4")) {
-      FormTitle { "One Way - \(style.rawValue.capitalized)" }
+    Form(
+      title: "One Way - \(style.rawValue.capitalized)",
+      interpolationID == nil
+        ? .hx.post(route)
+        : .hx.patch(route),
+      .hx.target(id: ProjectDetailsView.Section.id(.coolingInterpolation())),
+      .hx.swap(.outerHTML)
+    ) {
+
+      input(.hidden, .name("projectID"), .value(projectID))
+
+      DesignAirflowFieldset(designAirflow: designAirflow)
 
       Fieldset("Below") {
         p(.class("text-accent text-sm italic pb-6")) {
@@ -42,7 +99,7 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { SVG(.thermometerSun) }
           input(
             .type(.number),
-            .name("belowOutdoorTemperature"),
+            .name("belowDesignOutdoorTemperature"),
             .value(belowTemp),
             .min(0),
             .step(1),
@@ -68,7 +125,7 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { "Return Wet Bulb" }
         }
 
-        TotalSensibleFieldset(.coolingCapacity(nil), namePrefix: "below")
+        TotalSensibleFieldset(.coolingCapacity(belowCapacity), namePrefix: "below")
           .fieldsetStyle(.plain)
       }
 
@@ -81,7 +138,7 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { SVG(.thermometerSun) }
           input(
             .type(.number),
-            .name("aboveOutdoorTemperature"),
+            .name("aboveDesignOutdoorTemperature"),
             .value(aboveTemp),
             .min(0),
             .step(1),
@@ -107,11 +164,11 @@ struct OneWayForm: HTML, Sendable {
           span(.class("label")) { "Return Wet Bulb" }
         }
 
-        TotalSensibleFieldset(.coolingCapacity(nil), namePrefix: "above")
+        TotalSensibleFieldset(.coolingCapacity(aboveCapacity), namePrefix: "above")
           .fieldsetStyle(.plain)
       }
 
-      TotalSensibleFieldset(.manufacturersAdjustments(nil))
+      TotalSensibleFieldset(.manufacturersAdjustments(manufacturersAdjustments))
 
       SubmitButton()
         .attributes(.class("btn-block my-6"))

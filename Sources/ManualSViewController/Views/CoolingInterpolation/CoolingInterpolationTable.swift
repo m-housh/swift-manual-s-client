@@ -53,20 +53,82 @@ struct InterpolationTable: HTML, Sendable {
     let interpolation: CoolingInterpolation.Interpolation
     // let interpolationResult: CoolingInterpolation.Response
 
+    var body: some HTML {
+      switch interpolation {
+      case .noInterpolation(let capacity):
+        Row(
+          label: interpolation.label,
+          designAirflow: designAirflow,
+          wetBulb: 63,
+          capacity: capacity
+        )
+      case .oneWayIndoor(let oneWayIndoor):
+        Row(
+          label: "\(interpolation.label) - Below",
+          designAirflow: designAirflow,
+          wetBulb: oneWayIndoor.belowDesign.indoorWetBulbTemperature,
+          capacity: oneWayIndoor.belowDesign.capacity
+        )
+
+        Row(
+          label: "\(interpolation.label) - Above",
+          designAirflow: designAirflow,
+          wetBulb: oneWayIndoor.aboveDesign.indoorWetBulbTemperature,
+          capacity: oneWayIndoor.aboveDesign.capacity
+        )
+      case .oneWayOutdoor(let oneWayOutdoor):
+        Row(
+          label: "\(interpolation.label) - Below",
+          designAirflow: designAirflow,
+          wetBulb: 63,
+          capacity: oneWayOutdoor.belowDesign.capacity
+        )
+
+        Row(
+          label: "\(interpolation.label) - Above",
+          designAirflow: designAirflow,
+          wetBulb: 63,
+          capacity: oneWayOutdoor.aboveDesign.capacity
+        )
+      default:
+        EmptyHTML()
+      }
+    }
+  }
+
+  struct Row: HTML, Sendable {
+    let label: String
+    let designAirflowColumn: Int
+    let wetBulbColumn: Int
+    let totalColumn: Double
+    let sensibleColumn: Double
+    let latentColumn: Double
+    let shrColumn: Double
+
+    init(
+      label: String,
+      designAirflow: Int,
+      wetBulb: Int,
+      capacity: CoolingCapacity
+    ) {
+      self.label = label
+      self.designAirflowColumn = designAirflow
+      self.wetBulbColumn = wetBulb
+      self.totalColumn = capacity.total
+      self.sensibleColumn = capacity.sensible
+      self.latentColumn = capacity.latent
+      self.shrColumn = capacity.sensibleHeatRatio
+    }
+
     var body: some HTML<HTMLTag.tr> {
       tr {
-        td(.class("label")) { interpolation.label }
-        td { NumberView(designAirflow) }
-        switch interpolation {
-        case .noInterpolation(let capacity):
-          td { NumberView(63) }
-          td { NumberView(capacity.total) }
-          td { NumberView(capacity.sensible) }
-          td { NumberView(capacity.latent) }
-          td { NumberView(capacity.sensibleHeatRatio) }
-        default:
-          EmptyHTML()
-        }
+        td(.class("label")) { label }
+        td { NumberView(designAirflowColumn) }
+        td { NumberView(wetBulbColumn) }
+        td { NumberView(totalColumn) }
+        td { NumberView(sensibleColumn) }
+        td { NumberView(latentColumn) }
+        td { NumberView(shrColumn) }
       }
     }
   }

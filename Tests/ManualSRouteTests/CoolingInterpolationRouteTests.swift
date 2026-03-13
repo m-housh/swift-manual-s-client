@@ -60,7 +60,7 @@ struct SubmitRouteArgument {
   )
 
   static let oneWayIndoor = Self(
-    "projectID=\(UUID(0))&aboveDesignIndoorWetBulb=95&aboveDesignTotalCapacity=1234&aboveDesignSensibleCapacity=1234&belowDesignIndoorWetBulb=85&belowDesignTotalCapacity=1234&belowDesignSensibleCapacity=1234"
+    "projectID=\(UUID(0))&aboveWetBulb=95&aboveTotal=1234&aboveSensible=1234&belowWetBulb=85&belowTotal=1234&belowSensible=1234"
       + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0"
       + "&designAirflow=800",
     CoolingInterpolation.FormIntermediate.oneWayIndoor(
@@ -76,7 +76,7 @@ struct SubmitRouteArgument {
   )
 
   static let oneWayOutdoor = Self(
-    "projectID=\(UUID(0))&aboveDesignOutdoorTemperature=95&aboveDesignTotalCapacity=1234&aboveDesignSensibleCapacity=1234&belowDesignOutdoorTemperature=85&belowDesignTotalCapacity=1234&belowDesignSensibleCapacity=1234"
+    "projectID=\(UUID(0))&aboveDesignOutdoorTemperature=95&aboveTotal=1234&aboveSensible=1234&belowDesignOutdoorTemperature=85&belowTotal=1234&belowSensible=1234"
       + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0"
       + "&designAirflow=800",
     CoolingInterpolation.FormIntermediate.oneWayOutdoor(
