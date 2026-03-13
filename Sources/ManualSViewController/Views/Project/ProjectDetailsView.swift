@@ -22,10 +22,15 @@ struct ProjectDetailsView: HTML, Sendable {
             Title { "Project" }
               .attributes(.class("text-secondary"))
           }
-          SectionHeader(tooltip: "Edit project") {
-            ProjectForm(project: project)
+          div {
+            SectionHeader(tooltip: "Edit project") {
+              ProjectForm(project: project)
+            }
+            ProjectTable(project: project)
+
+            button(.class("btn btn-block btn-primary")) { "Edit" }
           }
-          ProjectTable(project: project)
+          .sectionContentStyle()
         }
 
         div(.class("divider divider-horizontal")) {}
@@ -138,65 +143,68 @@ struct ProjectDetailsView: HTML, Sendable {
 
     var body: some HTML {
       div(.id(id)) {
-        switch section {
+        div {
+          switch section {
 
-        case .designInfo(let designInfo):
-          SectionHeader(tooltip: "Edit design info") {
-            DesignInfoForm(projectID: projectID, designInfo: designInfo)
-          }
-          DesignInfoTable(projectID: projectID, designInfo: designInfo)
+          case .designInfo(let designInfo):
+            SectionHeader(tooltip: "Edit design info") {
+              DesignInfoForm(projectID: projectID, designInfo: designInfo)
+            }
+            DesignInfoTable(projectID: projectID, designInfo: designInfo)
 
-        case .coolingSystemType(let systemType):
-          SectionHeader(systemType?.cooling?.label, tooltip: "Edit system type") {
-            CoolingSystemTypeForm(
-              projectID: projectID,
-              systemTypeID: systemType?.id,
-              systemType: systemType?.cooling
+          case .coolingSystemType(let systemType):
+            SectionHeader(systemType?.cooling?.label, tooltip: "Edit system type") {
+              CoolingSystemTypeForm(
+                projectID: projectID,
+                systemTypeID: systemType?.id,
+                systemType: systemType?.cooling
+              )
+            }
+
+          case .proposedEquipment(let proposedEquipment):
+            SectionHeader(
+              tooltip: "Edit proposed equipment",
+              modalAttributes: [.class("max-w-none w-[90%]")]
+            ) {
+              ProposedEquipmentForm(projectID: projectID, proposedEquipment: proposedEquipment)
+            }
+            ProposedEquipmentView(proposedEquipment: proposedEquipment)
+
+          case .houseLoad(let houseLoad):
+            SectionHeader(tooltip: "Edit manual-j") {
+              HouseLoadForm(projectID: projectID, houseLoad: houseLoad)
+            }
+            HouseLoadView(houseLoad: houseLoad)
+
+          case .coolingInterpolation(let interpolation, let designInfo):
+            // FIX: needs to handle different interpolations.
+            SectionHeader(
+              tooltip: "Edit interpolation",
+              modalAttributes: [.class("max-w-none w-[90%] min-h-[80%]")]
+            ) {
+              CoolingInterpolationForm(
+                projectID: projectID, designInfo: designInfo, interpolation: interpolation
+              )
+            }
+
+            NoInterpolationTable(
+              designAirflow: 800,
+              capacity: .init(total: 23456, sensible: 17865),
+              manufacturersAdjustments: nil
+            )
+
+          case .coolingInterpolationResult(let result):
+            // FIX:
+            CoolingInterpolationResponseTable(
+              response: result,
+              sizingLimits: .mock,
+              flaggedCapacities: .mock
             )
           }
-
-        case .proposedEquipment(let proposedEquipment):
-          SectionHeader(
-            tooltip: "Edit proposed equipment",
-            modalAttributes: [.class("max-w-none w-[90%]")]
-          ) {
-            ProposedEquipmentForm(projectID: projectID, proposedEquipment: proposedEquipment)
-          }
-          ProposedEquipmentView(proposedEquipment: proposedEquipment)
-
-        case .houseLoad(let houseLoad):
-          SectionHeader(tooltip: "Edit manual-j") {
-            HouseLoadForm(projectID: projectID, houseLoad: houseLoad)
-          }
-          HouseLoadView(houseLoad: houseLoad)
-
-        case .coolingInterpolation(let interpolation, let designInfo):
-          // FIX: needs to handle different interpolations.
-          SectionHeader(
-            tooltip: "Edit interpolation",
-            modalAttributes: [.class("max-w-none w-[90%] min-h-[80%]")]
-          ) {
-            CoolingInterpolationForm(
-              projectID: projectID, designInfo: designInfo, interpolation: interpolation
-            )
-          }
-
-          NoInterpolationTable(
-            designAirflow: 800,
-            capacity: .init(total: 23456, sensible: 17865),
-            manufacturersAdjustments: nil
-          )
-
-        case .coolingInterpolationResult(let result):
-          // FIX:
-          CoolingInterpolationResponseTable(
-            response: result,
-            sizingLimits: .mock,
-            flaggedCapacities: .mock
-          )
         }
+        .fieldsetStyle(.roundedBox)
+        .sectionContentStyle()
       }
-      .fieldsetStyle(.roundedBox)
     }
 
   }
@@ -259,4 +267,16 @@ extension ProjectDetailsView.Section {
   }
   var title: String { section.title }
   var id: String { section.id }
+}
+
+extension HTML<HTMLTag.table> {
+  func projectDetailStyle() -> some HTML<HTMLTag.table> {
+    attributes(.class("table-border"))
+  }
+}
+
+extension HTML<HTMLTag.div> {
+  func sectionContentStyle() -> some HTML<HTMLTag.div> {
+    attributes(.class("bg-base-200 border-base-300 border rounded-box shadow-lg p-6"))
+  }
 }
