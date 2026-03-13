@@ -33,6 +33,15 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
+      Fieldset("Equipment") {
+        p(.class("text-accent font-bold italic")) {
+          """
+          Equipment used for the project.
+          """
+        }
+        EquipmentTable(projectID: projectID, equipment: proposedEquipment?.equipment ?? [])
+      }
+
       Fieldset("Efficiencies") {
         div(.class("grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2")) {
 
@@ -41,7 +50,11 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             Select(
               ProposedEquipment.FanSpeed.allCases,
               value: \.rawValue,
-              selected: { proposedEquipment?.fanSpeed == $0 },
+              selected: {
+                proposedEquipment == nil
+                  ? $0 == .mediumHigh
+                  : $0 == proposedEquipment?.fanSpeed
+              },
               label: \.label
             )
             .attributes(.name("fanSpeed"))
@@ -90,16 +103,6 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
         }
       }
 
-      Fieldset("Equipment") {
-        // label { "Equipment" }
-        p(.class("text-accent font-bold italic")) {
-          """
-          Equipment used for the project.
-          """
-        }
-        EquipmentTable(projectID: projectID, equipment: proposedEquipment?.equipment ?? [])
-      }
-
       SubmitButton()
         .attributes(.type(.submit), .class("btn-block"))
     }
@@ -119,7 +122,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             th {
               div(.class("flex justify-end")) {
                 button(
-                  .class("btn"),
+                  .class("btn btn-primary btn-ghost"),
                   .hx.get(
                     route: ManualSRoute.projectDetail(projectID, .proposedEquipment(.equipmentRow))),
                   .hx.target(id: "equipmentTable"),

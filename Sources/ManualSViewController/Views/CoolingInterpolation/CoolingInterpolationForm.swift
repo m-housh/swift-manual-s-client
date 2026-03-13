@@ -15,6 +15,8 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
   let interpolation: CoolingInterpolation?
 
   var body: some HTML {
+    FormTitle { "Interpolation" }
+
     div(.role("tablist"), .class("tabs tabs-lift")) {
       tab(title: "None", checked: noInterpolationChecked)
       tabContent {

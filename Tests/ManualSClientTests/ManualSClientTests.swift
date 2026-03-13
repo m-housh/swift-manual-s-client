@@ -4,6 +4,8 @@ import ManualSClient
 import ManualSModels
 import Testing
 
+// TODO: Add tests for flagged capacities and sizingLimits that are now returned in the
+//       cooling interpolation responses.
 @Suite
 struct ManualSClientTests {
 
@@ -242,7 +244,8 @@ struct ManualSClientTests {
           manufacturersAdjustments: nil,
           outdoorDesignTemperature: 90,
           projectElevation: 0,
-          interpolation: .noInterpolation(total: 22600, sensible: 16850)
+          interpolation: .noInterpolation(total: 22600, sensible: 16850),
+          systemType: .mock
         )
       )
       #expect(sut.interpolatedCapacity.total == 22600)
@@ -275,7 +278,8 @@ struct ManualSClientTests {
               belowDesign: .init(
                 indoorWetBulbTemperature: 62, capacity: .init(total: 23046, sensible: 19078))
             )
-          )
+          ),
+          systemType: SystemType.Cooling.mock
         )
       )
       #expect(sut.interpolatedCapacity.total.string() == "23,402.4")
@@ -311,7 +315,8 @@ struct ManualSClientTests {
                 outdoorTemperature: 85, capacity: .init(total: 23200, sensible: 17100)
               )
             )
-          )
+          ),
+          systemType: .mock
         )
       )
       #expect(sut.interpolatedCapacity == .init(total: 22600, sensible: 16850))
@@ -361,7 +366,8 @@ struct ManualSClientTests {
                 )
               )
             )
-          )
+          ),
+          systemType: .mock
         )
       )
       #expect(sut.interpolatedCapacity.total.string(digits: 0) == "23,911")

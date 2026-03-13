@@ -66,7 +66,7 @@ extension TotalSensibleFieldset {
       switch self {
       case .coolingCapacity(_): return "cooling"
       case .coolingLoad(_): return "cooling"
-      case .manufacturersAdjustments(_): return "manufacturersAdjustments"
+      case .manufacturersAdjustments(_): return "manufacturersAdjustment"
       }
     }
   }

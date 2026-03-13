@@ -38,6 +38,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
             .name("winterOutdoorTemperature"),
             .id("winterOutdoorTemperature"),
             .value(designInfo?.winterOutdoorTemperature),
+            .placeholder("12"),
             .min(0),
             .required
           )
@@ -51,6 +52,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
             .name("summerOutdoorTemperature"),
             .id("summerOutdoorTemperature"),
             .value(designInfo?.summerOutdoorTemperature),
+            .placeholder("95"),
             .min(0),
             .required
           )
@@ -93,7 +95,7 @@ struct DesignInfoForm: HTML, Identifiable, Sendable {
             .type(.number),
             .name("elevation"),
             .id("elevation"),
-            .value(designInfo?.elevation),
+            .value(designInfo?.elevation ?? 0),
             .min(0),
             .required
           )

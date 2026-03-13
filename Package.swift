@@ -98,6 +98,7 @@ let package = Package(
       dependencies: [
         .target(name: "ManualSDatabase"),
         .target(name: "ManualSRouter"),
+        .target(name: "ManualSClient"),
         .product(name: "AuthClient", package: "swift-shared-manuals"),
         .product(name: "SharedMiddleware", package: "swift-shared-manuals"),
         .product(name: "SharedViews", package: "swift-shared-manuals"),

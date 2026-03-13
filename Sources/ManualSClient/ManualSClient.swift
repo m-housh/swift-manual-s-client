@@ -1,6 +1,6 @@
 import Dependencies
 import DependenciesMacros
-@_exported import ManualSModels
+import ManualSModels
 import Tagged
 
 extension DependencyValues {

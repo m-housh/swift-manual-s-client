@@ -3,10 +3,7 @@ import ManualSModels
 import SharedStyleguide
 
 struct CoolingInterpolationResponseTable: HTML, Sendable {
-
   let response: CoolingInterpolation.Response?
-  let sizingLimits: SizingLimit.Cooling
-  let flaggedCapacities: FlaggedCapacities
 
   var body: some HTML<HTMLTag.table> {
     table(.class("table table-zebra text-lg")) {
@@ -52,17 +49,17 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
           tr {
             td(.class("label")) { "Capacity as % of Design" }
             td {
-              FlaggedView(flaggedCapacities.total) {
+              FlaggedView(response.flaggedCapacities.total) {
                 PercentView(response.capacityAsPercentOfLoad.total)
               }
             }
             td {
-              FlaggedView(flaggedCapacities.sensible) {
+              FlaggedView(response.flaggedCapacities.sensible) {
                 PercentView(response.capacityAsPercentOfLoad.sensible)
               }
             }
             td {
-              FlaggedView(flaggedCapacities.latent) {
+              FlaggedView(response.flaggedCapacities.latent) {
                 PercentView(response.capacityAsPercentOfLoad.latent)
               }
             }
@@ -70,9 +67,9 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
           }
           tr {
             td(.class("label")) { "Oversizing Limits" }
-            td { PercentView(sizingLimits.oversizing.total) }
+            td { PercentView(response.sizingLimits.oversizing.total) }
             td {}
-            td { PercentView(sizingLimits.oversizing.latent) }
+            td { PercentView(response.sizingLimits.oversizing.latent) }
             td {}
           }
 

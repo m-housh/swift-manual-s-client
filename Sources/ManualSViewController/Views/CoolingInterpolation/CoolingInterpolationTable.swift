@@ -1,15 +1,21 @@
 import Elementary
 import Foundation
 import ManualSModels
+import ManualSRouter
 import SharedModels
 import SharedStyleguide
 
 struct InterpolationTable: HTML, Sendable {
 
-  let manufacturersAdjustments: CoolingCapacityAdjustment?
+  let projectID: Project.ID
+  let coolingInterpolation: CoolingInterpolation?
+
+  private var manufacturersAdjustments: CoolingCapacityAdjustment? {
+    coolingInterpolation?.manufacturersAdjustments
+  }
 
   var body: some HTML<HTMLTag.table> {
-    table {
+    table(.class("table")) {
       thead {
         tr {
           th { HTMLRaw("&nbsp;") }
@@ -22,30 +28,37 @@ struct InterpolationTable: HTML, Sendable {
         }
       }
       tbody {
-        tr {
-          td(.class("label")) { "Manufacturer's Adjustments" }
-          td {}
-          td {}
-          td { PercentView.multiplier(manufacturersAdjustments?.total ?? 100) }
-          td { PercentView.multiplier(manufacturersAdjustments?.sensible ?? 100) }
-          td {}
-          td {}
+        if let coolingInterpolation {
+          InterpolationRow(
+            designAirflow: coolingInterpolation.designAirflow,
+            interpolation: coolingInterpolation.interpolation
+          )
+          tr {
+            td(.class("label")) { "Manufacturer's Adjustments" }
+            td {}
+            td {}
+            td { PercentView.multiplier(manufacturersAdjustments?.total ?? 100) }
+            td { PercentView.multiplier(manufacturersAdjustments?.sensible ?? 100) }
+            td {}
+            td {}
+          }
         }
       }
     }
   }
 
+  // TODO: Trash button ??
   struct InterpolationRow: HTML, Sendable {
+    let designAirflow: Int
     let interpolation: CoolingInterpolation.Interpolation
     // let interpolationResult: CoolingInterpolation.Response
 
     var body: some HTML<HTMLTag.tr> {
       tr {
         td(.class("label")) { interpolation.label }
+        td { NumberView(designAirflow) }
         switch interpolation {
         case .noInterpolation(let capacity):
-          // td { NumberView(designAirflow) }
-          td {}
           td { NumberView(63) }
           td { NumberView(capacity.total) }
           td { NumberView(capacity.sensible) }

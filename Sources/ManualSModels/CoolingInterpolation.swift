@@ -42,19 +42,25 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
     public let finalCapacityAtDesign: CoolingCapacity
     public let altitudeDeratings: CoolingDerating?
     public let capacityAsPercentOfLoad: CapacityAsPercentOfLoad
+    public let flaggedCapacities: FlaggedCapacities
+    public let sizingLimits: SizingLimit.Cooling
 
     public init(
       interpolatedCapacity: CoolingCapacity,
       excessLatent: Double,
       finalCapacityAtDesign: CoolingCapacity,
       altitudeDeratings: CoolingDerating? = nil,
-      capacityAsPercentOfLoad: CapacityAsPercentOfLoad
+      capacityAsPercentOfLoad: CapacityAsPercentOfLoad,
+      flaggedCapacities: FlaggedCapacities,
+      sizingLimits: SizingLimit.Cooling
     ) {
       self.interpolatedCapacity = interpolatedCapacity
       self.excessLatent = excessLatent
       self.finalCapacityAtDesign = finalCapacityAtDesign
       self.altitudeDeratings = altitudeDeratings
       self.capacityAsPercentOfLoad = capacityAsPercentOfLoad
+      self.flaggedCapacities = flaggedCapacities
+      self.sizingLimits = sizingLimits
     }
   }
 
@@ -65,19 +71,22 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
     public let outdoorDesignTemperature: Int
     public let projectElevation: Int
     public let interpolation: CoolingInterpolation.Interpolation
+    public let systemType: SystemType.Cooling
 
     public init(
       coolingLoad: CoolingLoad,
       manufacturersAdjustments: CoolingCapacityAdjustment? = nil,
       outdoorDesignTemperature: Int,
       projectElevation: Int = 0,
-      interpolation: CoolingInterpolation.Interpolation
+      interpolation: CoolingInterpolation.Interpolation,
+      systemType: SystemType.Cooling
     ) {
       self.coolingLoad = coolingLoad
       self.manufacturersAdjustments = manufacturersAdjustments
       self.outdoorDesignTemperature = outdoorDesignTemperature
       self.projectElevation = projectElevation
       self.interpolation = interpolation
+      self.systemType = systemType
     }
   }
 
@@ -315,7 +324,9 @@ extension CoolingInterpolation.Interpolation.TwoWay: Validatable {
       excessLatent: 807,
       finalCapacityAtDesign: .init(total: 23456, sensible: 17865),
       altitudeDeratings: .init(total: 100, sensible: 100),
-      capacityAsPercentOfLoad: .init(total: 131.2, sensible: 134.4, latent: 120.3)
+      capacityAsPercentOfLoad: .init(total: 131.2, sensible: 134.4, latent: 120.3),
+      flaggedCapacities: .mock,
+      sizingLimits: .mock
     )
   }
 #endif

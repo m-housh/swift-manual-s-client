@@ -20,7 +20,7 @@ struct LoadableView<Placeholder: HTML>: HTML, Sendable where Placeholder: Sendab
       .class("relative"),
       .hx.get(route: route),
       .hx.target("this"),
-      .hx.trigger(.event(.revealed)),
+      .hx.trigger(.event(.revealed).once()),
       .hx.swap(.innerHTML),
       .hx.indicator(),
     ) {

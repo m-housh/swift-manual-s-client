@@ -41,7 +41,7 @@ struct SectionHeader<Form: HTML>: HTML {
         }
       }
 
-      button(.class("btn btn-secondary btn-ghost"), .showModal(id: formID)) {
+      button(.class("btn btn-primary btn-ghost"), .showModal(id: formID)) {
         SVG(.squarePen)
       }
       .tooltip(tooltip, position: .left)

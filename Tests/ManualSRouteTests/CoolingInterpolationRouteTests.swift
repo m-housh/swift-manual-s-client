@@ -48,32 +48,37 @@ struct SubmitRouteArgument {
   static let allCases = [Self.noInterpolation, .oneWayIndoor, .oneWayOutdoor, .twoWay]
 
   static let noInterpolation = Self(
-    "projectID=\(UUID(0))&coolingTotal=1111&coolingSensible=1111&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0",
+    "projectID=\(UUID(0))&coolingTotal=1111&coolingSensible=1111&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0&designAirflow=800",
     CoolingInterpolation.FormIntermediate.noInterpolation(
       .init(
         projectID: .init(UUID(0)), coolingTotal: 1111, coolingSensible: 1111,
         manufacturersAdjustmentTotal: 1.0,
-        manufacturersAdjustmentSensible: 1.0)
+        manufacturersAdjustmentSensible: 1.0,
+        designAirflow: 800
+      )
     )
   )
 
   static let oneWayIndoor = Self(
     "projectID=\(UUID(0))&aboveDesignIndoorWetBulb=95&aboveDesignTotalCapacity=1234&aboveDesignSensibleCapacity=1234&belowDesignIndoorWetBulb=85&belowDesignTotalCapacity=1234&belowDesignSensibleCapacity=1234"
-      + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0",
+      + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0"
+      + "&designAirflow=800",
     CoolingInterpolation.FormIntermediate.oneWayIndoor(
       .init(
         projectID: .init(UUID(0)), aboveDesignIndoorWetBulb: 95,
         aboveDesignTotalCapacity: 1234, aboveDesignSensibleCapacity: 1234,
         belowDesignIndoorWetBulb: 85, belowDesignTotalCapacity: 1234,
         belowDesignSensibleCapacity: 1234,
-        manufacturersAdjustmentTotal: 1, manufacturersAdjustmentSensible: 1
+        manufacturersAdjustmentTotal: 1, manufacturersAdjustmentSensible: 1,
+        designAirflow: 800
       )
     )
   )
 
   static let oneWayOutdoor = Self(
     "projectID=\(UUID(0))&aboveDesignOutdoorTemperature=95&aboveDesignTotalCapacity=1234&aboveDesignSensibleCapacity=1234&belowDesignOutdoorTemperature=85&belowDesignTotalCapacity=1234&belowDesignSensibleCapacity=1234"
-      + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0",
+      + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0"
+      + "&designAirflow=800",
     CoolingInterpolation.FormIntermediate.oneWayOutdoor(
       .init(
         projectID: .init(UUID(0)), aboveDesignOutdoorTemperature: 95,
@@ -81,7 +86,9 @@ struct SubmitRouteArgument {
         belowDesignOutdoorTemperature: 85, belowDesignTotalCapacity: 1234,
         belowDesignSensibleCapacity: 1234,
         manufacturersAdjustmentTotal: 1.0,
-        manufacturersAdjustmentSensible: 1.0)
+        manufacturersAdjustmentSensible: 1.0,
+        designAirflow: 800
+      )
     )
   )
 
@@ -93,7 +100,8 @@ struct SubmitRouteArgument {
       + "&belowDesignOutdoorTemperature=85"
       + "&belowDesignAboveIndoorWetBulb=67&belowDesignAboveTotalCapacity=1234&belowDesignAboveSensibleCapacity=1234"
       + "&belowDesignBelowIndoorWetBulb=62&belowDesignBelowTotalCapacity=1234&belowDesignBelowSensibleCapacity=1234"
-      + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0",
+      + "&manufacturersAdjustmentTotal=1.0&manufacturersAdjustmentSensible=1.0"
+      + "&designAirflow=800",
     CoolingInterpolation.FormIntermediate.twoWay(
       .init(
         projectID: .init(UUID(0)),
@@ -112,7 +120,8 @@ struct SubmitRouteArgument {
         belowDesignBelowTotalCapacity: 1234,
         belowDesignBelowSensibleCapacity: 1234,
         manufacturersAdjustmentTotal: 1.0,
-        manufacturersAdjustmentSensible: 1.0
+        manufacturersAdjustmentSensible: 1.0,
+        designAirflow: 800
       )
     )
   )

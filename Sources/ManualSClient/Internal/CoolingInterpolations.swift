@@ -8,13 +8,13 @@ extension CoolingInterpolation.Request {
     switch interpolation {
     case .noInterpolation(let request):
       try request.validate()
-      return await .init(
+      return try await .init(
         interpolatedCapacity: request,
         request: self
       )
     case .oneWayIndoor(let request):
       try request.validate()
-      return await .init(
+      return try await .init(
         interpolatedCapacity: request.interpolatedCapacity(),
         request: self
       )
@@ -23,7 +23,7 @@ extension CoolingInterpolation.Request {
       let interpolatedCapacity = await request.interpolatedCapacity(
         outdoorDesignTemperature: Double(outdoorDesignTemperature)
       )
-      return await .init(
+      return try await .init(
         interpolatedCapacity: interpolatedCapacity,
         request: self
       )
@@ -36,7 +36,7 @@ extension CoolingInterpolation.Request {
         outdoorDesignTemperature: Double(outdoorDesignTemperature)
       )
 
-      return await .init(
+      return try await .init(
         interpolatedCapacity: interpolatedCapacity,
         request: self
       )
@@ -50,7 +50,7 @@ extension CoolingInterpolation.Response {
   init(
     interpolatedCapacity: CoolingCapacity,
     request: CoolingInterpolation.Request
-  ) async {
+  ) async throws {
 
     let excessLatent = (interpolatedCapacity.latent - request.coolingLoad.latent) / 2
     var finalCapacity = interpolatedCapacity.adjust(excessLatent: excessLatent)
@@ -62,13 +62,17 @@ extension CoolingInterpolation.Response {
     finalCapacity = finalCapacity.apply(altitudeDeratings)
 
     let capacityAsPercentOfLoad = request.coolingLoad.capacityAsPercentOfLoad(finalCapacity)
+    let sizingLimits = try await request.sizingLimits()
 
     self.init(
       interpolatedCapacity: interpolatedCapacity,
       excessLatent: excessLatent,
       finalCapacityAtDesign: finalCapacity,
       altitudeDeratings: altitudeDeratings,
-      capacityAsPercentOfLoad: capacityAsPercentOfLoad
+      capacityAsPercentOfLoad: capacityAsPercentOfLoad,
+      flaggedCapacities: .init(
+        sizingLimits: sizingLimits, capacityAsPercentOfLoad: capacityAsPercentOfLoad),
+      sizingLimits: sizingLimits
     )
   }
 }
@@ -182,5 +186,20 @@ extension CoolingInterpolation.Interpolation.TwoWay {
         capacity: below
       )
     )
+  }
+}
+
+extension CoolingInterpolation.Request {
+  private var sizingLimitRequest: ManualSClient.CoolingSizeLimitRequest {
+    switch systemType.climate {
+    case .coldWinterOrNoLatentLoad:
+      return .coldWinterOrNoLatentLoad(totalCoolingLoad: coolingLoad.total)
+    case .mildWinterOrLatentLoad:
+      return .mildWinterOrLatentLoad(compressor: systemType.compressor)
+    }
+  }
+
+  fileprivate func sizingLimits() async throws -> SizingLimit.Cooling {
+    try await sizingLimitRequest.respond()
   }
 }

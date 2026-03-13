@@ -10,10 +10,12 @@ import SharedViews
 
 struct ProjectDetailsView: HTML, Sendable {
 
+  let user: User
   let project: Project
   let heatingFormType: HeatingFormType = .none
 
   var body: some HTML {
+    Navbar(userID: user.id)
     div(.class("flex flex-col m-10 space-y-6")) {
       div(.class("flex flex-wrap md:flex-nowrap")) {
 
@@ -27,8 +29,6 @@ struct ProjectDetailsView: HTML, Sendable {
               ProjectForm(project: project)
             }
             ProjectTable(project: project)
-
-            button(.class("btn btn-block btn-primary")) { "Edit" }
           }
           .sectionContentStyle()
         }
@@ -47,8 +47,6 @@ struct ProjectDetailsView: HTML, Sendable {
       LoadableSection(.init(projectID: project.id, section: .houseLoad()))
 
       LoadableSection(.init(projectID: project.id, section: .coolingInterpolation()))
-
-      // NotLoadedSection(.init(projectID: project.id, section: .coolingInterpolationResult()))
 
       div(.class("divider")) {}
 
@@ -122,7 +120,6 @@ struct ProjectDetailsView: HTML, Sendable {
     }
 
     var body: some HTML {
-      // Section(section.title) {
       Elementary.section {
         div(.class("divider")) {
           Title { section.title }
@@ -177,29 +174,31 @@ struct ProjectDetailsView: HTML, Sendable {
             HouseLoadView(houseLoad: houseLoad)
 
           case .coolingInterpolation(let interpolation, let designInfo):
-            // FIX: needs to handle different interpolations.
             SectionHeader(
               tooltip: "Edit interpolation",
               modalAttributes: [.class("max-w-none w-[90%] min-h-[80%]")]
             ) {
               CoolingInterpolationForm(
-                projectID: projectID, designInfo: designInfo, interpolation: interpolation
+                projectID: projectID,
+                designInfo: designInfo,
+                interpolation: interpolation
               )
             }
 
-            NoInterpolationTable(
-              designAirflow: 800,
-              capacity: .init(total: 23456, sensible: 17865),
-              manufacturersAdjustments: nil
-            )
+            InterpolationTable(projectID: projectID, coolingInterpolation: interpolation)
 
-          case .coolingInterpolationResult(let result):
-            // FIX:
-            CoolingInterpolationResponseTable(
-              response: result,
-              sizingLimits: .mock,
-              flaggedCapacities: .mock
-            )
+            div(.id("coolingInterpolationResult")) {
+              if let interpolation {
+                div(.class("divider")) {
+                  span(.class("text-xl text-accent font-bold")) { "Result" }
+                }
+                LoadableView(
+                  route: .projectDetail(
+                    projectID, .interpolations(.cooling(.result(interpolation.id))))
+                ) {}
+              }
+            }
+
           }
         }
         .fieldsetStyle(.roundedBox)
@@ -219,7 +218,6 @@ extension ProjectDetailsView.Section {
     case proposedEquipment(ProposedEquipment? = nil)
     case houseLoad(HouseLoad? = nil)
     case coolingInterpolation(CoolingInterpolation? = nil, DesignInfo? = nil)
-    case coolingInterpolationResult(CoolingInterpolation.Response? = nil)
 
     var id: String {
       switch self {
@@ -228,7 +226,6 @@ extension ProjectDetailsView.Section {
       case .proposedEquipment: return "proposedEquipmentSection"
       case .houseLoad: return "houseLoadSection"
       case .coolingInterpolation: return "coolingInterpolationSection"
-      case .coolingInterpolationResult: return "coolingInterpolationResultSection"
       }
     }
 
@@ -239,7 +236,6 @@ extension ProjectDetailsView.Section {
       case .proposedEquipment: return "Proposed Equipment"
       case .houseLoad: return "Manual-J"
       case .coolingInterpolation: return "Interpolation"
-      case .coolingInterpolationResult: return "Interpolation Result"
       }
     }
   }
@@ -256,9 +252,6 @@ extension ProjectDetailsView.Section {
       return .projectDetail(projectID, .houseLoads(.index))
     case .coolingInterpolation:
       return .projectDetail(projectID, .interpolations(.cooling(.index)))
-    case .coolingInterpolationResult:
-      // FIX:
-      fatalError()
     }
   }
 

@@ -1,7 +1,9 @@
 import AuthClient
 import Dependencies
 import Elementary
+import ManualSClient
 import ManualSDatabase
+import ManualSModels
 import ManualSRouter
 import SharedDatabase
 import SharedMiddleware
@@ -18,7 +20,8 @@ public struct ManualSViewController: ViewController {
   let sharedController = SharedViewController(
     auth: AuthViewController(),
     projects: ProjectViewController { project in
-      ProjectDetailsView(project: project)
+      @Dependency(\.auth) var auth
+      return try ProjectDetailsView(user: auth.currentUser(), project: project)
     },
     users: UserViewController()
   )
@@ -46,7 +49,9 @@ public struct ManualSViewController: ViewController {
 extension ManualSRoute.ProjectDetail {
 
   func view(projectID: Project.ID) async throws -> ViewResponse {
+    @Dependency(\.auth) var auth
     @Dependency(\.database) var database
+    // @Dependency(\.manualS) var manualS
 
     switch self {
     case .index:
@@ -55,7 +60,8 @@ extension ManualSRoute.ProjectDetail {
           guard let project = try await database.projects.get(projectID) else {
             throw NotFoundError()
           }
-          return ProjectDetailsView(project: project)
+          let user = try auth.currentUser()
+          return ProjectDetailsView(user: user, project: project)
         }
       }
     case .designInfo(let route):
@@ -211,6 +217,11 @@ extension ManualSRoute.ProjectDetail {
             )
           }
         }
+      case .result(let id):
+        return .view {
+          // return div { "Results..." }
+          await makeCoolingInterpolationResultView(id: id, projectID: projectID)
+        }
       case .submit(let form):
         return .view {
           await ResultView {
@@ -239,4 +250,49 @@ extension ManualSRoute.ProjectDetail {
     }
   }
 
+}
+
+private func makeCoolingInterpolationResultView(
+  id: CoolingInterpolation.ID,
+  projectID: Project.ID
+) async -> some HTML
+  & Sendable
+{
+  @Dependency(\.database) var database
+  @Dependency(\.manualS) var manualS
+
+  return await ResultView {
+    guard let interpolation = try await database.coolingInterpolations.get(id),
+      let houseLoad = try await database.houseLoads.fetch(projectID),
+      let designInfo = try await database.designInfo.fetch(projectID),
+      let systemType = try await database.systemTypes.fetch(projectID),
+      let coolingSystemType = systemType.cooling
+    else {
+      throw NotFoundError()
+    }
+    let response = try await manualS.coolingInterpolation(
+      .init(
+        coolingLoad: houseLoad.cooling,
+        manufacturersAdjustments: interpolation.manufacturersAdjustments,
+        outdoorDesignTemperature: designInfo.summerOutdoorTemperature,
+        projectElevation: designInfo.elevation,
+        interpolation: interpolation.interpolation,
+        systemType: coolingSystemType
+      )
+    )
+    return CoolingInterpolationResponseTable(response: response)
+  }
+}
+
+extension SystemType.Cooling {
+  fileprivate func coolingSizingLimitRequest(
+    totalCoolingLoad: Double
+  ) -> ManualSClient.CoolingSizeLimitRequest {
+    switch climate {
+    case .coldWinterOrNoLatentLoad:
+      return .coldWinterOrNoLatentLoad(totalCoolingLoad: totalCoolingLoad)
+    case .mildWinterOrLatentLoad:
+      return .mildWinterOrLatentLoad(compressor: compressor)
+    }
+  }
 }
