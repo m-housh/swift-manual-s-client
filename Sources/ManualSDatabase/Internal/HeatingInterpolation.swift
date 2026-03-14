@@ -22,7 +22,7 @@ extension ManualSDatabase.HeatingInterpolationRepository {
       fetch: { projectID in
         try await HeatingInterpolationModel.query(on: database)
           .filter(\.$projectID == projectID.rawValue)
-          .first()
+          .all()
           .map { try $0.toDTO() }
       },
       get: { id in
@@ -49,7 +49,7 @@ extension HeatingInterpolation.Create {
     .init(
       id: nil,
       projectID: projectID,
-      interpolations: interpolations
+      interpolation: interpolation
     )
   }
 }
@@ -59,11 +59,10 @@ extension HeatingInterpolation {
     func prepare(on database: any Database) async throws {
       try await database.schema(HeatingInterpolationModel.schema)
         .id()
-        .field("interpolations", .array)
+        .field("interpolation", .dictionary)
         .field("createdAt", .string)
         .field("updatedAt", .string)
         .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
-        .unique(on: "projectID")
         .create()
     }
 
@@ -83,8 +82,8 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
   @Field(key: "projectID")
   var projectID: UUID
 
-  @Field(key: "interpolations")
-  var interpolations: [HeatingInterpolation.Interpolation]
+  @Field(key: "interpolation")
+  var interpolation: HeatingInterpolation.Interpolation
 
   @Timestamp(key: "createdAt", on: .create, format: .iso8601)
   var createdAt: Date?
@@ -97,35 +96,32 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
   public init(
     id: SystemType.ID? = nil,
     projectID: Project.ID,
-    interpolations: [HeatingInterpolation.Interpolation]
+    interpolation: HeatingInterpolation.Interpolation
   ) {
     self.id = id?.rawValue
     self.projectID = projectID.rawValue
-    self.interpolations = interpolations
+    self.interpolation = interpolation
   }
 
   func toDTO() throws -> HeatingInterpolation {
     .init(
       id: .init(try requireID()),
       projectID: .init(projectID),
-      interpolations: interpolations,
+      interpolation: interpolation,
       createdAt: createdAt!,
       updatedAt: updatedAt!
     )
   }
 
   func applyUpdates(_ updates: HeatingInterpolation.Update) {
-    if updates.interpolations != self.interpolations {
-      self.interpolations = updates.interpolations
+    if updates.interpolation != self.interpolation {
+      self.interpolation = updates.interpolation
     }
   }
 }
 
 extension HeatingInterpolationModel: Validatable {
   var body: some Validation<HeatingInterpolationModel> {
-    Validator.validate(
-      \.interpolations,
-      with: [HeatingInterpolation.Interpolation].accumulating()
-    )
+    Validator.validate(\.interpolation)
   }
 }

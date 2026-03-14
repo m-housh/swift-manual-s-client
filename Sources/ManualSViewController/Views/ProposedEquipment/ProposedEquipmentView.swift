@@ -44,7 +44,9 @@ struct ProposedEquipmentView: HTML, Sendable {
               td(.class("label")) { "AFUE" }
               td {
                 if let afue = proposedEquipment?.afue {
-                  NumberView(afue.rawValue)
+                  PercentView(afue)
+                    .percentViewStyle(.split())
+                  // .percentViewSymbolStyle(.svg)
                 }
               }
             }

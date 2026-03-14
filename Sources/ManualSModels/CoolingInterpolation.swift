@@ -5,6 +5,7 @@ import SharedModels
 import Tagged
 import Validations
 
+@dynamicMemberLookup
 public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
 
   public let id: Tagged<Self, UUID>
@@ -99,7 +100,7 @@ public struct CoolingInterpolation: Codable, Equatable, Identifiable, Sendable {
 
   @CasePathable
   @dynamicMemberLookup
-  public enum Interpolation: Codable, Equatable, Sendable {
+  public enum Interpolation: Codable, Equatable, Sendable, CasePathable {
     case noInterpolation(CoolingCapacity)
     case oneWayIndoor(OneWayIndoor)
     case oneWayOutdoor(OneWayOutdoor)

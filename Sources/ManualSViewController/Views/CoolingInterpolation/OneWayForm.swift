@@ -10,41 +10,29 @@ struct OneWayForm: HTML, Sendable {
   private let style: Style
   private let outdoorDesignTemperature: Double
   private let projectID: Project.ID
-  private let interpolationID: CoolingInterpolation.ID?
-  private let designAirflow: Int?
-  private let manufacturersAdjustments: CoolingCapacityAdjustment?
-  private let oneWayIndoor: CoolingInterpolation.Interpolation.OneWayIndoor?
-  private let oneWayOutdoor: CoolingInterpolation.Interpolation.OneWayOutdoor?
+  private let interpolation: CoolingInterpolation?
 
   init(
     style: OneWayForm.Style,
     outdoorDesignTemperature: Double,
     projectID: Project.ID,
-    interpolationID: CoolingInterpolation.ID? = nil,
-    designAirflow: Int? = nil,
-    manufacturersAdjustments: CoolingCapacityAdjustment? = nil,
-    oneWayIndoor: CoolingInterpolation.Interpolation.OneWayIndoor? = nil,
-    oneWayOutdoor: CoolingInterpolation.Interpolation.OneWayOutdoor? = nil
+    interpolation: CoolingInterpolation? = nil
   ) {
     self.style = style
     self.outdoorDesignTemperature = outdoorDesignTemperature
     self.projectID = projectID
-    self.interpolationID = interpolationID
-    self.designAirflow = designAirflow
-    self.manufacturersAdjustments = manufacturersAdjustments
-    self.oneWayIndoor = oneWayIndoor
-    self.oneWayOutdoor = oneWayOutdoor
+    self.interpolation = interpolation
   }
 
   private var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
-      .appendingPath(interpolationID)
+      .appendingPath(interpolation?.id)
   }
 
   var body: some HTML<HTMLTag.form> {
     Form(
       title: "One Way - \(style.rawValue.capitalized)",
-      interpolationID == nil
+      interpolation == nil
         ? .hx.post(route)
         : .hx.patch(route),
       .hx.target(id: ProjectDetailsView.Section.id(.coolingInterpolation())),
@@ -53,7 +41,7 @@ struct OneWayForm: HTML, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      DesignAirflowFieldset(designAirflow: designAirflow)
+      DesignAirflowFieldset(designAirflow: interpolation?.designAirflow)
 
       Fieldset("Below") {
         p(.class("text-accent text-sm italic pb-6")) {
@@ -132,7 +120,7 @@ struct OneWayForm: HTML, Sendable {
           .fieldsetStyle(.plain)
       }
 
-      TotalSensibleFieldset(.manufacturersAdjustments(manufacturersAdjustments))
+      TotalSensibleFieldset(.manufacturersAdjustments(interpolation?.manufacturersAdjustments))
 
       SubmitButton()
         .attributes(.class("btn-block my-6"))
@@ -153,8 +141,8 @@ struct OneWayForm: HTML, Sendable {
 
   private var belowCapacity: CoolingCapacity? {
     switch style {
-    case .indoor: return oneWayIndoor?.belowDesign.capacity
-    case .outdoor: return oneWayOutdoor?.belowDesign.capacity
+    case .indoor: return interpolation?.oneWayIndoor?.belowDesign.capacity
+    case .outdoor: return interpolation?.oneWayOutdoor?.belowDesign.capacity
     }
   }
 
@@ -171,8 +159,8 @@ struct OneWayForm: HTML, Sendable {
 
   private var aboveCapacity: CoolingCapacity? {
     switch style {
-    case .indoor: return oneWayIndoor?.aboveDesign.capacity
-    case .outdoor: return oneWayOutdoor?.aboveDesign.capacity
+    case .indoor: return interpolation?.oneWayIndoor?.aboveDesign.capacity
+    case .outdoor: return interpolation?.oneWayOutdoor?.aboveDesign.capacity
     }
   }
 

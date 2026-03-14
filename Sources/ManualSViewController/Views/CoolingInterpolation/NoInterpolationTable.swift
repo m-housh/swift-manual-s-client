@@ -36,11 +36,12 @@ struct NoInterpolationTable: HTML, Sendable {
           td(.class("label")) { "Manufacturer's Adjustments" }
           td {}
           td {}
-          td { PercentView.multiplier(manufacturersAdjustments?.total ?? 100) }
-          td { PercentView.multiplier(manufacturersAdjustments?.sensible ?? 100) }
+          td { PercentView(manufacturersAdjustments?.total ?? 100) }
+          td { PercentView(manufacturersAdjustments?.sensible ?? 100) }
           td {}
           td {}
         }
+        .percentViewStyle(.decimal)
       }
     }
   }

@@ -51,7 +51,7 @@ extension ManualSRoute.ProjectDetail {
   func view(projectID: Project.ID) async throws -> ViewResponse {
     @Dependency(\.auth) var auth
     @Dependency(\.database) var database
-    // @Dependency(\.manualS) var manualS
+    @Dependency(\.manualS) var manualS
 
     switch self {
     case .index:
@@ -245,8 +245,58 @@ extension ManualSRoute.ProjectDetail {
         }
       }
 
-    default:
-      fatalError()
+    case .interpolations(.heating(let route)):
+      switch route {
+      case .index:
+        return .view {
+          await ResultView {
+            let interpolations = try await database.heatingInterpolations.fetch(projectID)
+            guard let designInfo = try await database.designInfo.fetch(projectID),
+              let houseLoad = try await database.houseLoads.fetch(projectID)
+            else {
+              // return HeatingInterpolationsView(projectID: projectID, interpolations: [])
+              throw NotFoundError()
+            }
+
+            let responses = try await manualS.heatingInterpolations(
+              interpolations,
+              designInfo: designInfo,
+              heatingLoad: Int(houseLoad.heating)
+            )
+
+            return ProjectDetailsView.Section(
+              projectID: projectID,
+              section: .heatingInterpolation(responses)
+            )
+          }
+        }
+      case .submit(let form):
+        return .view {
+
+          let _ = try await database.heatingInterpolations.create(form)
+          // FIX: Make a helper or something to not repeat this code.
+          let interpolations = try await database.heatingInterpolations.fetch(projectID)
+          guard let designInfo = try await database.designInfo.fetch(projectID),
+            let houseLoad = try await database.houseLoads.fetch(projectID)
+          else {
+            // return HeatingInterpolationsView(projectID: projectID, interpolations: [])
+            throw NotFoundError()
+          }
+
+          let responses = try await manualS.heatingInterpolations(
+            interpolations,
+            designInfo: designInfo,
+            heatingLoad: Int(houseLoad.heating)
+          )
+
+          return ProjectDetailsView.Section(
+            projectID: projectID,
+            section: .heatingInterpolation(responses)
+          )
+        }
+      case .update(_, _):
+        fatalError()
+      }
     }
   }
 
@@ -294,5 +344,32 @@ extension SystemType.Cooling {
     case .mildWinterOrLatentLoad:
       return .mildWinterOrLatentLoad(compressor: compressor)
     }
+  }
+}
+
+extension ManualSClient {
+  fileprivate func heatingInterpolations(
+    _ interpolations: [HeatingInterpolation],
+    designInfo: DesignInfo,
+    heatingLoad: Int
+  ) async throws -> [(HeatingInterpolation, HeatingInterpolation.Response)] {
+    var retVal = [(HeatingInterpolation, HeatingInterpolation.Response)]()
+    for interpolation in interpolations {
+      switch interpolation.interpolation {
+      case .heatPump(let capacity):
+        let response = try await heatPumpHeatingInterpolation(
+          .init(
+            capacity: capacity,
+            heatingLoad: heatingLoad,
+            projectElevation: designInfo.elevation,
+            outdoorDesignTemperature: designInfo.winterOutdoorTemperature
+          )
+        )
+        retVal.append((interpolation, .heatPump(response)))
+      default:
+        break
+      }
+    }
+    return retVal
   }
 }

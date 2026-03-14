@@ -1,3 +1,4 @@
+import CasePathsCore
 import Elementary
 import ElementaryHTMX
 import ManualSModels
@@ -10,20 +11,17 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
   static let id = "noInterpolationForm"
   var id: String { Self.id }
   let projectID: Project.ID
-  let interpolationID: CoolingInterpolation.ID?
-  let designAirflow: Int?
-  let capacity: CoolingCapacity?
-  let manufacturersAdjustments: CoolingCapacityAdjustment?
+  let interpolation: CoolingInterpolation?
 
   private var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
-      .appendingPath(interpolationID)
+      .appendingPath(interpolation?.id)
   }
 
   var body: some HTML<HTMLTag.form> {
     Form(
       title: "No Interpolation",
-      interpolationID == nil
+      interpolation == nil
         ? .hx.post(route)
         : .hx.patch(route),
       .hx.target(id: ProjectDetailsView.Section.id(.coolingInterpolation())),
@@ -32,11 +30,11 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      DesignAirflowFieldset(designAirflow: designAirflow)
+      DesignAirflowFieldset(designAirflow: interpolation?.designAirflow)
 
-      TotalSensibleFieldset(.coolingCapacity(capacity))
+      TotalSensibleFieldset(.coolingCapacity(interpolation?.noInterpolation))
 
-      TotalSensibleFieldset(.manufacturersAdjustments(manufacturersAdjustments))
+      TotalSensibleFieldset(.manufacturersAdjustments(interpolation?.manufacturersAdjustments))
 
       SubmitButton()
         .attributes(.class("btn-block"))

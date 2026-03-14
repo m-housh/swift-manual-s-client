@@ -62,7 +62,7 @@ public struct ManualSDatabase: Sendable {
   public struct HeatingInterpolationRepository: Sendable {
     public var create: @Sendable (HeatingInterpolation.Create) async throws -> HeatingInterpolation
     public var delete: @Sendable (HeatingInterpolation.ID) async throws -> Void
-    public var fetch: @Sendable (Project.ID) async throws -> HeatingInterpolation?
+    public var fetch: @Sendable (Project.ID) async throws -> [HeatingInterpolation]
     public var get: @Sendable (HeatingInterpolation.ID) async throws -> HeatingInterpolation?
     public var update:
       @Sendable (HeatingInterpolation.ID, HeatingInterpolation.Update) async throws ->

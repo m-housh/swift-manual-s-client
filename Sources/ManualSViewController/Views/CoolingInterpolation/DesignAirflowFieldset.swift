@@ -1,4 +1,5 @@
 import Elementary
+import ManualSModels
 import SharedStyleguide
 
 struct DesignAirflowFieldset: HTML, Sendable {

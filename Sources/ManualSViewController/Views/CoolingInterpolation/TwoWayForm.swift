@@ -9,36 +9,31 @@ import SharedStyleguide
 struct TwoWayForm: HTML, Sendable {
   let projectID: Project.ID
   let outdoorDesignTemperature: Double
-  let interpolationID: CoolingInterpolation.ID?
-  let designAirflow: Int?
-  let manufacturersAdjustments: CoolingCapacityAdjustment?
-  let twoWay: CoolingInterpolation.Interpolation.TwoWay?
+  let interpolation: CoolingInterpolation?
 
   init(
     projectID: Project.ID,
     outdoorDesignTemperature: Double,
-    interpolationID: CoolingInterpolation.ID? = nil,
-    designAirflow: Int? = nil,
-    manufacturersAdjustments: CoolingCapacityAdjustment? = nil,
-    twoWay: CoolingInterpolation.Interpolation.TwoWay? = nil
+    interpolation: CoolingInterpolation? = nil
   ) {
     self.projectID = projectID
     self.outdoorDesignTemperature = outdoorDesignTemperature
-    self.interpolationID = interpolationID
-    self.designAirflow = designAirflow
-    self.manufacturersAdjustments = manufacturersAdjustments
-    self.twoWay = twoWay
+    self.interpolation = interpolation
   }
 
   private var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.cooling(.index))))
-      .appendingPath(interpolationID)
+      .appendingPath(interpolation?.id)
+  }
+
+  private var twoWay: CoolingInterpolation.Interpolation.TwoWay? {
+    interpolation?.twoWay
   }
 
   var body: some HTML<HTMLTag.form> {
     Form(
       title: "Two Way",
-      interpolationID == nil
+      interpolation == nil
         ? .hx.post(route)
         : .hx.patch(route),
       .hx.target(id: ProjectDetailsView.Section.id(.coolingInterpolation())),
@@ -47,7 +42,7 @@ struct TwoWayForm: HTML, Sendable {
 
       input(.hidden, .name("projectID"), .value(projectID))
 
-      DesignAirflowFieldset(designAirflow: designAirflow)
+      DesignAirflowFieldset(designAirflow: interpolation?.designAirflow)
 
       Fieldset("Below") {
         div(.class("flex items-center space-x-2")) {
@@ -140,6 +135,6 @@ struct TwoWayForm: HTML, Sendable {
 
 extension FieldsetStyle {
   static var twoWayFormStyle: Self {
-    .custom([.class("border-base-300 rounded-box border p-4")])
+    .custom(.class("border-base-300 rounded-box border p-4"))
   }
 }

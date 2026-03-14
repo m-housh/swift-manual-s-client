@@ -5,8 +5,6 @@ import Tagged
 
 struct TotalSensibleFieldset: HTML, Sendable {
 
-  @Environment(CoolingContainerEnvironment.$style) var style
-
   let title: String?
   let namePrefix: String?
   let container: FieldsetInput
@@ -28,20 +26,17 @@ struct TotalSensibleFieldset: HTML, Sendable {
   var body: some HTML<HTMLTag.fieldset> {
 
     Fieldset(title ?? container.title) {
-      div {
-        switch container {
-        case .coolingLoad(let load):
-          makeInputField(.total(load?.rawValue.total), totalName)
-          makeInputField(.sensible(load?.rawValue.sensible), sensibleName)
-        case .coolingCapacity(let capacity):
-          makeInputField(.total(capacity?.rawValue.total), totalName)
-          makeInputField(.sensible(capacity?.rawValue.sensible), sensibleName)
-        case .manufacturersAdjustments(let adjustments):
-          makeInputField(.total(adjustments?.rawValue.total), totalName)
-          makeInputField(.sensible(adjustments?.rawValue.sensible), sensibleName)
-        }
+      switch container {
+      case .coolingLoad(let load):
+        makeInputField(.total(load?.rawValue.total), totalName)
+        makeInputField(.sensible(load?.rawValue.sensible), sensibleName)
+      case .coolingCapacity(let capacity):
+        makeInputField(.total(capacity?.rawValue.total), totalName)
+        makeInputField(.sensible(capacity?.rawValue.sensible), sensibleName)
+      case .manufacturersAdjustments(let adjustments):
+        makeInputField(.total(adjustments?.rawValue.total), totalName)
+        makeInputField(.sensible(adjustments?.rawValue.sensible), sensibleName)
       }
-      .attributes(contentsOf: style.attributes)
     }
   }
 
@@ -97,30 +92,6 @@ extension ContainerField where N == Double {
     case .total: return .leaf
     case .sensible: return .thermometerSnowflake
     }
-  }
-}
-
-enum CoolingContainerFieldsetStyle {
-  case hstack(gap: Int = 4)
-  case vstack(gap: Int = 4)
-
-  fileprivate var attributes: [HTMLAttribute<HTMLTag.div>] {
-    switch self {
-    case .hstack(let gap):
-      return [.class("flex gap-\(gap)")]
-    case .vstack(let gap):
-      return [.class("space-y-\(gap)")]
-    }
-  }
-}
-
-private enum CoolingContainerEnvironment {
-  @TaskLocal fileprivate static var style = CoolingContainerFieldsetStyle.hstack()
-}
-
-extension HTML {
-  func coolingContainerFieldsetStyle(_ style: CoolingContainerFieldsetStyle) -> some HTML<Tag> {
-    environment(CoolingContainerEnvironment.$style, style)
   }
 }
 

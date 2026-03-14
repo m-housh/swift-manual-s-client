@@ -39,53 +39,50 @@ extension HeatingInterpolation {
   }
 }
 
+// FIX: Heat Pump form should also include kilowatt field
 extension HeatingInterpolation.Create {
   static let parser = FormData {
     Field("projectID") { Project.ID.parser() }
-    Many {
-      OneOf {
-        ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
-          Field("afue") { Percent.parser() }
-          Field("inputBTU") { Int.parser() }
-        }
-        .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
-
-        ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
-          Field("kilowatts") { Int.parser() }
-        }
-
-        ParsePrint(.memberwise(HeatPumpCapacity.init)) {
-          Field("capacityAt47") { Double.parser() }
-          Field("capacityAt17") { Double.parser() }
-        }
-        .map(.case(HeatingInterpolation.Interpolation.heatPump))
+    OneOf {
+      ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
+        Field("afue") { Percent.parser() }
+        Field("inputBTU") { Int.parser() }
       }
+      .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
+
+      ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
+        Field("kilowatts") { Int.parser() }
+      }
+
+      ParsePrint(.memberwise(HeatPumpCapacity.init)) {
+        Field("capacityAt47") { Double.parser() }
+        Field("capacityAt17") { Double.parser() }
+      }
+      .map(.case(HeatingInterpolation.Interpolation.heatPump))
     }
   }
-  .map(.memberwise(HeatingInterpolation.Create.init(projectID:interpolations:)))
+  .map(.memberwise(HeatingInterpolation.Create.init(projectID:interpolation:)))
 }
 
 extension HeatingInterpolation.Update {
   static let parser = FormData {
-    Many {
-      OneOf {
-        ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
-          Field("afue") { Percent.parser() }
-          Field("inputBTU") { Int.parser() }
-        }
-        .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
-
-        ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
-          Field("kilowatts") { Int.parser() }
-        }
-
-        ParsePrint(.memberwise(HeatPumpCapacity.init)) {
-          Field("capacityAt47") { Double.parser() }
-          Field("capacityAt17") { Double.parser() }
-        }
-        .map(.case(HeatingInterpolation.Interpolation.heatPump))
+    OneOf {
+      ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
+        Field("afue") { Percent.parser() }
+        Field("inputBTU") { Int.parser() }
       }
+      .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
+
+      ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
+        Field("kilowatts") { Int.parser() }
+      }
+
+      ParsePrint(.memberwise(HeatPumpCapacity.init)) {
+        Field("capacityAt47") { Double.parser() }
+        Field("capacityAt17") { Double.parser() }
+      }
+      .map(.case(HeatingInterpolation.Interpolation.heatPump))
     }
   }
-  .map(.memberwise(HeatingInterpolation.Update.init(interpolations:)))
+  .map(.memberwise(HeatingInterpolation.Update.init(interpolation:)))
 }

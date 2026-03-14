@@ -48,50 +48,7 @@ struct ProjectDetailsView: HTML, Sendable {
 
       LoadableSection(.init(projectID: project.id, section: .coolingInterpolation()))
 
-      div(.class("divider")) {}
-
-      div {
-        div(.class("flex justify-between items-center w-full text-primary border px-4 py-2")) {
-          Title { "Heating" }
-
-          div(.class("flex space-x-4")) {
-            label(.class("select select-secondary")) {
-              span(.class("label")) { "Type" }
-              Select(
-                HeatingFormType.allCases,
-                value: \.rawValue,
-                selected: { heatingFormType == $0 },
-                label: \.label
-              )
-            }
-
-            button(
-              .class("btn btn-primary"),
-              .showModal(id: "heatingForm")
-            ) {
-              SVG(.squarePen)
-            }
-          }
-
-          Modal(id: "heatingForm", open: false, displayCloseButton: true) {
-            // FIX: Should be dynamic based on select field.
-            HeatPumpForm(
-              altitudeAdjustment: nil,
-              capacity: nil,
-              proposedKW: nil,
-              requiredKW: 14.55
-            )
-            // BoilerOrFurnaceForm(
-            //   altitudeAdjustment: 93,
-            //   inputBTU: nil,
-            //   interpolationType: .furnace
-            // )
-          }
-
-        }
-
-        div(.id("heatingData")) {}
-      }
+      LoadableSection(.init(projectID: project.id, section: .heatingInterpolation()))
 
     }
     .fieldsetStyle(.roundedBox)
@@ -202,6 +159,19 @@ struct ProjectDetailsView: HTML, Sendable {
               }
             }
 
+          case .heatingInterpolation(let heatingInterpolations):
+            SectionHeader(tooltip: "Edit heating") {
+              HeatingInterpolationForm(
+                projectID: projectID,
+                interpolation: heatingInterpolations?.first?.0
+              )
+            }
+            if let heatingInterpolations {
+              HeatingInterpolationsView(
+                projectID: projectID,
+                interpolations: heatingInterpolations
+              )
+            }
           }
         }
         .fieldsetStyle(.roundedBox)
@@ -214,13 +184,14 @@ struct ProjectDetailsView: HTML, Sendable {
 
 extension ProjectDetailsView.Section {
 
-  enum SectionRoute: Equatable, Sendable {
+  enum SectionRoute: Sendable {
 
     case designInfo(DesignInfo? = nil)
     case coolingSystemType(SystemType? = nil)
     case proposedEquipment(ProposedEquipment? = nil)
     case houseLoad(HouseLoad? = nil)
     case coolingInterpolation(CoolingInterpolation? = nil, DesignInfo? = nil)
+    case heatingInterpolation([(HeatingInterpolation, HeatingInterpolation.Response)]? = nil)
 
     var id: String {
       switch self {
@@ -229,6 +200,7 @@ extension ProjectDetailsView.Section {
       case .proposedEquipment: return "proposedEquipmentSection"
       case .houseLoad: return "houseLoadSection"
       case .coolingInterpolation: return "coolingInterpolationSection"
+      case .heatingInterpolation: return "heatingInterpolationSection"
       }
     }
 
@@ -239,6 +211,7 @@ extension ProjectDetailsView.Section {
       case .proposedEquipment: return "Proposed Equipment"
       case .houseLoad: return "Manual-J"
       case .coolingInterpolation: return "Interpolation"
+      case .heatingInterpolation: return "Heating"
       }
     }
   }
@@ -255,6 +228,8 @@ extension ProjectDetailsView.Section {
       return .projectDetail(projectID, .houseLoads(.index))
     case .coolingInterpolation:
       return .projectDetail(projectID, .interpolations(.cooling(.index)))
+    case .heatingInterpolation:
+      return .projectDetail(projectID, .interpolations(.heating(.index)))
     }
   }
 

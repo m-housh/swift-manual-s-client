@@ -5,31 +5,37 @@ import Tagged
 import Validations
 
 // TODO: Do we need to return size limits??
+
+@dynamicMemberLookup
 public struct HeatingInterpolation: Codable, Equatable, Identifiable, Sendable {
 
   public let id: Tagged<Self, UUID>
   public let projectID: Project.ID
-  public let interpolations: [Interpolation]
+  public let interpolation: Interpolation
   public let createdAt: Date
   public let updatedAt: Date
 
   public init(
     id: Tagged<HeatingInterpolation, UUID>,
     projectID: Project.ID,
-    interpolations: [HeatingInterpolation.Interpolation],
+    interpolation: HeatingInterpolation.Interpolation,
     createdAt: Date,
     updatedAt: Date
   ) {
     self.id = id
     self.projectID = projectID
-    self.interpolations = interpolations
+    self.interpolation = interpolation
     self.createdAt = createdAt
     self.updatedAt = updatedAt
   }
 
+  public subscript<T>(dynamicMember casePath: CaseKeyPath<Interpolation, T>) -> T? {
+    interpolation[case: casePath]
+  }
+
   @CasePathable
   @dynamicMemberLookup
-  public enum Interpolation: Codable, Equatable, Sendable {
+  public enum Interpolation: CasePathable, Codable, Equatable, Sendable {
     case boilerOrFurnace(BoilerOrFurnace)
     case electric(kilowatts: Int)
     case heatPump(capacity: HeatPumpCapacity)
@@ -102,7 +108,12 @@ public struct HeatingInterpolation: Codable, Equatable, Identifiable, Sendable {
     }
   }
 
-  public enum Response {
+  @CasePathable
+  @dynamicMemberLookup
+  public enum Response: CasePathable, Sendable {
+    case gasOrBoiler(GasOrBoiler)
+    case electric(Electric)
+    case heatPump(HeatPump)
 
     public struct GasOrBoiler: Codable, Equatable, Sendable {
 
@@ -173,25 +184,25 @@ extension HeatingInterpolation {
   public struct Create: Codable, Equatable, Sendable {
 
     public let projectID: Project.ID
-    public let interpolations: [Interpolation]
+    public let interpolation: Interpolation
 
     public init(
       projectID: Project.ID,
-      interpolations: [HeatingInterpolation.Interpolation]
+      interpolation: HeatingInterpolation.Interpolation
     ) {
       self.projectID = projectID
-      self.interpolations = interpolations
+      self.interpolation = interpolation
     }
   }
 
   public struct Update: Codable, Equatable, Sendable {
 
-    public let interpolations: [Interpolation]
+    public let interpolation: Interpolation
 
     public init(
-      interpolations: [HeatingInterpolation.Interpolation]
+      interpolation: HeatingInterpolation.Interpolation
     ) {
-      self.interpolations = interpolations
+      self.interpolation = interpolation
     }
   }
 }
