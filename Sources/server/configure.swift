@@ -58,6 +58,10 @@ private func addMiddleware(to app: Application, database: ManualSDatabase) {
         head: {
           DefaultHead {
             script(.src("/js/main.js")) {}
+            meta(
+              .name("htmx-config"),
+              .content("{\"allowNestedOobSwaps\": false}")
+            )
           }
         }
       )

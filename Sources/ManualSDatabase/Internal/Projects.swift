@@ -4,12 +4,21 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
+import SharedModels
 import Validations
 
 import struct SharedModels.User
 
 extension ManualSDatabase.Projects {
 
+  // public enum ProjectDetailColumn: CaseIterable, Sendable {
+  //   case designInfo
+  //   case systemType
+  //   case proposedEquipment
+  //   case houseLoad
+  //   case coolingInterpolaiton
+  //   case heatingInterpolation
+  // }
   public static func live(database: any Database) -> Self {
     .init(
       create: { userID, request in

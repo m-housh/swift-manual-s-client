@@ -4,8 +4,9 @@ import Elementary
 import ElementaryHTMX
 import ManualSModels
 import ManualSRouter
-
 import SharedStyleguide
+
+import struct SharedModels.Project
 
 struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
 

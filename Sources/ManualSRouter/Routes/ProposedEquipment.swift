@@ -5,6 +5,7 @@ import Tagged
 @preconcurrency import URLRouting
 import Validations
 
+import struct SharedModels.Project
 import protocol SharedModels.Routeable
 
 extension ProposedEquipment {

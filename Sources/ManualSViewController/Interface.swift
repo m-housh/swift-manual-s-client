@@ -59,11 +59,11 @@ extension ManualSRoute.ProjectDetail {
     case .index:
       return .view {
         await ResultView {
-          guard let project = try await database.projects.get(projectID) else {
+          guard let projectDetails = try await database.projects.fetchDetails(projectID) else {
             throw NotFoundError()
           }
           let user = try auth.currentUser()
-          return ProjectDetailsView(user: user, project: project)
+          return ProjectDetailsView(user: user, details: projectDetails)
         }
       }
     case .designInfo(let route):
@@ -92,10 +92,32 @@ extension ManualSRoute.ProjectDetail {
         return .view {
           await ResultView {
             let designInfo = try await database.designInfo.update(designInfoID, updates)
-            return ProjectDetailsView.Section(
-              projectID: projectID,
-              section: .designInfo(designInfo)
-            )
+            let projectDetails = try await database.projects.fetchDetails(projectID)
+            return (designInfo, projectDetails)
+
+            // return ProjectDetailsView.Section(
+            //   projectID: projectID,
+            //   section: .designInfo(designInfo)
+            // )
+          } onSuccess: { (designInfo, projectDetails) in
+            Group {
+              ProjectDetailsView.Section(
+                projectID: projectID,
+                section: .designInfo(designInfo)
+              )
+              if let coolingInterpolation = projectDetails?.coolingInterpolation,
+                let designInfo = projectDetails?.designInfo
+              {
+                ProjectDetailsView.Section(
+                  projectID: projectID,
+                  section: .coolingInterpolation(coolingInterpolation, designInfo)
+                )
+                .attributes(
+                  .hx.swapOOB(true),
+                  .hx.selectOOB("#\(ProjectDetailsView.Section.id(.coolingInterpolation()))")
+                )
+              }
+            }
           }
         }
       }
@@ -304,6 +326,16 @@ extension ManualSRoute.ProjectDetail {
 
 }
 
+private func makeCoolingInterpolationResponseTable(
+  projectDetails: Project.Details
+) async -> some HTML & Sendable {
+  @Dependency(\.manualS) var manualS
+  return await ResultView {
+    let response = await manualS.coolingInterpolation(projectDetails: projectDetails)
+    return CoolingInterpolationResponseTable(response: response)
+  }
+}
+
 private func makeCoolingInterpolationResultView(
   id: CoolingInterpolation.ID,
   projectID: ManualSModels.Project.ID
@@ -311,29 +343,13 @@ private func makeCoolingInterpolationResultView(
   & Sendable
 {
   @Dependency(\.database) var database
-  @Dependency(\.manualS) var manualS
-
   return await ResultView {
-    guard let interpolation = try await database.coolingInterpolations.get(id),
-      let houseLoad = try await database.houseLoads.fetch(projectID),
-      let designInfo = try await database.designInfo.fetch(projectID),
-      let systemType = try await database.systemTypes.fetch(projectID),
-      let coolingSystemType = systemType.cooling
-    else {
+    guard let details = try await database.projects.fetchDetails(projectID) else {
       throw NotFoundError()
     }
-    let response = try await manualS.coolingInterpolation(
-      .init(
-        coolingLoad: houseLoad.cooling,
-        manufacturersAdjustments: interpolation.manufacturersAdjustments,
-        outdoorDesignTemperature: designInfo.summerOutdoorTemperature,
-        projectElevation: designInfo.elevation,
-        interpolation: interpolation.interpolation,
-        systemType: coolingSystemType
-      )
-    )
-    return CoolingInterpolationResponseTable(response: response)
+    return await makeCoolingInterpolationResponseTable(projectDetails: details)
   }
+
 }
 
 extension SystemType.Cooling {
@@ -350,6 +366,30 @@ extension SystemType.Cooling {
 }
 
 extension ManualSClient {
+  fileprivate func coolingInterpolation(
+    projectDetails: Project.Details
+  ) async -> CoolingInterpolation.Response? {
+    guard let interpolation = projectDetails.coolingInterpolation,
+      let houseLoad = projectDetails.houseLoad,
+      let designInfo = projectDetails.designInfo,
+      let systemType = projectDetails.systemType,
+      let coolingSystemType = systemType.cooling
+    else {
+      return nil
+    }
+
+    return try? await coolingInterpolation(
+      .init(
+        coolingLoad: houseLoad.cooling,
+        manufacturersAdjustments: interpolation.manufacturersAdjustments,
+        outdoorDesignTemperature: designInfo.summerOutdoorTemperature,
+        projectElevation: designInfo.elevation,
+        interpolation: interpolation.interpolation,
+        systemType: coolingSystemType
+      )
+    )
+  }
+
   fileprivate func heatingInterpolations(
     _ interpolations: [HeatingInterpolation],
     designInfo: DesignInfo,

@@ -4,6 +4,7 @@ import ManualSModels
 import Tagged
 @preconcurrency import URLRouting
 
+import struct SharedModels.Project
 import protocol SharedModels.Routeable
 import enum SharedModels.SharedRoute
 

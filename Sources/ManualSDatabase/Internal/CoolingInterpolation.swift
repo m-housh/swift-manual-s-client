@@ -2,6 +2,7 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
+import SharedModels
 import Validations
 
 extension ManualSDatabase.CoolingInterpolationRepository {

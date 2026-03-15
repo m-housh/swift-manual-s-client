@@ -2,6 +2,7 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
+import struct SharedModels.Project
 import Validations
 
 extension ManualSDatabase.DesignInfoRepository {

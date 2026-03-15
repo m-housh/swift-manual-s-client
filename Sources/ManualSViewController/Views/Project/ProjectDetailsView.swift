@@ -12,45 +12,53 @@ import struct SharedModels.User
 struct ProjectDetailsView: HTML, Sendable {
 
   let user: User
-  let project: Project
+  let details: Project.Details
   let heatingFormType: HeatingFormType = .none
+
+  var project: Project { details.project }
 
   var body: some HTML {
     Navbar(userID: user.id)
     div(.class("flex flex-col m-10 space-y-6")) {
+
       div(.class("flex flex-wrap md:flex-nowrap")) {
-
-        div(.class("w-full md:w-[50%]")) {
-          div(.class("divider")) {
-            Title { "Project" }
-              .attributes(.class("text-secondary"))
-          }
-          div {
-            // FIX:
-            // SectionHeader(tooltip: "Edit project") {
-            //   // ProjectForm(project: project)
-            // }
-            ProjectTable(project: project)
-          }
-          .sectionContentStyle()
-        }
-
+        Section(projectID: project.id, section: .project(details.project))
+        // .attributes(.class("w-full md:w-[50%]"))
         div(.class("divider divider-horizontal")) {}
-
-        div(.class("w-full md:w-[50%]")) {
-          LoadableSection(.init(projectID: project.id, section: .designInfo()))
-        }
+        Section(projectID: project.id, section: .designInfo(details.designInfo))
+        // .attributes(.class("w-full md:w-[50%]"))
       }
 
-      LoadableSection(.init(projectID: project.id, section: .coolingSystemType()))
+      Section(
+        projectID: project.id,
+        section: .coolingSystemType(details.systemType)
+      )
 
-      LoadableSection(.init(projectID: project.id, section: .proposedEquipment()))
+      Section(
+        projectID: project.id,
+        section: .proposedEquipment(details.proposedEquipment)
+      )
 
-      LoadableSection(.init(projectID: project.id, section: .houseLoad()))
+      Section(
+        projectID: project.id,
+        section: .houseLoad(details.houseLoad)
+      )
 
-      LoadableSection(.init(projectID: project.id, section: .coolingInterpolation()))
+      // TODO: htmx OOB swap ??
 
-      LoadableSection(.init(projectID: project.id, section: .heatingInterpolation()))
+      // FIX: This section should be triggered to update if
+      // other forms on the page change.
+      Section(
+        projectID: project.id,
+        section: .coolingInterpolation(details.coolingInterpolation)
+      )
+
+      // FIX: This section should be triggered to update if
+      // other forms on the page change.
+      Section(
+        projectID: project.id,
+        section: .heatingInterpolation()
+      )
 
     }
     .fieldsetStyle(.roundedBox)
@@ -71,36 +79,34 @@ struct ProjectDetailsView: HTML, Sendable {
     }
   }
 
-  struct LoadableSection: HTML, Sendable {
-    let section: ProjectDetailsView.Section
-
-    init(_ section: ProjectDetailsView.Section) {
-      self.section = section
-    }
-
-    var body: some HTML {
-      Elementary.section {
-        div(.class("divider")) {
-          Title { section.title }
-            .attributes(.class("text-secondary"))
-        }
-        LoadableView(route: section.route) {
-          section
-        }
-      }
-    }
-  }
-
-  // FIX: Rename when all sections have migrated.
   struct Section: HTML, Sendable {
 
     let projectID: Project.ID
     let section: SectionRoute
 
-    var body: some HTML {
-      div(.id(id)) {
+    private var shouldApplyWidthAttribute: Bool {
+      switch section {
+      case .project, .designInfo: return true
+      default: return false
+      }
+    }
+
+    var body: some HTML<HTMLTag.section> {
+      Elementary.section(.id(id)) {
+        div(.class("divider")) {
+          Title { section.title }
+            .attributes(.class("text-secondary"))
+        }
         div {
           switch section {
+
+          case .project(let project):
+            if let project {
+              SectionHeader(tooltip: "Edit project") {
+                ProjectForm(project: project)
+              }
+              ProjectTable(project: project)
+            }
 
           case .designInfo(let designInfo):
             SectionHeader(tooltip: "Edit design info") {
@@ -179,15 +185,15 @@ struct ProjectDetailsView: HTML, Sendable {
         .fieldsetStyle(.roundedBox)
         .sectionContentStyle()
       }
+      .attributes(.class("w-full md:w-[50%]"), when: shouldApplyWidthAttribute)
     }
-
   }
 }
 
 extension ProjectDetailsView.Section {
 
   enum SectionRoute: Sendable {
-
+    case project(Project? = nil)
     case designInfo(DesignInfo? = nil)
     case coolingSystemType(SystemType? = nil)
     case proposedEquipment(ProposedEquipment? = nil)
@@ -197,6 +203,7 @@ extension ProjectDetailsView.Section {
 
     var id: String {
       switch self {
+      case .project: return "projectSection"
       case .designInfo: return "designInfoSection"
       case .coolingSystemType: return "coolingSystemTypeSection"
       case .proposedEquipment: return "proposedEquipmentSection"
@@ -208,6 +215,7 @@ extension ProjectDetailsView.Section {
 
     var title: String {
       switch self {
+      case .project: return "Project"
       case .designInfo: return "Design Info"
       case .coolingSystemType: return "System Type"
       case .proposedEquipment: return "Proposed Equipment"
@@ -218,8 +226,11 @@ extension ProjectDetailsView.Section {
     }
   }
 
+  // TODO: Remove not using loadable.
   var route: ManualSRoute {
     switch section {
+    case .project:
+      return .projectDetail(projectID, .index)
     case .designInfo:
       return .projectDetail(projectID, .designInfo(.index))
     case .coolingSystemType:
