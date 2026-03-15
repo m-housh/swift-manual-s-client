@@ -1,9 +1,10 @@
 import CasePathsCore
 import FoundationEssentials
 import ManualSModels
-import SharedModels
 import Tagged
 @preconcurrency import URLRouting
+
+import protocol SharedModels.Routeable
 
 extension SystemType {
   // TODO: Add path for getting cooling vs. heating system types.

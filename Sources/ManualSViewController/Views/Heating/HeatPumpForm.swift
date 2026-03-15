@@ -3,7 +3,7 @@ import ElementaryHTMX
 import Foundation
 import ManualSModels
 import ManualSRouter
-import SharedModels
+
 import SharedStyleguide
 
 struct HeatPumpForm2: HTML, Identifiable, Sendable {

@@ -2,7 +2,6 @@ import Elementary
 import ElementaryHTMX
 import ManualSModels
 import ManualSRouter
-import SharedModels
 import SharedStyleguide
 
 struct HouseLoadForm: HTML, Identifiable, Sendable {

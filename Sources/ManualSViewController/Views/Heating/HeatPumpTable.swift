@@ -1,6 +1,6 @@
 import Elementary
 import ManualSModels
-import SharedModels
+
 import SharedStyleguide
 import Tagged
 

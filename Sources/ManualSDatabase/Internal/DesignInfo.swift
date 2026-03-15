@@ -2,7 +2,6 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
-import SharedModels
 import Validations
 
 extension ManualSDatabase.DesignInfoRepository {
@@ -21,7 +20,7 @@ extension ManualSDatabase.DesignInfoRepository {
       },
       fetch: { projectID in
         try await DesignInfoModel.query(on: database)
-          .filter(\.$projectID == projectID.rawValue)
+          .filter(\.$project.$id == projectID.rawValue)
           .first()
           .map { try $0.toDTO() }
       },
@@ -69,7 +68,10 @@ extension DesignInfo {
         .field("winterOutdoorTemperature", .int, .required)
         .field("createdAt", .string)
         .field("updatedAt", .string)
-        .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
+        .field(
+          "projectID", .uuid, .required,
+          .references(ProjectModel.schema, "id", onDelete: .cascade)
+        )
         .unique(on: "projectID")
         .create()
     }
@@ -87,8 +89,8 @@ final class DesignInfoModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "projectID")
-  var projectID: UUID
+  @Parent(key: "projectID")
+  var project: ProjectModel
 
   @Field(key: "elevation")
   var elevation: Int
@@ -123,7 +125,7 @@ final class DesignInfoModel: Model, @unchecked Sendable {
     winterOutdoorTemperature: Int
   ) {
     self.id = id?.rawValue
-    self.projectID = projectID.rawValue
+    self.$project.id = projectID.rawValue
     self.elevation = elevation
     self.summerOutdoorTemperature = summerOutdoorTemperature
     self.summerIndoorTemperature = summerIndoorTemperature
@@ -134,7 +136,7 @@ final class DesignInfoModel: Model, @unchecked Sendable {
   func toDTO() throws -> DesignInfo {
     .init(
       id: .init(try requireID()),
-      projectID: .init(projectID),
+      projectID: .init($project.id),
       elevation: elevation,
       summerOutdoorTemperature: summerOutdoorTemperature,
       summerIndoorTemperature: summerIndoorTemperature,

@@ -1,5 +1,5 @@
 import Elementary
-import SharedModels
+import ManualSModels
 import SharedStyleguide
 import SharedViews
 

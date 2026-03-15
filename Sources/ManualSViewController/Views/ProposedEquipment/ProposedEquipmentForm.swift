@@ -2,7 +2,7 @@ import Elementary
 import ElementaryHTMX
 import ManualSModels
 import ManualSRouter
-import SharedModels
+
 import SharedStyleguide
 
 struct ProposedEquipmentForm: HTML, Identifiable, Sendable {

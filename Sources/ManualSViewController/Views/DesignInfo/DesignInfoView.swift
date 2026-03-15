@@ -1,6 +1,5 @@
 import Elementary
 import ManualSModels
-import SharedModels
 import SharedStyleguide
 
 struct DesignInfoTable: HTML, Sendable {

@@ -7,6 +7,7 @@ extension SharedDatabase.Migrations {
   static func live() -> SharedDatabase.Migrations {
     .init {
       try await SharedDatabase.Migrations.liveValue.allMigrations() + [
+        Project.Migrate(),  // Needs to stay at top / get created first.
         CoolingInterpolation.Migrate(),
         DesignInfo.Migrate(),
         HeatingInterpolation.Migrate(),

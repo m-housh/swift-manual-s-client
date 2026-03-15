@@ -2,7 +2,6 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
-import SharedModels
 import Validations
 
 extension ManualSDatabase.CoolingInterpolationRepository {
@@ -21,7 +20,7 @@ extension ManualSDatabase.CoolingInterpolationRepository {
       },
       fetch: { projectID in
         try await CoolingInterpolationModel.query(on: database)
-          .filter(\.$projectID == projectID.rawValue)
+          .filter(\.$project.$id == projectID.rawValue)
           .first()
           .map { try $0.toDTO() }
       },
@@ -66,7 +65,10 @@ extension CoolingInterpolation {
         .field("designAirflow", .int, .required)
         .field("createdAt", .string)
         .field("updatedAt", .string)
-        .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
+        .field(
+          "projectID", .uuid, .required,
+          .references(ProjectModel.schema, "id", onDelete: .cascade)
+        )
         .unique(on: "projectID")
         .create()
     }
@@ -84,8 +86,8 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "projectID")
-  var projectID: UUID
+  @Parent(key: "projectID")
+  var project: ProjectModel
 
   @Field(key: "designAirflow")
   var designAirflow: Int
@@ -112,7 +114,7 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
     designAirflow: Int
   ) {
     self.id = id?.rawValue
-    self.projectID = projectID.rawValue
+    self.$project.id = projectID.rawValue
     self.interpolation = interpolation
     self.manufacturersAdjustments = manufacturersAdjustments
     self.designAirflow = designAirflow
@@ -121,7 +123,7 @@ final class CoolingInterpolationModel: Model, @unchecked Sendable {
   func toDTO() throws -> CoolingInterpolation {
     .init(
       id: .init(try requireID()),
-      projectID: .init(projectID),
+      projectID: .init($project.id),
       designAirflow: designAirflow,
       interpolation: interpolation,
       manufacturersAdjustemnts: manufacturersAdjustments,

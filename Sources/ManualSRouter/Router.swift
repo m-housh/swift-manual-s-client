@@ -1,9 +1,11 @@
 import CasePathsCore
 import FluentKit
 import ManualSModels
-import SharedModels
 import Tagged
 @preconcurrency import URLRouting
+
+import protocol SharedModels.Routeable
+import enum SharedModels.SharedRoute
 
 public enum ManualSRoute: Equatable, Sendable, Routeable {
   case index

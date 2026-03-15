@@ -2,7 +2,6 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
-import SharedModels
 import Validations
 
 extension ManualSDatabase.HeatingInterpolationRepository {
@@ -21,7 +20,7 @@ extension ManualSDatabase.HeatingInterpolationRepository {
       },
       fetch: { projectID in
         try await HeatingInterpolationModel.query(on: database)
-          .filter(\.$projectID == projectID.rawValue)
+          .filter(\.$project.$id == projectID.rawValue)
           .all()
           .map { try $0.toDTO() }
       },
@@ -62,7 +61,10 @@ extension HeatingInterpolation {
         .field("interpolation", .dictionary)
         .field("createdAt", .string)
         .field("updatedAt", .string)
-        .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
+        .field(
+          "projectID", .uuid, .required,
+          .references(ProjectModel.schema, "id", onDelete: .cascade)
+        )
         .create()
     }
 
@@ -79,8 +81,8 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "projectID")
-  var projectID: UUID
+  @Parent(key: "projectID")
+  var project: ProjectModel
 
   @Field(key: "interpolation")
   var interpolation: HeatingInterpolation.Interpolation
@@ -99,14 +101,14 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
     interpolation: HeatingInterpolation.Interpolation
   ) {
     self.id = id?.rawValue
-    self.projectID = projectID.rawValue
+    self.$project.id = projectID.rawValue
     self.interpolation = interpolation
   }
 
   func toDTO() throws -> HeatingInterpolation {
     .init(
       id: .init(try requireID()),
-      projectID: .init(projectID),
+      projectID: .init($project.id),
       interpolation: interpolation,
       createdAt: createdAt!,
       updatedAt: updatedAt!

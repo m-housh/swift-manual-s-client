@@ -2,7 +2,6 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
-import SharedModels
 import Validations
 
 extension ManualSDatabase.ProposedEquipmentRepository {
@@ -21,7 +20,7 @@ extension ManualSDatabase.ProposedEquipmentRepository {
       },
       fetch: { projectID in
         try await ProposedEquipmentModel.query(on: database)
-          .filter(\.$projectID == projectID.rawValue)
+          .filter(\.$project.$id == projectID.rawValue)
           .first()
           .map { try $0.toDTO() }
       },
@@ -70,7 +69,10 @@ extension ProposedEquipment {
         .field("equipment", .array)
         .field("createdAt", .string)
         .field("updatedAt", .string)
-        .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
+        .field(
+          "projectID", .uuid, .required,
+          .references(ProjectModel.schema, "id", onDelete: .cascade)
+        )
         .unique(on: "projectID")
         .create()
     }
@@ -88,8 +90,8 @@ final class ProposedEquipmentModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "projectID")
-  var projectID: UUID
+  @Parent(key: "projectID")
+  var project: ProjectModel
 
   @Field(key: "afue")
   var afue: Double?
@@ -124,7 +126,7 @@ final class ProposedEquipmentModel: Model, @unchecked Sendable {
     equipment: [ProposedEquipment.Equipment]
   ) {
     self.id = id
-    self.projectID = projectID.rawValue
+    self.$project.id = projectID.rawValue
     self.afue = afue?.rawValue
     self.seer = seer
     self.hspf = hspf
@@ -135,7 +137,7 @@ final class ProposedEquipmentModel: Model, @unchecked Sendable {
   func toDTO() throws -> ProposedEquipment {
     .init(
       id: .init(try requireID()),
-      projectID: .init(projectID),
+      projectID: .init($project.id),
       afue: afue.map(Percent.init(rawValue:)),
       seer: seer,
       hspf: hspf,

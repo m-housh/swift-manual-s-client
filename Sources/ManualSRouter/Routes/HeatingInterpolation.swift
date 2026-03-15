@@ -1,9 +1,10 @@
 import CasePathsCore
 import FoundationEssentials
 import ManualSModels
-import SharedModels
 import Tagged
 @preconcurrency import URLRouting
+
+import protocol SharedModels.Routeable
 
 extension HeatingInterpolation {
   public enum ViewRoute: Equatable, Sendable, Routeable {

@@ -1,7 +1,7 @@
 import Elementary
 import ManualSModels
 import ManualSRouter
-import SharedModels
+
 import SharedStyleguide
 
 struct CoolingSystemTypeForm: HTML, Identifiable, Sendable {

@@ -2,7 +2,6 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
-import SharedModels
 import Validations
 
 extension ManualSDatabase.SystemTypeRepository {
@@ -21,7 +20,7 @@ extension ManualSDatabase.SystemTypeRepository {
       },
       fetch: { projectID in
         try await SystemTypeModel.query(on: database)
-          .filter(\.$projectID == projectID.rawValue)
+          .filter(\.$project.$id == projectID.rawValue)
           .first()
           .map { try $0.toDTO() }
       },
@@ -64,7 +63,10 @@ extension SystemType {
         .field("heating", .string)
         .field("createdAt", .string)
         .field("updatedAt", .string)
-        .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
+        .field(
+          "projectID", .uuid, .required,
+          .references(ProjectModel.schema, "id", onDelete: .cascade)
+        )
         .unique(on: "projectID")
         .create()
     }
@@ -82,8 +84,8 @@ final class SystemTypeModel: Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "projectID")
-  var projectID: UUID
+  @Parent(key: "projectID")
+  var project: ProjectModel
 
   @Field(key: "cooling")
   var cooling: SystemType.Cooling?
@@ -106,7 +108,7 @@ final class SystemTypeModel: Model, @unchecked Sendable {
     heating: SystemType.Heating? = nil
   ) {
     self.id = id?.rawValue
-    self.projectID = projectID.rawValue
+    self.$project.id = projectID.rawValue
     self.cooling = cooling
     self.heating = heating?.rawValue
   }
@@ -114,7 +116,7 @@ final class SystemTypeModel: Model, @unchecked Sendable {
   func toDTO() throws -> SystemType {
     .init(
       id: .init(try requireID()),
-      projectID: .init(projectID),
+      projectID: .init($project.id),
       cooling: cooling,
       heating: heating.flatMap(SystemType.Heating.init(rawValue:)),
       createdAt: createdAt!,

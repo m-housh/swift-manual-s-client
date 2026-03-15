@@ -2,7 +2,7 @@ import Elementary
 import ElementaryHTMX
 import Foundation
 import ManualSModels
-import SharedModels
+
 import SharedStyleguide
 
 struct HeatingInterpolationForm: HTML, Identifiable, Sendable {

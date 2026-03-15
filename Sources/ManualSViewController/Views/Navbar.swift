@@ -1,7 +1,8 @@
 import Elementary
 import ElementaryHTMX
 import ManualSRouter
-import SharedModels
+
+import struct SharedModels.User
 
 struct Navbar: HTML, Sendable {
   let userID: User.ID

@@ -1,10 +1,11 @@
 import CasePathsCore
 import FoundationEssentials
 import ManualSModels
-import SharedModels
 import Tagged
 @preconcurrency import URLRouting
 import Validations
+
+import protocol SharedModels.Routeable
 
 extension ProposedEquipment {
   public enum ViewRoute: Equatable, Sendable, Routeable {

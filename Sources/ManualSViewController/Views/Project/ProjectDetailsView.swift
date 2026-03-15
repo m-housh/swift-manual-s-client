@@ -4,9 +4,10 @@ import ElementaryHTMX
 import Foundation
 import ManualSModels
 import ManualSRouter
-import SharedModels
 import SharedStyleguide
 import SharedViews
+
+import struct SharedModels.User
 
 struct ProjectDetailsView: HTML, Sendable {
 
@@ -25,9 +26,10 @@ struct ProjectDetailsView: HTML, Sendable {
               .attributes(.class("text-secondary"))
           }
           div {
-            SectionHeader(tooltip: "Edit project") {
-              ProjectForm(project: project)
-            }
+            // FIX:
+            // SectionHeader(tooltip: "Edit project") {
+            //   // ProjectForm(project: project)
+            // }
             ProjectTable(project: project)
           }
           .sectionContentStyle()

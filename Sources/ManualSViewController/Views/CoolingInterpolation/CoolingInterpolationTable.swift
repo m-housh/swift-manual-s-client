@@ -2,7 +2,7 @@ import Elementary
 import Foundation
 import ManualSModels
 import ManualSRouter
-import SharedModels
+
 import SharedStyleguide
 
 struct InterpolationTable: HTML, Sendable {

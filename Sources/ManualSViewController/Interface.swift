@@ -20,8 +20,10 @@ public struct ManualSViewController: ViewController {
   let sharedController = SharedViewController(
     auth: AuthViewController(),
     projects: ProjectViewController { project in
-      @Dependency(\.auth) var auth
-      return try ProjectDetailsView(user: auth.currentUser(), project: project)
+      // FIX: What do we do with project view controller, until it's removed from
+      //      shared setup.
+      // @Dependency(\.auth) var auth
+      // return try ProjectDetailsView(user: auth.currentUser(), project: project)
     },
     users: UserViewController()
   )
@@ -48,7 +50,7 @@ public struct ManualSViewController: ViewController {
 
 extension ManualSRoute.ProjectDetail {
 
-  func view(projectID: Project.ID) async throws -> ViewResponse {
+  func view(projectID: ManualSModels.Project.ID) async throws -> ViewResponse {
     @Dependency(\.auth) var auth
     @Dependency(\.database) var database
     @Dependency(\.manualS) var manualS
@@ -304,7 +306,7 @@ extension ManualSRoute.ProjectDetail {
 
 private func makeCoolingInterpolationResultView(
   id: CoolingInterpolation.ID,
-  projectID: Project.ID
+  projectID: ManualSModels.Project.ID
 ) async -> some HTML
   & Sendable
 {

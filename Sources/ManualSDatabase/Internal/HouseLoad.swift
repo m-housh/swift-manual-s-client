@@ -2,7 +2,6 @@ import Fluent
 import Foundation
 import ManualSModels
 import SharedDatabase
-import SharedModels
 import Validations
 
 extension ManualSDatabase.HouseLoads {
@@ -21,7 +20,7 @@ extension ManualSDatabase.HouseLoads {
       },
       fetch: { projectID in
         try await HouseLoadModel.query(on: database)
-          .filter(\.$projectID == projectID.rawValue)
+          .filter(\.$project.$id == projectID.rawValue)
           .first()
           .map { try $0.toDTO() }
       },
@@ -64,7 +63,10 @@ extension HouseLoad {
         .field("coolingSensible", .double, .required)
         .field("createdAt", .string)
         .field("updatedAt", .string)
-        .field("projectID", .uuid, .required, .references("project", "id", onDelete: .cascade))
+        .field(
+          "projectID", .uuid, .required,
+          .references(ProjectModel.schema, "id", onDelete: .cascade)
+        )
         .unique(on: "projectID")
         .create()
     }
@@ -81,8 +83,8 @@ final class HouseLoadModel: Fluent.Model, @unchecked Sendable {
   @ID(key: .id)
   var id: UUID?
 
-  @Field(key: "projectID")
-  var projectID: UUID
+  @Parent(key: "projectID")
+  var project: ProjectModel
 
   @Field(key: "heating")
   var heating: Double
@@ -109,7 +111,7 @@ final class HouseLoadModel: Fluent.Model, @unchecked Sendable {
     coolingSensible: Double,
   ) {
     self.id = id?.rawValue
-    self.projectID = projectID.rawValue
+    self.$project.id = projectID.rawValue
     self.heating = heating
     self.coolingTotal = coolingTotal
     self.coolingSensible = coolingSensible
@@ -118,7 +120,7 @@ final class HouseLoadModel: Fluent.Model, @unchecked Sendable {
   func toDTO() throws -> HouseLoad {
     .init(
       id: .init(try requireID()),
-      projectID: .init(projectID),
+      projectID: .init($project.id),
       heating: heating,
       cooling: .init(total: coolingTotal, sensible: coolingSensible),
       createdAt: createdAt!,
