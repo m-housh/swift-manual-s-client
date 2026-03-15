@@ -15,7 +15,7 @@ struct Table<Content: HTML>: HTML {
     table(.class("table")) {
       _content()
     }
-    .applyStyle(tableStyle)
+    .style(tableStyle)
   }
 }
 

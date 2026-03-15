@@ -35,7 +35,7 @@ struct HeatPumpTable: HTML, Sendable {
             .string("Capacity @ Design"),
             .string("Balance Point Temperature")
           )
-          .applyStyle(.bold, .label)
+          .style(.bold, .label)
 
           // Fix: this should be flagged.
           Row(
@@ -95,7 +95,7 @@ struct HeatPumpTable: HTML, Sendable {
           }
         }
       }
-      .applyStyle(rowStyle)
+      .style(rowStyle)
     }
   }
 }

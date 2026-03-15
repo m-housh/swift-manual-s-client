@@ -49,7 +49,7 @@ struct HouseLoadForm: HTML, Identifiable, Sendable {
       }
 
       TotalSensibleFieldset(.coolingLoad(houseLoad?.cooling))
-        .fieldsetContentStyle(.vstack())
+        .fieldsetContentStyle(.init(.vstack()))
 
       SubmitButton()
         .attributes(.class("btn-block mt-6"))

@@ -14,7 +14,7 @@ struct Title: HTML, Sendable {
   }
 
   var body: some HTML<HTMLTag.h2> {
-    h2 { title }.applyStyle(titleStyle)
+    h2 { title }.style(titleStyle)
   }
 }
 
@@ -32,7 +32,7 @@ struct FormTitle: HTML, Sendable {
   }
 
   var body: some HTML<HTMLTag.h2> {
-    h2 { title }.applyStyle(style)
+    h2 { title }.style(style)
   }
 }
 

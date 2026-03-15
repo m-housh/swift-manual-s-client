@@ -25,20 +25,28 @@ extension Style: Sendable where Tag: Sendable {}
 
 extension HTML where Tag: HTMLTrait.Attributes.Global {
 
-  func applyStyle(_ styles: [Style<Tag>]) -> some HTML<Tag> {
+  func style(_ styles: [Style<Tag>]) -> some HTML<Tag> {
     attributes(contentsOf: styles.reduce(into: []) { $0 += $1.attributes })
   }
 
-  func applyStyle(_ styles: Style<Tag>...) -> some HTML<Tag> {
-    applyStyle(styles)
+  func style(_ styles: Style<Tag>...) -> some HTML<Tag> {
+    style(styles)
   }
 
-  func applyStyle(_ style: Style<Tag>) -> some HTML<Tag> {
+  func style(_ style: Style<Tag>) -> some HTML<Tag> {
     attributes(contentsOf: style.attributes)
   }
 
-  func applyStyle<T>(_ style: Tagged<T, Style<Tag>>) -> some HTML<Tag> {
+  func style(_ style: Style<Tag>?) -> some HTML<Tag> {
+    attributes(contentsOf: style?.attributes ?? [])
+  }
+
+  func style<T>(_ style: Tagged<T, Style<Tag>>) -> some HTML<Tag> {
     attributes(contentsOf: style.rawValue.attributes)
+  }
+
+  func style<T>(_ style: Tagged<T, Style<Tag>>?) -> some HTML<Tag> {
+    attributes(contentsOf: style?.attributes ?? [])
   }
 }
 
@@ -63,39 +71,20 @@ extension Tagged {
   }
 }
 
-protocol StackStylable {}
-
-extension Tagged {
-  static func vstack<T>(gap: Int = 4) -> Self
-  where
-    RawValue == Style<T>,
-    T: HTMLTagDefinition,
-    T: HTMLTrait.Attributes.Global,
-    Tag: StackStylable
-  {
+protocol StackStylable: HTMLTagDefinition, HTMLTrait.Attributes.Global {}
+extension Style where Tag: StackStylable {
+  static func vstack(gap: Int = 4) -> Self {
     .init(.class("space-y-\(gap)"))
   }
 
-  static func hstack<T>(gap: Int = 4) -> Self
-  where
-    RawValue == Style<T>,
-    T: HTMLTagDefinition,
-    T: HTMLTrait.Attributes.Global,
-    Tag: StackStylable
-  {
+  static func hstack(gap: Int = 4) -> Self {
     .init(.class("flex gap-\(gap)"))
   }
 }
 
-protocol SplitStylable {}
-extension Tagged where Tag: SplitStylable {
-
-  static func split<T>() -> Self
-  where
-    RawValue == Style<T>,
-    T: HTMLTagDefinition,
-    T: HTMLTrait.Attributes.Global
-  {
+protocol SplitStylable: HTMLTagDefinition, HTMLTrait.Attributes.Global {}
+extension Style where Tag: SplitStylable {
+  static var split: Self {
     .init(.class("flex flex-wrap justify-between w-full"))
   }
 }
@@ -105,5 +94,23 @@ extension Style where Tag: TextStylable {
   static var label: Self { .init(.class("text-base-content/50")) }
   static var bold: Self { .init(.class("font-bold")) }
 }
+
+extension HTMLElement where Tag: StackStylable {
+  init(_ styles: Style<Tag>..., @HTMLBuilder content: () -> Content) {
+    self.init(
+      attributes: styles.reduce(into: []) { $0 += $1.attributes }
+    ) { content() }
+  }
+}
+
+protocol JustifyStyleable: HTMLTagDefinition, HTMLTrait.Attributes.Global {}
+extension Style where Tag: JustifyStyleable {
+  static var end: Self { .init(.class("justify-end")) }
+  static var start: Self { .init(.class("justify-start")) }
+}
+
+extension HTMLTag.div: SplitStylable {}
+extension HTMLTag.div: StackStylable {}
 extension HTMLTag.div: TextStylable {}
+extension HTMLTag.div: JustifyStyleable {}
 extension HTMLTag.span: TextStylable {}

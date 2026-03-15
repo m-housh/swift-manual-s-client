@@ -16,7 +16,7 @@ struct DesignInfoTable: HTML, Sendable {
           }
           td {
             if let temperature = designInfo?.summerOutdoorTemperature {
-              NumberView(temperature)
+              TemperatureView(temperature)
             }
           }
         }
@@ -26,7 +26,7 @@ struct DesignInfoTable: HTML, Sendable {
           }
           td {
             if let temperature = designInfo?.summerIndoorTemperature {
-              NumberView(temperature)
+              TemperatureView(temperature)
             }
           }
         }
@@ -36,7 +36,7 @@ struct DesignInfoTable: HTML, Sendable {
           }
           td {
             if let humidity = designInfo?.summerIndoorHumidity {
-              NumberView(humidity.rawValue)
+              PercentView(humidity)
             }
           }
         }
@@ -46,7 +46,7 @@ struct DesignInfoTable: HTML, Sendable {
           }
           td {
             if let temperature = designInfo?.winterOutdoorTemperature {
-              NumberView(temperature)
+              TemperatureView(temperature)
             }
           }
         }
@@ -54,11 +54,17 @@ struct DesignInfoTable: HTML, Sendable {
           td(.class("label")) { "Project Elevation" }
           td {
             if let elevation = designInfo?.elevation {
-              NumberView(elevation)
+              ElevationView(elevation)
             }
           }
         }
       }
     }
+    .temperatureViewStyle(.hstack(gap: 2), .end)
+    .temperatureViewSymbol(.svg, .label, .bold)
+    .percentViewStyle(.hstack(gap: 2), .end)
+    .percentViewSymbolStyle(.svg, .label, .bold)
+    .elevationStyle(.hstack(gap: 2), .end)
+    .elevationSymbolStyle(.svg, .label, .bold)
   }
 }

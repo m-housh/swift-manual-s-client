@@ -33,7 +33,7 @@ struct Tab<Content: HTML>: HTML {
     div(.class("tab-content")) {
       _content()
     }
-    .applyStyle(style)
+    .style(style)
   }
 }
 

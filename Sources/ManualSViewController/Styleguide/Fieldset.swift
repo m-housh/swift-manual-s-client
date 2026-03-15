@@ -23,9 +23,9 @@ struct Fieldset<Label: HTML, Content: HTML>: HTML {
       div {
         _content
       }
-      .applyStyle(contentStyle)
+      .style(contentStyle)
     }
-    .applyStyle(style)
+    .style(style)
   }
 }
 
@@ -43,7 +43,7 @@ extension Fieldset where Label == legend<HTMLText> {
 }
 
 enum FieldsetTag {}
-enum FieldsetContentTag: StackStylable {}
+enum FieldsetContentTag {}
 typealias FieldsetStyle = Tagged<FieldsetTag, Style<HTMLTag.fieldset>>
 typealias FieldsetContentStyle = Tagged<FieldsetContentTag, Style<HTMLTag.div>>
 
@@ -73,6 +73,16 @@ extension HTML {
 
   func fieldsetContentStyle(_ style: FieldsetContentStyle) -> some HTML<Tag> {
     environment(FieldsetEnvironment.$contentStyle, style)
+  }
+}
+
+extension FieldsetContentStyle {
+  static func hstack(gap: Int = 4) -> Self {
+    .init(.hstack(gap: gap))
+  }
+
+  static func vstack(gap: Int = 4) -> Self {
+    .init(.vstack(gap: gap))
   }
 }
 

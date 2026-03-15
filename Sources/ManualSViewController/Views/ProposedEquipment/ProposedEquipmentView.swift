@@ -45,8 +45,6 @@ struct ProposedEquipmentView: HTML, Sendable {
               td {
                 if let afue = proposedEquipment?.afue {
                   PercentView(afue)
-                    .percentViewStyle(.split())
-                  // .percentViewSymbolStyle(.svg)
                 }
               }
             }
@@ -54,7 +52,9 @@ struct ProposedEquipmentView: HTML, Sendable {
               td(.class("label")) { "SEER" }
               td {
                 if let seer = proposedEquipment?.seer {
-                  NumberView(seer, digits: 1)
+                  div(.class("flex justify-end pe-8")) {
+                    NumberView(seer, digits: 1)
+                  }
                 }
               }
             }
@@ -62,7 +62,9 @@ struct ProposedEquipmentView: HTML, Sendable {
               td(.class("label")) { "HSPF" }
               td {
                 if let hspf = proposedEquipment?.hspf {
-                  NumberView(hspf, digits: 1)
+                  div(.class("flex justify-end pe-8")) {
+                    NumberView(hspf, digits: 1)
+                  }
                 }
               }
             }
@@ -75,6 +77,8 @@ struct ProposedEquipmentView: HTML, Sendable {
               }
             }
           }
+          .percentViewStyle(.hstack(gap: 2), .end)
+          .percentViewSymbolStyle(.svg, .label, .bold)
         }
       }
     }

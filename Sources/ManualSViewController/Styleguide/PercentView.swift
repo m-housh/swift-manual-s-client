@@ -3,80 +3,93 @@ import ManualSModels
 import SharedStyleguide
 import Tagged
 
-struct PercentView: HTML, Sendable, StackStylable {
+struct PercentView: HTML, Sendable {
 
   @Environment(PercentViewEnvironment.$style) var style
   @Environment(PercentViewEnvironment.$displayStyle) private var displayStyle
+  @Environment(PercentViewEnvironment.$symbol) private var symbol
   @Environment(PercentViewEnvironment.$symbolStyle) private var symbolStyle
 
   private let percent: Percent
 
-  init(
-    _ percent: Percent,
-  ) {
+  init(_ percent: Percent) {
     self.percent = percent
-  }
-
-  private var shouldApplyFlex: Bool {
-    switch displayStyle {
-    case .decimal, .default(includePercentSymbol: false): return false
-    case .default(includePercentSymbol: true): return true
-    }
   }
 
   var body: some HTML<HTMLTag.div> {
     div {
       switch displayStyle {
       case .decimal:
-
         NumberView(percent.decimal)
-      case .default(let includePercentSymbol):
+      case .default:
         NumberView(percent.rawValue)
-        if includePercentSymbol {
-          switch symbolStyle {
-          case .default:
-            span { "%" }
+      }
+
+      if let symbol {
+        div {
+          switch symbol {
           case .svg:
             SVG(.percent)
+          case .default:
+            "%"
+          case .none:
+            EmptyHTML()
           }
         }
+        .style(symbolStyle)
       }
     }
-    .attributes(.class("flex"), when: shouldApplyFlex)
-    .applyStyle(style)
+    .attributes(.class("flex"), when: symbol != nil)
+    .style(style)
   }
 
   enum DisplayStyle: Sendable {
     case decimal
-    case `default`(includePercentSymbol: Bool = true)
-  }
-
-  enum SymbolStyle: Sendable {
-    case svg
     case `default`
   }
 
+  enum Symbol: Sendable {
+    case `default`
+    case none
+    case svg
+  }
+
 }
 
-extension PercentView: SplitStylable {}
 typealias PercentViewStyle = Tagged<PercentView, Style<HTMLTag.div>>
 
 private enum PercentViewEnvironment {
-  @TaskLocal static var style: PercentViewStyle = .init()
-  @TaskLocal static var displayStyle: PercentView.DisplayStyle = .default()
-  @TaskLocal static var symbolStyle: PercentView.SymbolStyle = .default
+  @TaskLocal static var style: Tagged<PercentView, Style<HTMLTag.div>>? = nil
+  @TaskLocal static var displayStyle: PercentView.DisplayStyle = .default
+  @TaskLocal static var symbol: PercentView.Symbol? = nil
+  @TaskLocal static var symbolStyle: Tagged<PercentView.Symbol, Style<HTMLTag.div>>? = nil
 }
 
 extension HTML {
-  func percentViewStyle(_ style: PercentView.DisplayStyle) -> some HTML<Tag> {
-    environment(PercentViewEnvironment.$displayStyle, style)
+
+  func percentViewStyle(
+    _ styles: Style<HTMLTag.div>...
+  ) -> some HTML<Tag> {
+    environment(PercentViewEnvironment.$style, .init(.combining(styles)))
   }
 
-  func percentViewStyle(_ style: PercentViewStyle) -> some HTML<Tag> {
-    environment(PercentViewEnvironment.$style, style)
+  func percentViewStyle(
+    _ displayStyle: PercentView.DisplayStyle,
+    _ styles: Style<HTMLTag.div>...
+  ) -> some HTML<Tag> {
+    environment(PercentViewEnvironment.$displayStyle, displayStyle)
+      .environment(PercentViewEnvironment.$style, .init(.combining(styles)))
   }
 
-  func percentViewSymbolStyle(_ style: PercentView.SymbolStyle) -> some HTML<Tag> {
-    environment(PercentViewEnvironment.$symbolStyle, style)
+  func percentViewSymbolStyle(
+    _ symbol: PercentView.Symbol,
+    _ styles: Style<HTMLTag.div>...
+  ) -> some HTML<Tag> {
+    environment(PercentViewEnvironment.$symbol, symbol)
+      .environment(PercentViewEnvironment.$symbolStyle, .init(.combining(styles)))
+  }
+
+  func percentViewSymbolStyle(_ styles: Style<HTMLTag.div>...) -> some HTML<Tag> {
+    environment(PercentViewEnvironment.$symbolStyle, .init(.combining(styles)))
   }
 }
