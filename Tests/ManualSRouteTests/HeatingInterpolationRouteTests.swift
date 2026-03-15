@@ -30,7 +30,7 @@ struct HeatingInterpolationRouteTests {
   func submit(body: String, expected: HeatingInterpolation.Interpolation) throws {
     let request = URLRequestData(method: "POST", path: "/heating", body: .init(body.utf8))
     let sut = try router.match(request: .init(data: request)!)
-    #expect(sut == .submit(.init(projectID: .init(UUID(0)), interpolations: [expected])))
+    #expect(sut == .submit(.init(projectID: .init(UUID(0)), interpolation: expected)))
   }
 
   @Test(
@@ -56,6 +56,6 @@ struct HeatingInterpolationRouteTests {
       method: "POST", path: "/heating/\(UUID(1))", body: .init(body.utf8))
     let sut = try router.match(request: .init(data: request)!)
     #expect(
-      sut == .update(.init(UUID(1)), .init(interpolations: [expected])))
+      sut == .update(.init(UUID(1)), .init(interpolation: expected)))
   }
 }
