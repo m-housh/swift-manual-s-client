@@ -33,6 +33,30 @@ extension ManualSDatabase.Projects {
           .paginate(request)
           .map { try $0.toDTO() }
       },
+      fetchDetails: { projectID in
+        let model = try await ProjectModel.query(on: database)
+          .filter(\.$id == projectID.rawValue)
+          .with(\.$designInfo)
+          .with(\.$systemType)
+          .with(\.$proposedEquipment)
+          .with(\.$houseLoad)
+          .with(\.$coolingInterpolation)
+          .with(\.$heatingInterpolation)
+          .first()
+
+        guard let model else { return nil }
+
+        return try .init(
+          project: model.toDTO(),
+          designInfo: model.designInfo?.toDTO(),
+          systemType: model.systemType?.toDTO(),
+          proposedEquipment: model.proposedEquipment?.toDTO(),
+          houseLoad: model.houseLoad?.toDTO(),
+          coolingInterpolation: model.coolingInterpolation?.toDTO(),
+          heatingInterpolation: model.heatingInterpolation?.toDTO()
+        )
+
+      },
       update: { id, updates in
         guard let model = try await ProjectModel.find(id, on: database) else {
           throw NotFoundError()
@@ -118,6 +142,24 @@ final class ProjectModel: Model, @unchecked Sendable {
 
   @Field(key: "userID")
   var userID: User.ID.RawValue
+
+  @OptionalChild(for: \.$project)
+  var coolingInterpolation: CoolingInterpolationModel?
+
+  @OptionalChild(for: \.$project)
+  var designInfo: DesignInfoModel?
+
+  @OptionalChild(for: \.$project)
+  var heatingInterpolation: HeatingInterpolationModel?
+
+  @OptionalChild(for: \.$project)
+  var houseLoad: HouseLoadModel?
+
+  @OptionalChild(for: \.$project)
+  var proposedEquipment: ProposedEquipmentModel?
+
+  @OptionalChild(for: \.$project)
+  var systemType: SystemTypeModel?
 
   init() {}
 

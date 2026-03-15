@@ -3,10 +3,12 @@ import Dependencies
 import Fluent
 import FluentSQLiteDriver
 import ManualSDatabase
+import ManualSModels
 import SharedDatabase
 import SharedMiddleware
-import SharedModels
 import Vapor
+
+import struct SharedModels.User
 
 /// Set's up the database and a test user for running tests that require a
 /// a user.
@@ -29,7 +31,7 @@ func withTestProject(
   operation: @escaping @Sendable (Project) async throws -> Void
 ) async throws {
   try await withTestUser(setupDependencies: setupDependencies) { user in
-    @Dependency(\.sharedDatabase.projects) var projects
+    @Dependency(\.database.projects) var projects
     let project = try await projects.create(
       user.id,
       .init(

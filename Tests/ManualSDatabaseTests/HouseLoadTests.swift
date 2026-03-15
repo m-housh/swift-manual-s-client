@@ -2,7 +2,6 @@ import Dependencies
 import Foundation
 import ManualSDatabase
 import ManualSModels
-import SharedDatabase
 import Testing
 
 @Suite

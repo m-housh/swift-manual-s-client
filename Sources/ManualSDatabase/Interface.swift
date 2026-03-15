@@ -5,6 +5,8 @@ import ManualSModels
 import SharedDatabase
 import SharedModels
 
+@_exported import struct SharedDatabase.NotFoundError
+
 extension DependencyValues {
   public var database: ManualSDatabase {
     get { self[ManualSDatabase.self] }
@@ -81,6 +83,8 @@ public struct ManualSDatabase: Sendable {
     public var delete: @Sendable (ManualSModels.Project.ID) async throws -> Void
     public var get: @Sendable (ManualSModels.Project.ID) async throws -> ManualSModels.Project?
     public var fetch: @Sendable (User.ID, PageRequest) async throws -> Page<ManualSModels.Project>
+    public var fetchDetails:
+      @Sendable (ManualSModels.Project.ID) async throws -> ManualSModels.Project.Details?
     public var update:
       @Sendable (ManualSModels.Project.ID, ManualSModels.Project.Update) async throws ->
         ManualSModels.Project
