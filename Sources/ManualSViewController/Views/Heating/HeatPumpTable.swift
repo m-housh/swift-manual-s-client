@@ -13,8 +13,18 @@ struct HeatPumpTable: HTML, Sendable {
       thead {
         tr {
           th {}
-          th { "@ 47°" }
-          th { "@ 17°" }
+          th {
+            div(.class("flex")) {
+              span { "@" }
+              TemperatureView(47)
+            }
+          }
+          th {
+            div(.class("flex")) {
+              span { "@" }
+              TemperatureView(17)
+            }
+          }
         }
       }
       tbody {
@@ -44,8 +54,6 @@ struct HeatPumpTable: HTML, Sendable {
         }
       }
       .temperatureViewStyle(digits: 1)
-      // .temperatureViewStyle(.hstack(gap: 2), .init(.class("items-center")))
-      // .temperatureViewSymbol(.svg, .label, .bold)
     }
   }
 
