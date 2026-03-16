@@ -219,7 +219,7 @@ extension ManualSRoute.ProjectDetail {
             )
           }
         }
-      case .result(let id):
+      case .result(_):
         return .view {
           // return div { "Results..." }
           await makeCoolingInterpolationResultView(projectID: projectID)
@@ -252,19 +252,26 @@ extension ManualSRoute.ProjectDetail {
       case .index:
         return .view {
           await ResultView {
-            let interpolations = try await database.heatingInterpolations.fetch(projectID)
-            guard let designInfo = try await database.designInfo.fetch(projectID),
-              let houseLoad = try await database.houseLoads.fetch(projectID)
-            else {
-              // return HeatingInterpolationsView(projectID: projectID, interpolations: [])
-              throw NotFoundError()
+
+            let details = try await database.projects.fetchDetails(projectID)
+            var responses = [(HeatingInterpolation, HeatingInterpolation.Response)]()
+            if let details {
+              responses = try await manualS.heatingInterpolations(projectDetails: details)
             }
 
-            let responses = try await manualS.heatingInterpolations(
-              interpolations,
-              designInfo: designInfo,
-              heatingLoad: Int(houseLoad.heating)
-            )
+            // let interpolations = try await database.heatingInterpolations.fetch(projectID)
+            // guard let designInfo = try await database.designInfo.fetch(projectID),
+            //   let houseLoad = try await database.houseLoads.fetch(projectID)
+            // else {
+            //   // return HeatingInterpolationsView(projectID: projectID, interpolations: [])
+            //   throw NotFoundError()
+            // }
+            //
+            // let responses = try await manualS.heatingInterpolations(
+            //   interpolations,
+            //   designInfo: designInfo,
+            //   heatingLoad: Int(houseLoad.heating)
+            // )
 
             return ProjectDetailsView.Section(
               projectID: projectID,
@@ -276,20 +283,11 @@ extension ManualSRoute.ProjectDetail {
         return .view {
 
           let _ = try await database.heatingInterpolations.create(form)
-          // FIX: Make a helper or something to not repeat this code.
-          let interpolations = try await database.heatingInterpolations.fetch(projectID)
-          guard let designInfo = try await database.designInfo.fetch(projectID),
-            let houseLoad = try await database.houseLoads.fetch(projectID)
-          else {
-            // return HeatingInterpolationsView(projectID: projectID, interpolations: [])
-            throw NotFoundError()
+          let details = try await database.projects.fetchDetails(projectID)
+          var responses = [(HeatingInterpolation, HeatingInterpolation.Response)]()
+          if let details {
+            responses = try await manualS.heatingInterpolations(projectDetails: details)
           }
-
-          let responses = try await manualS.heatingInterpolations(
-            interpolations,
-            designInfo: designInfo,
-            heatingLoad: Int(houseLoad.heating)
-          )
 
           return ProjectDetailsView.Section(
             projectID: projectID,
@@ -342,57 +340,6 @@ extension SystemType.Cooling {
   }
 }
 
-extension ManualSClient {
-  fileprivate func coolingInterpolation(
-    projectDetails: Project.Details
-  ) async -> CoolingInterpolation.Response? {
-    guard let interpolation = projectDetails.coolingInterpolation,
-      let houseLoad = projectDetails.houseLoad,
-      let designInfo = projectDetails.designInfo,
-      let systemType = projectDetails.systemType,
-      let coolingSystemType = systemType.cooling
-    else {
-      return nil
-    }
-
-    return try? await coolingInterpolation(
-      .init(
-        coolingLoad: houseLoad.cooling,
-        manufacturersAdjustments: interpolation.manufacturersAdjustments,
-        outdoorDesignTemperature: designInfo.summerOutdoorTemperature,
-        projectElevation: designInfo.elevation,
-        interpolation: interpolation.interpolation,
-        systemType: coolingSystemType
-      )
-    )
-  }
-
-  fileprivate func heatingInterpolations(
-    _ interpolations: [HeatingInterpolation],
-    designInfo: DesignInfo,
-    heatingLoad: Int
-  ) async throws -> [(HeatingInterpolation, HeatingInterpolation.Response)] {
-    var retVal = [(HeatingInterpolation, HeatingInterpolation.Response)]()
-    for interpolation in interpolations {
-      switch interpolation.interpolation {
-      case .heatPump(let capacity):
-        let response = try await heatPumpHeatingInterpolation(
-          .init(
-            capacity: capacity,
-            heatingLoad: heatingLoad,
-            projectElevation: designInfo.elevation,
-            outdoorDesignTemperature: designInfo.winterOutdoorTemperature
-          )
-        )
-        retVal.append((interpolation, .heatPump(response)))
-      default:
-        break
-      }
-    }
-    return retVal
-  }
-}
-
 extension ViewResponse {
   fileprivate static func projectDetailsUpdate<V: HTML>(
     _ projectID: Project.ID,
@@ -415,6 +362,7 @@ extension ViewResponse {
               section: .coolingInterpolation(details.coolingInterpolation, details.designInfo)
             )
             .attributes(.hx.swapOOB(true))
+
             // FIX: Heating Interpolations
           }
         }

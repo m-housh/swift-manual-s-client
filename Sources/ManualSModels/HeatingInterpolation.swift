@@ -40,17 +40,36 @@ public struct HeatingInterpolation: Codable, Equatable, Identifiable, Sendable {
     case electric(kilowatts: Int)
     case heatPump(capacity: HeatPumpCapacity)
 
-    public static func boilerOrFurnace(afue: Percent, inputBTU: Int) -> Self {
-      .boilerOrFurnace(.init(afue: afue, inputBTU: inputBTU))
+    public static func boilerOrFurnace(
+      afue: Percent,
+      inputBTU: Int,
+      type: BoilerOrFurnace.BoilerOrFurnaceType = .furnace
+    ) -> Self {
+      .boilerOrFurnace(.init(afue: afue, inputBTU: inputBTU, type: type))
     }
 
     public struct BoilerOrFurnace: Codable, Equatable, Sendable {
       public let afue: Percent
       public let inputBTU: Int
+      public let type: BoilerOrFurnaceType
 
-      public init(afue: Percent, inputBTU: Int) {
+      public init(
+        afue: Percent,
+        inputBTU: Int,
+        type: BoilerOrFurnaceType
+      ) {
         self.afue = afue
         self.inputBTU = inputBTU
+        self.type = type
+      }
+
+      @CasePathable
+      @dynamicMemberLookup
+      public enum BoilerOrFurnaceType: String, CaseIterable, CasePathable, Codable, Equatable,
+        Sendable
+      {
+        case boiler
+        case furnace
       }
     }
   }

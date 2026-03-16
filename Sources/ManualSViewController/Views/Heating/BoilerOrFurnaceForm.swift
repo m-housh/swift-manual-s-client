@@ -1,6 +1,7 @@
 import Elementary
 import ElementaryHTMX
 import ManualSModels
+import ManualSRouter
 import SharedStyleguide
 
 struct BoilerOrFurnaceForm: HTML, Identifiable, Sendable {
@@ -8,42 +9,63 @@ struct BoilerOrFurnaceForm: HTML, Identifiable, Sendable {
   static let id = "boilerOrFurnaceForm"
 
   var id: String { Self.id }
-  let altitudeAdjustment: Percent?
-  let inputBTU: Double?
-  let interpolationType: InterpolationType
+  let projectID: Project.ID
+  let interpolation: HeatingInterpolation?
+
+  private var route: String {
+    ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.heating(.index))))
+      .appendingPath(interpolation?.id)
+  }
 
   var body: some HTML<HTMLTag.form> {
-    form {
-      FormTitle { "\(interpolationType.title) - Heating" }
+    Form(
+      title: "Gas - Heating",
+      interpolation == nil
+        ? .hx.post(route)
+        : .hx.patch(route),
+      .hx.target(id: ProjectDetailsView.Section.id(.heatingInterpolation())),
+      .hx.swap(.outerHTML)
+    ) {
 
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Input BTU" }
+      input(.hidden, .name("projectID"), .value(projectID))
+
+      if let interpolation {
+        input(.hidden, .name("id"), .value(interpolation.id))
+      }
+
+      Fieldset("Input") {
         label(.class("input w-full")) {
           span(.class("label")) { SVG(.flame) }
           input(
             .type(.number),
             .name("inputBTU"),
-            .value(inputBTU),
+            .value(interpolation?.boilerOrFurnace?.inputBTU),
             .min(0),
             .step(1),
             .required
           )
+          span(.class("label")) { "BTU/h" }
         }
       }
-      fieldset(.class("fieldset")) {
-        legend(.class("fieldset-legend")) { "Altitude Adjustment" }
-        label(.class("input w-full")) {
-          span(.class("label")) { SVG(.percent) }
-          input(
-            .type(.number),
-            .name("altitudeAdjustment"),
-            .value(altitudeAdjustment?.decimal ?? 1.0),
-            .min(0),
-            .max(1.0),
-            .step(0.1),
+
+      Fieldset("Equipment Type") {
+        label(.class("select w-full")) {
+          span(.class("label")) { "Type" }
+          Select(
+            HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.allCases,
+            value: \.rawValue,
+            selected: {
+              interpolation == nil
+                ? $0 == .furnace
+                : $0 == interpolation?.boilerOrFurnace?.type
+            },
+            label: \.title
+          )
+          .attributes(
+            .name("type"),
+            .required
           )
         }
-        p(.class("text-sm italic")) { "Optional" }
       }
 
       SubmitButton()
@@ -51,10 +73,8 @@ struct BoilerOrFurnaceForm: HTML, Identifiable, Sendable {
     }
   }
 
-  enum InterpolationType: String, CaseIterable {
-    case boiler
-    case furnace
+}
 
-    var title: String { rawValue.capitalized }
-  }
+extension HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType {
+  var title: String { rawValue.capitalized }
 }

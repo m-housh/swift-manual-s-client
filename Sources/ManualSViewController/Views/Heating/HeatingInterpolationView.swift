@@ -1,6 +1,5 @@
 import Elementary
 import ManualSModels
-
 import SharedStyleguide
 
 struct HeatingInterpolationsView: HTML, Sendable {
@@ -26,8 +25,10 @@ struct HeatingInterpolationsView: HTML, Sendable {
       switch interpolation.interpolation {
       case .heatPump(let capacity):
         HeatPumpTable(inputCapacity: capacity, response: response)
-      default:
-        EmptyHTML()
+      case .electric(let kilowatts):
+        div { "Electric..." }
+      case .boilerOrFurnace(_):
+        div { "Gas..." }
       }
     }
   }

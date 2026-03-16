@@ -60,12 +60,14 @@ extension HeatingInterpolation {
       try await database.schema(HeatingInterpolationModel.schema)
         .id()
         .field("interpolation", .dictionary)
+        .field("interpolationType", .string, .required)
         .field("createdAt", .string)
         .field("updatedAt", .string)
         .field(
           "projectID", .uuid, .required,
           .references(ProjectModel.schema, "id", onDelete: .cascade)
         )
+        .unique(on: "projectID", "interpolationType")
         .create()
     }
 
@@ -88,6 +90,9 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
   @Field(key: "interpolation")
   var interpolation: HeatingInterpolation.Interpolation
 
+  @Field(key: "interpolationType")
+  var interpolationType: String
+
   @Timestamp(key: "createdAt", on: .create, format: .iso8601)
   var createdAt: Date?
 
@@ -104,6 +109,7 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
     self.id = id?.rawValue
     self.$project.id = projectID.rawValue
     self.interpolation = interpolation
+    self.interpolationType = interpolation.interpolationType.rawValue
   }
 
   func toDTO() throws -> HeatingInterpolation {
@@ -119,6 +125,24 @@ final class HeatingInterpolationModel: Model, @unchecked Sendable {
   func applyUpdates(_ updates: HeatingInterpolation.Update) {
     if updates.interpolation != self.interpolation {
       self.interpolation = updates.interpolation
+    }
+  }
+
+  // Used for unique constraint, so that only one interpolation per
+  // project.
+  enum InterpolationType: String {
+    case boilerOrFurnace
+    case electric
+    case heatPump
+  }
+}
+
+extension HeatingInterpolation.Interpolation {
+  fileprivate var interpolationType: HeatingInterpolationModel.InterpolationType {
+    switch self {
+    case .boilerOrFurnace: return .boilerOrFurnace
+    case .electric: return .electric
+    case .heatPump: return .heatPump
     }
   }
 }

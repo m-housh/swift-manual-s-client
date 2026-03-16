@@ -13,7 +13,7 @@ extension Project {
     public let proposedEquipment: ProposedEquipment?
     public let houseLoad: HouseLoad?
     public let coolingInterpolation: CoolingInterpolation?
-    public let heatingInterpolation: HeatingInterpolation?
+    public let heatingInterpolations: [HeatingInterpolation]
 
     public init(
       project: Project,
@@ -22,7 +22,7 @@ extension Project {
       proposedEquipment: ProposedEquipment? = nil,
       houseLoad: HouseLoad? = nil,
       coolingInterpolation: CoolingInterpolation? = nil,
-      heatingInterpolation: HeatingInterpolation? = nil
+      heatingInterpolations: [HeatingInterpolation] = []
     ) {
       self.project = project
       self.designInfo = designInfo
@@ -30,7 +30,7 @@ extension Project {
       self.proposedEquipment = proposedEquipment
       self.houseLoad = houseLoad
       self.coolingInterpolation = coolingInterpolation
-      self.heatingInterpolation = heatingInterpolation
+      self.heatingInterpolations = heatingInterpolations
     }
   }
 }

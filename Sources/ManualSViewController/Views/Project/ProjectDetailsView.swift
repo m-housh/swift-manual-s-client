@@ -168,6 +168,7 @@ struct ProjectDetailsView: HTML, Sendable {
             }
 
           case .heatingInterpolation(let heatingInterpolations):
+            // FIX: Heating interpolation results.
             SectionHeader(tooltip: "Edit heating") {
               HeatingInterpolationForm(
                 projectID: projectID,

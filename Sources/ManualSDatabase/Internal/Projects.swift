@@ -11,14 +11,6 @@ import struct SharedModels.User
 
 extension ManualSDatabase.Projects {
 
-  // public enum ProjectDetailColumn: CaseIterable, Sendable {
-  //   case designInfo
-  //   case systemType
-  //   case proposedEquipment
-  //   case houseLoad
-  //   case coolingInterpolaiton
-  //   case heatingInterpolation
-  // }
   public static func live(database: any Database) -> Self {
     .init(
       create: { userID, request in
@@ -50,7 +42,7 @@ extension ManualSDatabase.Projects {
           .with(\.$proposedEquipment)
           .with(\.$houseLoad)
           .with(\.$coolingInterpolation)
-          .with(\.$heatingInterpolation)
+          .with(\.$heatingInterpolations)
           .first()
 
         guard let model else { return nil }
@@ -62,7 +54,7 @@ extension ManualSDatabase.Projects {
           proposedEquipment: model.proposedEquipment?.toDTO(),
           houseLoad: model.houseLoad?.toDTO(),
           coolingInterpolation: model.coolingInterpolation?.toDTO(),
-          heatingInterpolation: model.heatingInterpolation?.toDTO()
+          heatingInterpolations: model.heatingInterpolations.map { try $0.toDTO() }
         )
 
       },
@@ -158,8 +150,8 @@ final class ProjectModel: Model, @unchecked Sendable {
   @OptionalChild(for: \.$project)
   var designInfo: DesignInfoModel?
 
-  @OptionalChild(for: \.$project)
-  var heatingInterpolation: HeatingInterpolationModel?
+  @Children(for: \.$project)
+  var heatingInterpolations: [HeatingInterpolationModel]
 
   @OptionalChild(for: \.$project)
   var houseLoad: HouseLoadModel?

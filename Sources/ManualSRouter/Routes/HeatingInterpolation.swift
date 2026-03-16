@@ -49,6 +49,9 @@ extension HeatingInterpolation.Create {
       ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
         Field("afue") { Percent.parser() }
         Field("inputBTU") { Int.parser() }
+        Field("type") {
+          HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
+        }
       }
       .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
 
@@ -72,6 +75,9 @@ extension HeatingInterpolation.Update {
       ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
         Field("afue") { Percent.parser() }
         Field("inputBTU") { Int.parser() }
+        Field("type") {
+          HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
+        }
       }
       .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
 
