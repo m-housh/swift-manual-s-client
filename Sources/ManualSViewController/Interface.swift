@@ -79,7 +79,7 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .submit(let form):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let designInfo = try await database.designInfo.create(form)
             return ProjectDetailsView.Section(
@@ -89,35 +89,13 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .update(let designInfoID, let updates):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let designInfo = try await database.designInfo.update(designInfoID, updates)
-            let projectDetails = try await database.projects.fetchDetails(projectID)
-            return (designInfo, projectDetails)
-
-            // return ProjectDetailsView.Section(
-            //   projectID: projectID,
-            //   section: .designInfo(designInfo)
-            // )
-          } onSuccess: { (designInfo, projectDetails) in
-            Group {
-              ProjectDetailsView.Section(
-                projectID: projectID,
-                section: .designInfo(designInfo)
-              )
-              if let coolingInterpolation = projectDetails?.coolingInterpolation,
-                let designInfo = projectDetails?.designInfo
-              {
-                ProjectDetailsView.Section(
-                  projectID: projectID,
-                  section: .coolingInterpolation(coolingInterpolation, designInfo)
-                )
-                .attributes(
-                  .hx.swapOOB(true),
-                  .hx.selectOOB("#\(ProjectDetailsView.Section.id(.coolingInterpolation()))")
-                )
-              }
-            }
+            return ProjectDetailsView.Section(
+              projectID: projectID,
+              section: .designInfo(designInfo)
+            )
           }
         }
       }
@@ -135,7 +113,7 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .submit(let form):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let systemTypes = try await database.systemTypes.create(form)
             return ProjectDetailsView.Section(
@@ -145,7 +123,7 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .update(let id, let updates):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let systemTypes = try await database.systemTypes.update(id, updates)
             return ProjectDetailsView.Section(
@@ -173,7 +151,7 @@ extension ManualSRoute.ProjectDetail {
           ProposedEquipmentForm.EquipmentTable.Row(equipment: nil)
         }
       case .submit(let form):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let proposedEquipment = try await database.proposedEquipment.create(form.toCreate())
             return ProjectDetailsView.Section(
@@ -183,7 +161,7 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .update(let id, let updates):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let proposedEquipment = try await database.proposedEquipment.update(
               id, updates.toUpdate())
@@ -208,7 +186,7 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .submit(let form):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let houseLoads = try await database.houseLoads.create(form)
             return ProjectDetailsView.Section(
@@ -218,7 +196,7 @@ extension ManualSRoute.ProjectDetail {
           }
         }
       case .update(let id, let updates):
-        return .view {
+        return .projectDetailsUpdate(projectID) {
           await ResultView {
             let houseLoads = try await database.houseLoads.update(id, updates)
             return ProjectDetailsView.Section(
@@ -244,7 +222,7 @@ extension ManualSRoute.ProjectDetail {
       case .result(let id):
         return .view {
           // return div { "Results..." }
-          await makeCoolingInterpolationResultView(id: id, projectID: projectID)
+          await makeCoolingInterpolationResultView(projectID: projectID)
         }
       case .submit(let form):
         return .view {
@@ -337,7 +315,6 @@ private func makeCoolingInterpolationResponseTable(
 }
 
 private func makeCoolingInterpolationResultView(
-  id: CoolingInterpolation.ID,
   projectID: ManualSModels.Project.ID
 ) async -> some HTML
   & Sendable
@@ -413,5 +390,35 @@ extension ManualSClient {
       }
     }
     return retVal
+  }
+}
+
+extension ViewResponse {
+  fileprivate static func projectDetailsUpdate<V: HTML>(
+    _ projectID: Project.ID,
+    @HTMLBuilder content: @escaping @Sendable () async -> V
+  ) -> Self where V: Sendable {
+    self.view {
+      await ResultView {
+        @Dependency(\.database) var database
+        @Dependency(\.manualS) var manualS
+        return (
+          try await database.projects.fetchDetails(projectID),
+          await content()
+        )
+      } onSuccess: { (projectDetails, content) in
+        Group {
+          content
+          if let details = projectDetails {
+            ProjectDetailsView.Section(
+              projectID: projectID,
+              section: .coolingInterpolation(details.coolingInterpolation, details.designInfo)
+            )
+            .attributes(.hx.swapOOB(true))
+            // FIX: Heating Interpolations
+          }
+        }
+      }
+    }
   }
 }
