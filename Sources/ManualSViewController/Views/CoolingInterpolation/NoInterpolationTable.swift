@@ -10,7 +10,7 @@ struct NoInterpolationTable: HTML, Sendable {
   let manufacturersAdjustments: CoolingCapacityAdjustment?
 
   var body: some HTML<HTMLTag.table> {
-    table(.class("table table-zebra text-lg")) {
+    Table {
       thead {
         tr {
           th { HTMLRaw("&nbsp;") }

@@ -59,11 +59,19 @@ extension ManualSRoute.ProjectDetail {
     case .index:
       return .view {
         await ResultView {
-          guard let projectDetails = try await database.projects.fetchDetails(projectID) else {
+          let details = try await fetchDetails(for: projectID)
+
+          guard let projectDetails = details.details else {
             throw NotFoundError()
           }
+
           let user = try auth.currentUser()
-          return ProjectDetailsView(user: user, details: projectDetails)
+          return ProjectDetailsView(
+            user: user,
+            details: projectDetails,
+            coolingInterpolationResponse: details.coolingInterpolationResponse,
+            heatingInterpolations: details.heatingInterpolations ?? []
+          )
         }
       }
     case .designInfo(let route):
@@ -324,7 +332,37 @@ private func makeCoolingInterpolationResultView(
     }
     return await makeCoolingInterpolationResponseTable(projectDetails: details)
   }
+}
 
+struct ProjectDetails: Sendable {
+
+  let details: Project.Details?
+  let coolingInterpolationResponse: CoolingInterpolation.Response?
+  let heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]?
+
+  internal init(
+    details: Project.Details? = nil,
+    coolingInterpolationResponse: CoolingInterpolation.Response? = nil,
+    heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]? = nil
+  ) {
+    self.details = details
+    self.coolingInterpolationResponse = coolingInterpolationResponse
+    self.heatingInterpolations = heatingInterpolations
+  }
+}
+
+private func fetchDetails(for projectID: Project.ID) async throws -> ProjectDetails {
+  @Dependency(\.database) var database
+  @Dependency(\.manualS) var manualS
+
+  guard let details = try await database.projects.fetchDetails(projectID)
+  else { return .init() }
+
+  return .init(
+    details: details,
+    coolingInterpolationResponse: await manualS.coolingInterpolation(projectDetails: details),
+    heatingInterpolations: try await manualS.heatingInterpolations(projectDetails: details)
+  )
 }
 
 extension SystemType.Cooling {

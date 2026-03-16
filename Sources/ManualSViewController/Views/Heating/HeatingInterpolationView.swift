@@ -7,7 +7,7 @@ struct HeatingInterpolationsView: HTML, Sendable {
   let interpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]
 
   var body: some HTML {
-    table(.class("table text-lg")) {
+    Table {
       tbody {
         for interpolation in interpolations {
           Row(interpolation: interpolation.0, response: interpolation.1)

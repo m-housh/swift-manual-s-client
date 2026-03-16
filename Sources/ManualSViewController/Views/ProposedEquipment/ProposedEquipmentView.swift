@@ -9,7 +9,7 @@ struct ProposedEquipmentView: HTML, Sendable {
     div(.class("flex justify-between gap-0 pb-2")) {
       // Equipment table
       div(.class("w-full")) {
-        table(.class("table table-zebra text-lg")) {
+        Table {
           thead {
             tr {
               th { "Manufacturer" }
@@ -32,7 +32,7 @@ struct ProposedEquipmentView: HTML, Sendable {
       }
 
       div(.class("min-w-[350px]")) {
-        table(.class("table table-zebra text-lg")) {
+        Table {
           thead {
             tr {
               th { HTMLRaw("&nbsp;") }

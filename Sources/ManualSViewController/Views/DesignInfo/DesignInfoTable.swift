@@ -7,7 +7,7 @@ struct DesignInfoTable: HTML, Sendable {
   let designInfo: DesignInfo?
 
   var body: some HTML<HTMLTag.table> {
-    table(.class("table table-zebra text-lg")) {
+    Table {
       tbody {
         tr {
           td(.class("label")) {
@@ -59,11 +59,12 @@ struct DesignInfoTable: HTML, Sendable {
         }
       }
     }
-    .temperatureViewStyle(.hstack(gap: 2), .end)
-    .temperatureViewSymbol(.svg, .label, .bold)
-    .percentViewStyle(.hstack(gap: 2), .end)
-    .percentViewSymbolStyle(.svg, .label, .bold)
-    .elevationStyle(.hstack(gap: 2), .end)
-    .elevationSymbolStyle(.svg, .label, .bold)
+    // TODO: Remove and use them in parent view??
+    // .temperatureViewStyle(.hstack(gap: 2), .end, .init(.class("items-baseline")))
+    // .temperatureViewSymbol(.svg, .label, .bold)
+    // .percentViewStyle(.hstack(gap: 2), .end, .init(.class("items-baseline")))
+    // .percentViewSymbolStyle(.svg, .label, .bold)
+    // .elevationStyle(.hstack(gap: 2), .end, .init(.class("items-baseline")))
+    // .elevationSymbolStyle(.svg, .label, .bold)
   }
 }

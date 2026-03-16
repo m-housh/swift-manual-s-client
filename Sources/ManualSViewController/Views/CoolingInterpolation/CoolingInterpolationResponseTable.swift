@@ -6,7 +6,7 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
   let response: CoolingInterpolation.Response?
 
   var body: some HTML<HTMLTag.table> {
-    table(.class("table table-zebra text-lg")) {
+    Table {
       thead {
         tr {
           th { HTMLRaw("&nbsp;") }

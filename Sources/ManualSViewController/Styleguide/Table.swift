@@ -23,7 +23,7 @@ enum TableTag {}
 typealias TableStyle = Tagged<TableTag, Style<HTMLTag.table>>
 
 extension Tagged where Tag == TableTag, RawValue == Style<HTMLTag.table> {
-  static var `default`: Self { .init(.class("text-lg")) }
+  static var `default`: Self { .init() }
   static var zebra: Self { .init(.class("table-zebra")) }
 }
 

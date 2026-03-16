@@ -6,22 +6,7 @@ struct HouseLoadView: HTML, Sendable {
   let houseLoad: HouseLoad?
 
   var body: some HTML<HTMLTag.table> {
-    // div(.class("border")) {
-    //   div(.class("flex justify-between items-center bg-secondary border px-4 py-2")) {
-    //     h2(.class("text-2xl font-bold")) { "Manual-J Load Calculation" }
-    //     button(
-    //       .class("btn btn-secondary"),
-    //       .showModal(id: HouseLoadForm.id)
-    //     ) {
-    //       SVG(.squarePen)
-    //     }
-    //     .tooltip("Edit load calculation", position: .left)
-    //
-    //     Modal(open: false, displayCloseButton: true) {
-    //       HouseLoadForm(houseLoad: houseLoad)
-    //     }
-    //   }
-    table(.class("table table-zebra text-lg")) {
+    Table {
       thead {
         tr {
           th { "Heating" }

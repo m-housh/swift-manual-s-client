@@ -1,6 +1,5 @@
 import Elementary
 import ManualSModels
-
 import SharedStyleguide
 import Tagged
 
@@ -37,14 +36,16 @@ struct HeatPumpTable: HTML, Sendable {
           )
           .style(.bold, .label)
 
-          // Fix: this should be flagged.
           Row(
             nil,
             .double(response.capacityAtDesign),
-            .double(response.balancePointTemperature)
+            .temperature(response.balancePointTemperature)
           )
         }
       }
+      .temperatureViewStyle(digits: 1)
+      // .temperatureViewStyle(.hstack(gap: 2), .init(.class("items-center")))
+      // .temperatureViewSymbol(.svg, .label, .bold)
     }
   }
 
@@ -105,6 +106,7 @@ extension HeatPumpTable.Row {
     case string(String)
     case double(Double)
     case percent(Percent)
+    case temperature(Double)
 
     var body: some HTML {
       switch self {
@@ -114,6 +116,8 @@ extension HeatPumpTable.Row {
         NumberView(double)
       case .percent(let percent):
         PercentView(percent)
+      case .temperature(let temperature):
+        TemperatureView(temperature)
       }
     }
   }

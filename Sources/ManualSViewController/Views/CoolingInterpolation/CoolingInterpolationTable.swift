@@ -2,7 +2,6 @@ import Elementary
 import Foundation
 import ManualSModels
 import ManualSRouter
-
 import SharedStyleguide
 
 struct InterpolationTable: HTML, Sendable {
@@ -15,7 +14,7 @@ struct InterpolationTable: HTML, Sendable {
   }
 
   var body: some HTML<HTMLTag.table> {
-    table(.class("table")) {
+    Table {
       thead {
         tr {
           th { HTMLRaw("&nbsp;") }

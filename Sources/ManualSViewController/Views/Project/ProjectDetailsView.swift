@@ -13,7 +13,8 @@ struct ProjectDetailsView: HTML, Sendable {
 
   let user: User
   let details: Project.Details
-  let heatingFormType: HeatingFormType = .none
+  let coolingInterpolationResponse: CoolingInterpolation.Response?
+  let heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]
 
   var project: Project { details.project }
 
@@ -23,10 +24,8 @@ struct ProjectDetailsView: HTML, Sendable {
 
       div(.class("flex flex-wrap md:flex-nowrap")) {
         Section(projectID: project.id, section: .project(details.project))
-        // .attributes(.class("w-full md:w-[50%]"))
         div(.class("divider divider-horizontal")) {}
         Section(projectID: project.id, section: .designInfo(details.designInfo))
-        // .attributes(.class("w-full md:w-[50%]"))
       }
 
       Section(
@@ -50,33 +49,20 @@ struct ProjectDetailsView: HTML, Sendable {
       // other forms on the page change.
       Section(
         projectID: project.id,
-        section: .coolingInterpolation(details.coolingInterpolation)
+        section: .coolingInterpolation(details: details, response: coolingInterpolationResponse)
       )
 
       // FIX: This section should be triggered to update if
       // other forms on the page change.
       Section(
         projectID: project.id,
-        section: .heatingInterpolation()
+        section: .heatingInterpolation(heatingInterpolations)
       )
 
     }
     .fieldsetStyle(.roundedBox)
-  }
-
-  // TODO: Move to routes.
-  enum HeatingFormType: String, CaseIterable {
-    case none
-    case boiler
-    case furnace
-    case heatPump
-
-    var label: String {
-      switch self {
-      case .boiler, .furnace, .none: return rawValue.capitalized
-      case .heatPump: return "Heat Pump"
-      }
-    }
+    .temperatureViewStyle(.hstack(gap: 2))
+    .percentViewStyle(.hstack(gap: 2))
   }
 
   struct Section: HTML, Sendable {
@@ -138,7 +124,7 @@ struct ProjectDetailsView: HTML, Sendable {
             }
             HouseLoadView(houseLoad: houseLoad)
 
-          case .coolingInterpolation(let interpolation, let designInfo):
+          case .coolingInterpolation(let interpolation, let designInfo, let response):
             SectionHeader(
               tooltip: "Edit interpolation",
               modalAttributes: [.class("max-w-none w-[90%] min-h-[80%]")]
@@ -154,16 +140,11 @@ struct ProjectDetailsView: HTML, Sendable {
 
             // FIX: The results need to be reinterpreted if house load changes.
             div(.id("coolingInterpolationResult")) {
-              if let interpolation {
+              if interpolation != nil {
                 div(.class("divider")) {
                   span(.class("text-xl text-accent font-bold")) { "Result" }
                 }
-                LoadableView(
-                  route: .projectDetail(
-                    projectID,
-                    .interpolations(.cooling(.result(interpolation.id)))
-                  )
-                ) {}
+                CoolingInterpolationResponseTable(response: response)
               }
             }
 
@@ -172,7 +153,7 @@ struct ProjectDetailsView: HTML, Sendable {
             SectionHeader(tooltip: "Edit heating") {
               HeatingInterpolationForm(
                 projectID: projectID,
-                interpolation: heatingInterpolations?.first?.0
+                interpolations: heatingInterpolations?.reduce(into: []) { $0.append($1.0) } ?? []
               )
             }
             if let heatingInterpolations {
@@ -199,8 +180,17 @@ extension ProjectDetailsView.Section {
     case coolingSystemType(SystemType? = nil)
     case proposedEquipment(ProposedEquipment? = nil)
     case houseLoad(HouseLoad? = nil)
-    case coolingInterpolation(CoolingInterpolation? = nil, DesignInfo? = nil)
+    case coolingInterpolation(
+      CoolingInterpolation? = nil, DesignInfo? = nil, CoolingInterpolation.Response? = nil
+    )
     case heatingInterpolation([(HeatingInterpolation, HeatingInterpolation.Response)]? = nil)
+
+    static func coolingInterpolation(
+      details: Project.Details,
+      response: CoolingInterpolation.Response?
+    ) -> Self {
+      .coolingInterpolation(details.coolingInterpolation, details.designInfo, response)
+    }
 
     var id: String {
       switch self {

@@ -7,7 +7,7 @@ struct ProjectTable: HTML, Sendable {
   let project: Project
 
   var body: some HTML<HTMLTag.table> {
-    table(.class("table text-lg")) {
+    Table {
       tbody {
         tr {
           td(.class("label")) { "Name" }
