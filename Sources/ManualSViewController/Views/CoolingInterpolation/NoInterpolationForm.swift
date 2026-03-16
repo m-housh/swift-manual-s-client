@@ -3,7 +3,6 @@ import Elementary
 import ElementaryHTMX
 import ManualSModels
 import ManualSRouter
-
 import SharedStyleguide
 
 struct NoInterpolationForm: HTML, Identifiable, Sendable {
@@ -33,8 +32,10 @@ struct NoInterpolationForm: HTML, Identifiable, Sendable {
       DesignAirflowFieldset(designAirflow: interpolation?.designAirflow)
 
       TotalSensibleFieldset(.coolingCapacity(interpolation?.noInterpolation))
+        .fieldsetContentStyle(.hstack())
 
       TotalSensibleFieldset(.manufacturersAdjustments(interpolation?.manufacturersAdjustments))
+        .fieldsetContentStyle(.hstack())
 
       SubmitButton()
         .attributes(.class("btn-block"))

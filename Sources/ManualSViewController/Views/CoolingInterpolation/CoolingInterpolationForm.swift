@@ -75,19 +75,4 @@ struct CoolingInterpolationForm: HTML, Identifiable, Sendable {
     }
   }
 
-  // func tab(title: String, name: String = "myTabs", checked: Bool = false) -> some HTML {
-  //   input(
-  //     .type(.radio),
-  //     .name(name), .class("tab"),
-  //     .init(name: "aria-label", value: title)
-  //   )
-  //   .attributes(.checked, when: checked)
-  // }
-  //
-  // func tabContent<C: HTML>(@HTMLBuilder content: () -> C) -> some HTML {
-  //   div(.class("tab-content border-base-300 p-6")) {
-  //     content()
-  //   }
-  // }
-
 }

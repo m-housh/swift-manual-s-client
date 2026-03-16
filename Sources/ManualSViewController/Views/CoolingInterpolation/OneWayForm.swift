@@ -2,7 +2,6 @@ import Elementary
 import Foundation
 import ManualSModels
 import ManualSRouter
-
 import SharedStyleguide
 
 struct OneWayForm: HTML, Sendable {
@@ -79,6 +78,7 @@ struct OneWayForm: HTML, Sendable {
 
         TotalSensibleFieldset(.coolingCapacity(belowCapacity), namePrefix: "below")
           .fieldsetStyle(.plain)
+          .fieldsetContentStyle(.hstack())
       }
 
       Fieldset("Above") {
@@ -118,9 +118,11 @@ struct OneWayForm: HTML, Sendable {
 
         TotalSensibleFieldset(.coolingCapacity(aboveCapacity), namePrefix: "above")
           .fieldsetStyle(.plain)
+          .fieldsetContentStyle(.hstack())
       }
 
       TotalSensibleFieldset(.manufacturersAdjustments(interpolation?.manufacturersAdjustments))
+        .fieldsetContentStyle(.hstack())
 
       SubmitButton()
         .attributes(.class("btn-block my-6"))

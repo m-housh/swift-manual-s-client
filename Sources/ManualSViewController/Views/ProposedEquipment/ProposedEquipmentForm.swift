@@ -2,7 +2,6 @@ import Elementary
 import ElementaryHTMX
 import ManualSModels
 import ManualSRouter
-
 import SharedStyleguide
 
 struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
@@ -123,6 +122,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
               div(.class("flex justify-end")) {
                 button(
                   .class("btn btn-primary btn-ghost"),
+                  .type(.button),
                   .hx.get(
                     route: ManualSRoute.projectDetail(projectID, .proposedEquipment(.equipmentRow))),
                   .hx.target(id: "equipmentTable"),
@@ -180,6 +180,7 @@ struct ProposedEquipmentForm: HTML, Identifiable, Sendable {
             div(.class("flex justify-end")) {
               button(
                 .class("btn btn-error btn-ghost"),
+                .type(.button),
                 .data("remove", value: "true")
               ) {
                 SVG(.trash)

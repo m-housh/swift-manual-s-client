@@ -3,7 +3,6 @@ import ElementaryHTMX
 import Foundation
 import ManualSModels
 import ManualSRouter
-
 import SharedStyleguide
 
 struct TwoWayForm: HTML, Sendable {
@@ -118,6 +117,7 @@ struct TwoWayForm: HTML, Sendable {
         namePrefix: namePrefix
       )
       .fieldsetStyle(.plain)
+      .fieldsetContentStyle(.hstack())
     }
     .fieldsetStyle(.roundedBox)
   }
