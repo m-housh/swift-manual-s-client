@@ -20,6 +20,8 @@ extension HeatingInterpolation {
         Path { path }
         Method.get
       }
+      // TODO: Have a form type that can accept all the heating interpolation
+      // values, so they can all be submitted together.
       Route(.case(Self.submit)) {
         Path { path }
         Method.post

@@ -10,6 +10,7 @@ extension DependencyValues {
   }
 }
 
+// FIX: Heating Load should be double.
 @DependencyClient
 public struct ManualSClient: Sendable {
 

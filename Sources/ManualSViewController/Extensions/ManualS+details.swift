@@ -50,8 +50,13 @@ extension ManualSClient {
           )
         )
         retVal.append((interpolation, .heatPump(response)))
+      case .electric(let kilowatts):
+        let response = try await electricHeatingInterpolation(
+          .init(kilowatts: kilowatts, heatingLoad: Int(heatingLoad))
+        )
+        retVal.append((interpolation, .electric(response)))
       default:
-        break
+        fatalError()
       }
     }
     return retVal

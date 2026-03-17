@@ -22,8 +22,12 @@ public struct ManualSViewController: ViewController {
     projects: ProjectViewController { project in
       // FIX: What do we do with project view controller, until it's removed from
       //      shared setup.
-      // @Dependency(\.auth) var auth
-      // return try ProjectDetailsView(user: auth.currentUser(), project: project)
+      await ResultView {
+        @Dependency(\.auth) var auth
+        let user = try auth.currentUser()
+        let details = try await fetchDetails(for: project.id)
+        return ProjectDetailsView(user: user, details: details)
+      }
     },
     users: UserViewController()
   )
@@ -61,12 +65,7 @@ extension ManualSRoute.ProjectDetail {
         await ResultView {
           let details = try await fetchDetails(for: projectID)
           let user = try auth.currentUser()
-          return ProjectDetailsView(
-            user: user,
-            details: details.projectDetails,
-            coolingInterpolationResponse: details.coolingInterpolationResponse,
-            heatingInterpolations: details.heatingInterpolations ?? []
-          )
+          return ProjectDetailsView(user: user, details: details)
         }
       }
     case .designInfo(let route):
@@ -351,6 +350,16 @@ extension ProjectDetailsView.Section.SectionRoute {
       projectDetails.coolingInterpolation,
       projectDetails.designInfo,
       projectDetails.coolingInterpolationResponse
+    )
+  }
+}
+
+extension ProjectDetailsView {
+  fileprivate init(user: User, details: ProjectDetailsAndInterpolations) {
+    self.init(
+      user: user, details: details.projectDetails,
+      coolingInterpolationResponse: details.coolingInterpolationResponse,
+      heatingInterpolations: details.heatingInterpolations ?? []
     )
   }
 }
