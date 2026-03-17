@@ -60,15 +60,10 @@ extension ManualSRoute.ProjectDetail {
       return .view {
         await ResultView {
           let details = try await fetchDetails(for: projectID)
-
-          guard let projectDetails = details.details else {
-            throw NotFoundError()
-          }
-
           let user = try auth.currentUser()
           return ProjectDetailsView(
             user: user,
-            details: projectDetails,
+            details: details.projectDetails,
             coolingInterpolationResponse: details.coolingInterpolationResponse,
             heatingInterpolations: details.heatingInterpolations ?? []
           )
@@ -218,91 +213,27 @@ extension ManualSRoute.ProjectDetail {
     case .interpolations(.cooling(let route)):
       switch route {
       case .index:
-        return .view {
-          await ResultView {
-            let interpolation = try await database.coolingInterpolations.fetch(projectID)
-            return ProjectDetailsView.Section(
-              projectID: projectID,
-              section: .coolingInterpolation(interpolation)
-            )
-          }
-        }
-      case .result(_):
-        return .view {
-          // return div { "Results..." }
-          await makeCoolingInterpolationResultView(projectID: projectID)
-        }
+        return .projectDetailsUpdate(projectID)
       case .submit(let form):
-        return .view {
-          await ResultView {
-            let interpolation = try await database.coolingInterpolations.create(form.toCreate())
-            return ProjectDetailsView.Section(
-              projectID: projectID,
-              section: .coolingInterpolation(interpolation)
-            )
-          }
+        return .projectDetailsUpdate(projectID) {
+          _ = try await database.coolingInterpolations.create(form.toCreate())
         }
       case .update(let id, let updates):
-        return .view {
-          await ResultView {
-            let interpolation = try await database.coolingInterpolations.update(
-              id, updates.toUpdate())
-            return ProjectDetailsView.Section(
-              projectID: projectID,
-              section: .coolingInterpolation(interpolation)
-            )
-          }
+        return .projectDetailsUpdate(projectID) {
+          _ = try await database.coolingInterpolations.update(id, updates.toUpdate())
         }
       }
 
     case .interpolations(.heating(let route)):
       switch route {
       case .index:
-        return .view {
-          await ResultView {
-
-            let details = try await database.projects.fetchDetails(projectID)
-            var responses = [(HeatingInterpolation, HeatingInterpolation.Response)]()
-            if let details {
-              responses = try await manualS.heatingInterpolations(projectDetails: details)
-            }
-
-            // let interpolations = try await database.heatingInterpolations.fetch(projectID)
-            // guard let designInfo = try await database.designInfo.fetch(projectID),
-            //   let houseLoad = try await database.houseLoads.fetch(projectID)
-            // else {
-            //   // return HeatingInterpolationsView(projectID: projectID, interpolations: [])
-            //   throw NotFoundError()
-            // }
-            //
-            // let responses = try await manualS.heatingInterpolations(
-            //   interpolations,
-            //   designInfo: designInfo,
-            //   heatingLoad: Int(houseLoad.heating)
-            // )
-
-            return ProjectDetailsView.Section(
-              projectID: projectID,
-              section: .heatingInterpolation(responses)
-            )
-          }
-        }
+        return .projectDetailsUpdate(projectID)
       case .submit(let form):
-        return .view {
-
-          let _ = try await database.heatingInterpolations.create(form)
-          let details = try await database.projects.fetchDetails(projectID)
-          var responses = [(HeatingInterpolation, HeatingInterpolation.Response)]()
-          if let details {
-            responses = try await manualS.heatingInterpolations(projectDetails: details)
-          }
-
-          return ProjectDetailsView.Section(
-            projectID: projectID,
-            section: .heatingInterpolation(responses)
-          )
+        return .projectDetailsUpdate(projectID) {
+          _ = try await database.heatingInterpolations.create(form)
         }
       case .update(_, _):
+        // FIX:
         fatalError()
       }
     }
@@ -310,53 +241,36 @@ extension ManualSRoute.ProjectDetail {
 
 }
 
-private func makeCoolingInterpolationResponseTable(
-  projectDetails: Project.Details
-) async -> some HTML & Sendable {
-  @Dependency(\.manualS) var manualS
-  return await ResultView {
-    let response = await manualS.coolingInterpolation(projectDetails: projectDetails)
-    return CoolingInterpolationResponseTable(response: response)
-  }
-}
+@dynamicMemberLookup
+private struct ProjectDetailsAndInterpolations: Sendable {
 
-private func makeCoolingInterpolationResultView(
-  projectID: ManualSModels.Project.ID
-) async -> some HTML
-  & Sendable
-{
-  @Dependency(\.database) var database
-  return await ResultView {
-    guard let details = try await database.projects.fetchDetails(projectID) else {
-      throw NotFoundError()
-    }
-    return await makeCoolingInterpolationResponseTable(projectDetails: details)
-  }
-}
-
-struct ProjectDetails: Sendable {
-
-  let details: Project.Details?
+  let projectDetails: Project.Details
   let coolingInterpolationResponse: CoolingInterpolation.Response?
   let heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]?
 
   internal init(
-    details: Project.Details? = nil,
+    details: Project.Details,
     coolingInterpolationResponse: CoolingInterpolation.Response? = nil,
     heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]? = nil
   ) {
-    self.details = details
+    self.projectDetails = details
     self.coolingInterpolationResponse = coolingInterpolationResponse
     self.heatingInterpolations = heatingInterpolations
   }
+
+  subscript<T>(dynamicMember keyPath: KeyPath<Project.Details, T>) -> T {
+    projectDetails[keyPath: keyPath]
+  }
 }
 
-private func fetchDetails(for projectID: Project.ID) async throws -> ProjectDetails {
+private func fetchDetails(
+  for projectID: Project.ID
+) async throws -> ProjectDetailsAndInterpolations {
   @Dependency(\.database) var database
   @Dependency(\.manualS) var manualS
 
   guard let details = try await database.projects.fetchDetails(projectID)
-  else { return .init() }
+  else { throw NotFoundError() }
 
   return .init(
     details: details,
@@ -365,20 +279,37 @@ private func fetchDetails(for projectID: Project.ID) async throws -> ProjectDeta
   )
 }
 
-extension SystemType.Cooling {
-  fileprivate func coolingSizingLimitRequest(
-    totalCoolingLoad: Double
-  ) -> ManualSClient.CoolingSizeLimitRequest {
-    switch climate {
-    case .coldWinterOrNoLatentLoad:
-      return .coldWinterOrNoLatentLoad(totalCoolingLoad: totalCoolingLoad)
-    case .mildWinterOrLatentLoad:
-      return .mildWinterOrLatentLoad(compressor: compressor)
+extension ViewResponse {
+
+  fileprivate static func projectDetailsUpdate(
+    _ projectID: Project.ID,
+    catching callback: @escaping @Sendable () async throws -> Void = {}
+  ) -> Self {
+    self.view {
+      await ResultView {
+        @Dependency(\.database) var database
+        @Dependency(\.manualS) var manualS
+
+        _ = try await callback()
+        return try await fetchDetails(for: projectID)
+      } onSuccess: { projectDetails in
+        Group {
+          ProjectDetailsView.Section(
+            projectID: projectID,
+            section: .coolingInterpolation(projectDetails)
+          )
+          .attributes(.hx.swapOOB(true))
+
+          ProjectDetailsView.Section(
+            projectID: projectID,
+            section: .heatingInterpolation(projectDetails.heatingInterpolations)
+          )
+          .attributes(.hx.swapOOB(true))
+        }
+      }
     }
   }
-}
 
-extension ViewResponse {
   fileprivate static func projectDetailsUpdate<V: HTML>(
     _ projectID: Project.ID,
     @HTMLBuilder content: @escaping @Sendable () async -> V
@@ -387,24 +318,39 @@ extension ViewResponse {
       await ResultView {
         @Dependency(\.database) var database
         @Dependency(\.manualS) var manualS
+        let details = try await fetchDetails(for: projectID)
         return (
-          try await database.projects.fetchDetails(projectID),
+          details,
           await content()
         )
-      } onSuccess: { (projectDetails, content) in
+      } onSuccess: { (projectDetails: ProjectDetailsAndInterpolations, content: V) in
         Group {
           content
-          if let details = projectDetails {
-            ProjectDetailsView.Section(
-              projectID: projectID,
-              section: .coolingInterpolation(details.coolingInterpolation, details.designInfo)
-            )
-            .attributes(.hx.swapOOB(true))
+          ProjectDetailsView.Section(
+            projectID: projectID,
+            section: .coolingInterpolation(projectDetails)
+          )
+          .attributes(.hx.swapOOB(true))
 
-            // FIX: Heating Interpolations
-          }
+          ProjectDetailsView.Section(
+            projectID: projectID,
+            section: .heatingInterpolation(projectDetails.heatingInterpolations)
+          )
+          .attributes(.hx.swapOOB(true))
         }
       }
     }
+  }
+}
+
+extension ProjectDetailsView.Section.SectionRoute {
+  fileprivate static func coolingInterpolation(_ projectDetails: ProjectDetailsAndInterpolations)
+    -> Self
+  {
+    .coolingInterpolation(
+      projectDetails.coolingInterpolation,
+      projectDetails.designInfo,
+      projectDetails.coolingInterpolationResponse
+    )
   }
 }

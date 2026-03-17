@@ -43,17 +43,11 @@ struct ProjectDetailsView: HTML, Sendable {
         section: .houseLoad(details.houseLoad)
       )
 
-      // TODO: htmx OOB swap ??
-
-      // FIX: This section should be triggered to update if
-      // other forms on the page change.
       Section(
         projectID: project.id,
         section: .coolingInterpolation(details: details, response: coolingInterpolationResponse)
       )
 
-      // FIX: This section should be triggered to update if
-      // other forms on the page change.
       Section(
         projectID: project.id,
         section: .heatingInterpolation(heatingInterpolations)
@@ -214,26 +208,6 @@ extension ProjectDetailsView.Section {
       case .coolingInterpolation: return "Interpolation"
       case .heatingInterpolation: return "Heating"
       }
-    }
-  }
-
-  // TODO: Remove not using loadable.
-  var route: ManualSRoute {
-    switch section {
-    case .project:
-      return .projectDetail(projectID, .index)
-    case .designInfo:
-      return .projectDetail(projectID, .designInfo(.index))
-    case .coolingSystemType:
-      return .projectDetail(projectID, .systemTypes(.index))
-    case .proposedEquipment:
-      return .projectDetail(projectID, .proposedEquipment(.index))
-    case .houseLoad:
-      return .projectDetail(projectID, .houseLoads(.index))
-    case .coolingInterpolation:
-      return .projectDetail(projectID, .interpolations(.cooling(.index)))
-    case .heatingInterpolation:
-      return .projectDetail(projectID, .interpolations(.heating(.index)))
     }
   }
 

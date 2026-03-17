@@ -11,7 +11,6 @@ extension CoolingInterpolation {
 
   public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
-    case result(CoolingInterpolation.ID)
     case submit(CoolingInterpolation.FormIntermediate)
     case update(CoolingInterpolation.ID, CoolingInterpolation.FormIntermediate)
 
@@ -20,14 +19,6 @@ extension CoolingInterpolation {
     public static let router = OneOf {
       Route(.case(Self.index)) {
         Path { path }
-        Method.get
-      }
-      Route(.case(Self.result)) {
-        Path {
-          path
-          CoolingInterpolation.ID.parser()
-          "result"
-        }
         Method.get
       }
       Route(.case(Self.submit)) {
