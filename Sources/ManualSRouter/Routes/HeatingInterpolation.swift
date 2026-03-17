@@ -96,3 +96,115 @@ extension HeatingInterpolation.Update {
   }
   .map(.memberwise(HeatingInterpolation.Update.init(interpolation:)))
 }
+
+extension HeatingInterpolation {
+  public struct FormIntermediate: Equatable, Sendable {
+    let projectID: Project.ID
+    let boilerOrFurnaceID: HeatingInterpolation.ID?
+    let electricID: HeatingInterpolation.ID?
+    let heatPumpID: HeatingInterpolation.ID?
+    let afue: Percent?
+    let inputBTU: Int?
+    let type: HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType?
+    let capacityAt47: Double?
+    let capacityAt17: Double?
+    let kilowatts: Double?
+
+    public init(
+      projectID: Project.ID,
+      boilerOrFurnaceID: HeatingInterpolation.ID? = nil,
+      electricID: HeatingInterpolation.ID? = nil,
+      heatPumpID: HeatingInterpolation.ID? = nil,
+      afue: Percent? = nil,
+      inputBTU: Int? = nil,
+      type: HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType? = nil,
+      capacityAt47: Double? = nil,
+      capacityAt17: Double? = nil,
+      kilowatts: Double? = nil
+    ) {
+      self.projectID = projectID
+      self.boilerOrFurnaceID = boilerOrFurnaceID
+      self.electricID = electricID
+      self.heatPumpID = heatPumpID
+      self.afue = afue
+      self.inputBTU = inputBTU
+      self.type = type
+      self.capacityAt47 = capacityAt47
+      self.capacityAt17 = capacityAt17
+      self.kilowatts = kilowatts
+    }
+
+    public func toCreate() -> [HeatingInterpolation.Create]? {
+      var retval = [HeatingInterpolation.Create]()
+      if let afue, let inputBTU, let type {
+        retval.append(
+          .init(
+            projectID: projectID,
+            interpolation: .boilerOrFurnace(afue: afue, inputBTU: inputBTU, type: type)
+          )
+        )
+      }
+      if let kilowatts {
+        retval.append(
+          .init(
+            projectID: projectID,
+            interpolation: .electric(kilowatts: Int(kilowatts))
+          )
+        )
+      }
+      if let capacityAt17, let capacityAt47 {
+        retval.append(
+          .init(
+            projectID: projectID,
+            interpolation: .heatPump(
+              capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17))
+          )
+        )
+      }
+
+      return retval.count > 0
+        ? retval
+        : nil
+    }
+
+    public func toUpdate() -> [(HeatingInterpolation.ID, HeatingInterpolation.Update)]? {
+      var retval = [(HeatingInterpolation.ID, HeatingInterpolation.Update)]()
+      if let afue, let inputBTU, let type, let boilerOrFurnaceID {
+        retval.append(
+          (
+            boilerOrFurnaceID,
+            HeatingInterpolation.Update(
+              interpolation: .boilerOrFurnace(afue: afue, inputBTU: inputBTU, type: type)
+            )
+          )
+        )
+      }
+      if let kilowatts, let electricID {
+        retval.append(
+          (
+            electricID,
+            HeatingInterpolation.Update(
+              interpolation: .electric(kilowatts: Int(kilowatts))
+            )
+          )
+        )
+      }
+      if let capacityAt17, let capacityAt47, let heatPumpID {
+        retval.append(
+          (
+            heatPumpID,
+            HeatingInterpolation.Update(
+              interpolation: .heatPump(
+                capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17)
+              )
+            )
+          )
+        )
+      }
+
+      return retval.count > 0
+        ? retval
+        : nil
+    }
+  }
+}
