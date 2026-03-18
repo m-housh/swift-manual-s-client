@@ -47,7 +47,7 @@ struct ProjectDatabaseTests {
         proposedEquipment: proposedEquipment,
         houseLoad: houseLoad,
         coolingInterpolation: coolingInterpolation,
-        heatingInterpolation: heatingInterpolation
+        heatingInterpolations: [heatingInterpolation]
       )
 
       #expect(fullDetails == expected)

@@ -17,8 +17,13 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
 
   var id: String { Self.id }
 
-  var heatPumpInterpolation: HeatingInterpolation? { interpolations.first { $0.heatPump != nil } }
-  var electricInterpolation: HeatingInterpolation? { interpolations.first { $0.electric != nil } }
+  var heatPumpInterpolation: HeatingInterpolation? {
+    interpolations.first { $0.heatPump != nil }
+  }
+
+  var electricInterpolation: HeatingInterpolation? {
+    interpolations.first { $0.electric != nil }
+  }
 
   private var baseRoute: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.heating(.index))))
@@ -133,20 +138,20 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
   //   }
   // }
   //
-  // @HTMLBuilder
-  // private var electricFields: some HTML {
-  //   Fieldset("KW") {
-  //     label(.class("input w-full")) {
-  //       span(.class("label")) { SVG(.zap) }
-  //       input(
-  //         .type(.number),
-  //         .name("kilowatts"),
-  //         .value(interpolation?.electric),
-  //         .min(0),
-  //         .step(0.1)
-  //       )
-  //       span(.class("label")) { "kw/h" }
-  //     }
-  //   }
-  // }
+  @HTMLBuilder
+  private var electricFields: some HTML {
+    Fieldset("KW") {
+      label(.class("input w-full")) {
+        span(.class("label")) { SVG(.zap) }
+        input(
+          .type(.number),
+          .name("kilowatts"),
+          .value(electricInterpolation?.electric),
+          .min(0),
+          .step(0.1)
+        )
+        span(.class("label")) { "kw/h" }
+      }
+    }
+  }
 }

@@ -15,7 +15,7 @@ struct FlaggedView<Content: HTML>: HTML {
   var body: some HTML<HTMLTag.div> {
     div(.class("flex text-\(state.color) gap-2")) {
       _content
-      div(.class("rotate-45 mt-1")) {
+      div(.class("rotate-45")) {
         SVG(.flag)
       }
     }

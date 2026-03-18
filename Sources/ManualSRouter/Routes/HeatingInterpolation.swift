@@ -10,8 +10,8 @@ import protocol SharedModels.Routeable
 extension HeatingInterpolation {
   public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
-    case submit(HeatingInterpolation.Create)
-    case update(HeatingInterpolation.ID, HeatingInterpolation.Update)
+    case submit(HeatingInterpolation.FormIntermediate)
+    case update(HeatingInterpolation.FormIntermediate)
 
     static let path = "heating"
 
@@ -26,17 +26,14 @@ extension HeatingInterpolation {
         Path { path }
         Method.post
         Body {
-          HeatingInterpolation.Create.parser
+          HeatingInterpolation.FormIntermediate.parser
         }
       }
       Route(.case(Self.update)) {
-        Path {
-          path
-          HeatingInterpolation.ID.parser()
-        }
-        Method.post
+        Path { path }
+        Method.patch
         Body {
-          HeatingInterpolation.Update.parser
+          HeatingInterpolation.FormIntermediate.parser
         }
       }
     }
@@ -44,58 +41,58 @@ extension HeatingInterpolation {
 }
 
 // FIX: Heat Pump form should also include kilowatt field
-extension HeatingInterpolation.Create {
-  static let parser = FormData {
-    Field("projectID") { Project.ID.parser() }
-    OneOf {
-      ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
-        Field("afue") { Percent.parser() }
-        Field("inputBTU") { Int.parser() }
-        Field("type") {
-          HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
-        }
-      }
-      .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
-
-      ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
-        Field("kilowatts") { Int.parser() }
-      }
-
-      ParsePrint(.memberwise(HeatPumpCapacity.init)) {
-        Field("capacityAt47") { Double.parser() }
-        Field("capacityAt17") { Double.parser() }
-      }
-      .map(.case(HeatingInterpolation.Interpolation.heatPump))
-    }
-  }
-  .map(.memberwise(HeatingInterpolation.Create.init(projectID:interpolation:)))
-}
-
-extension HeatingInterpolation.Update {
-  static let parser = FormData {
-    OneOf {
-      ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
-        Field("afue") { Percent.parser() }
-        Field("inputBTU") { Int.parser() }
-        Field("type") {
-          HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
-        }
-      }
-      .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
-
-      ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
-        Field("kilowatts") { Int.parser() }
-      }
-
-      ParsePrint(.memberwise(HeatPumpCapacity.init)) {
-        Field("capacityAt47") { Double.parser() }
-        Field("capacityAt17") { Double.parser() }
-      }
-      .map(.case(HeatingInterpolation.Interpolation.heatPump))
-    }
-  }
-  .map(.memberwise(HeatingInterpolation.Update.init(interpolation:)))
-}
+// extension HeatingInterpolation.Create {
+//   static let parser = FormData {
+//     Field("projectID") { Project.ID.parser() }
+//     OneOf {
+//       ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
+//         Field("afue") { Percent.parser() }
+//         Field("inputBTU") { Int.parser() }
+//         Field("type") {
+//           HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
+//         }
+//       }
+//       .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
+//
+//       ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
+//         Field("kilowatts") { Int.parser() }
+//       }
+//
+//       ParsePrint(.memberwise(HeatPumpCapacity.init)) {
+//         Field("capacityAt47") { Double.parser() }
+//         Field("capacityAt17") { Double.parser() }
+//       }
+//       .map(.case(HeatingInterpolation.Interpolation.heatPump))
+//     }
+//   }
+//   .map(.memberwise(HeatingInterpolation.Create.init(projectID:interpolation:)))
+// }
+//
+// extension HeatingInterpolation.Update {
+//   static let parser = FormData {
+//     OneOf {
+//       ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
+//         Field("afue") { Percent.parser() }
+//         Field("inputBTU") { Int.parser() }
+//         Field("type") {
+//           HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
+//         }
+//       }
+//       .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
+//
+//       ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
+//         Field("kilowatts") { Int.parser() }
+//       }
+//
+//       ParsePrint(.memberwise(HeatPumpCapacity.init)) {
+//         Field("capacityAt47") { Double.parser() }
+//         Field("capacityAt17") { Double.parser() }
+//       }
+//       .map(.case(HeatingInterpolation.Interpolation.heatPump))
+//     }
+//   }
+//   .map(.memberwise(HeatingInterpolation.Update.init(interpolation:)))
+// }
 
 extension HeatingInterpolation {
   public struct FormIntermediate: Equatable, Sendable {
@@ -134,30 +131,44 @@ extension HeatingInterpolation {
       self.kilowatts = kilowatts
     }
 
+    private var boilerOrFurnaceInterpolation: HeatingInterpolation.Interpolation? {
+      guard let afue, let inputBTU, let type else { return nil }
+      return .boilerOrFurnace(.init(afue: afue, inputBTU: inputBTU, type: type))
+    }
+
+    private var electricInterpolation: HeatingInterpolation.Interpolation? {
+      guard let kilowatts else { return nil }
+      return .electric(kilowatts: Int(kilowatts))
+    }
+
+    private var heatPumpInterpolation: HeatingInterpolation.Interpolation? {
+      guard let capacityAt17, let capacityAt47 else { return nil }
+      return .heatPump(capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17))
+    }
+
     public func toCreate() -> [HeatingInterpolation.Create]? {
       var retval = [HeatingInterpolation.Create]()
-      if let afue, let inputBTU, let type {
+      if let boilerOrFurnaceInterpolation {
         retval.append(
           .init(
             projectID: projectID,
-            interpolation: .boilerOrFurnace(afue: afue, inputBTU: inputBTU, type: type)
+            interpolation: boilerOrFurnaceInterpolation
           )
         )
       }
-      if let kilowatts {
+      if let electricInterpolation {
         retval.append(
           .init(
             projectID: projectID,
-            interpolation: .electric(kilowatts: Int(kilowatts))
+            interpolation: electricInterpolation
           )
         )
       }
-      if let capacityAt17, let capacityAt47 {
+      if let heatPumpInterpolation {
         retval.append(
           .init(
             projectID: projectID,
-            interpolation: .heatPump(
-              capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17))
+            interpolation: heatPumpInterpolation
           )
         )
       }
@@ -169,34 +180,32 @@ extension HeatingInterpolation {
 
     public func toUpdate() -> [(HeatingInterpolation.ID, HeatingInterpolation.Update)]? {
       var retval = [(HeatingInterpolation.ID, HeatingInterpolation.Update)]()
-      if let afue, let inputBTU, let type, let boilerOrFurnaceID {
+      if let boilerOrFurnaceInterpolation, let boilerOrFurnaceID {
         retval.append(
           (
             boilerOrFurnaceID,
             HeatingInterpolation.Update(
-              interpolation: .boilerOrFurnace(afue: afue, inputBTU: inputBTU, type: type)
+              interpolation: boilerOrFurnaceInterpolation
             )
           )
         )
       }
-      if let kilowatts, let electricID {
+      if let electricInterpolation, let electricID {
         retval.append(
           (
             electricID,
             HeatingInterpolation.Update(
-              interpolation: .electric(kilowatts: Int(kilowatts))
+              interpolation: electricInterpolation
             )
           )
         )
       }
-      if let capacityAt17, let capacityAt47, let heatPumpID {
+      if let heatPumpInterpolation, let heatPumpID {
         retval.append(
           (
             heatPumpID,
             HeatingInterpolation.Update(
-              interpolation: .heatPump(
-                capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17)
-              )
+              interpolation: heatPumpInterpolation
             )
           )
         )
@@ -206,5 +215,39 @@ extension HeatingInterpolation {
         ? retval
         : nil
     }
+
+    fileprivate static let parser = FormData {
+      Field("projectID") { Project.ID.parser() }
+      Optionally {
+        Field("boilerOrFurnaceID") { HeatingInterpolation.ID.parser() }
+      }
+      Optionally {
+        Field("electricID") { HeatingInterpolation.ID.parser() }
+      }
+      Optionally {
+        Field("heatPumpID") { HeatingInterpolation.ID.parser() }
+      }
+      Optionally {
+        Field("afue") { Percent.parser() }
+      }
+      Optionally {
+        Field("inputBTU") { Int.parser() }
+      }
+      Optionally {
+        Field("type") {
+          HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
+        }
+      }
+      Optionally {
+        Field("capacityAt47") { Double.parser() }
+      }
+      Optionally {
+        Field("capacityAt17") { Double.parser() }
+      }
+      Optionally {
+        Field("kilowatts") { Double.parser() }
+      }
+    }
+    .map(.memberwise(FormIntermediate.init))
   }
 }

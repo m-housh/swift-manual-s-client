@@ -58,13 +58,36 @@ public struct ManualSDatabase: Sendable {
 
   @DependencyClient
   public struct HeatingInterpolationRepository: Sendable {
-    public var create: @Sendable (HeatingInterpolation.Create) async throws -> HeatingInterpolation
+    public var create:
+      @Sendable ([HeatingInterpolation.Create]) async throws -> [HeatingInterpolation]
     public var delete: @Sendable (HeatingInterpolation.ID) async throws -> Void
     public var fetch: @Sendable (Project.ID) async throws -> [HeatingInterpolation]
     public var get: @Sendable (HeatingInterpolation.ID) async throws -> HeatingInterpolation?
     public var update:
-      @Sendable (HeatingInterpolation.ID, HeatingInterpolation.Update) async throws ->
-        HeatingInterpolation
+      @Sendable ([(HeatingInterpolation.ID, HeatingInterpolation.Update)]) async throws ->
+        [HeatingInterpolation]
+
+    public func create(
+      _ interpolation: HeatingInterpolation.Create
+    ) async throws -> HeatingInterpolation {
+      struct CreateError: Error {}
+      guard let interpolation = try await create([interpolation]).first else {
+        throw CreateError()
+      }
+      return interpolation
+    }
+
+    public func update(
+      _ id: HeatingInterpolation.ID,
+      _ interpolation: HeatingInterpolation.Update
+    ) async throws -> HeatingInterpolation {
+      struct UpdateError: Error {}
+      guard let interpolation = try await update([(id, interpolation)]).first else {
+        throw UpdateError()
+      }
+      return interpolation
+    }
+
   }
 
   @DependencyClient

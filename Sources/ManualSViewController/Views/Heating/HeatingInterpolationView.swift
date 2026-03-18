@@ -99,10 +99,13 @@ struct HeatingInterpolationsView: HTML, Sendable {
       )
       if let response = response.heatPump {
         makeRow(
-          .label("Altitude Deratings"),
+          .label("Altitude Adjustments"),
           .percent(response.deratings),
           .percent(response.deratings)
         )
+        .percentViewStyle(.decimal)
+        .percentViewSymbolStyle(.none)
+
         makeRow(
           .label("Final Capacity"),
           .double(response.finalCapacity.capacityAt47),

@@ -8,10 +8,14 @@ import Validations
 extension ManualSDatabase.HeatingInterpolationRepository {
   public static func live(database: any Database) -> Self {
     .init(
-      create: { request in
-        let model = request.toModel()
-        try await model.validateAndSave(on: database)
-        return try model.toDTO()
+      create: { requests in
+        var models: [HeatingInterpolation] = []
+        for request in requests {
+          let model = request.toModel()
+          try await model.validateAndSave(on: database)
+          models.append(try model.toDTO())
+        }
+        return models
       },
       delete: { id in
         guard let model = try await HeatingInterpolationModel.find(id, on: database) else {
@@ -30,15 +34,19 @@ extension ManualSDatabase.HeatingInterpolationRepository {
           .find(id, on: database)
           .map { try $0.toDTO() }
       },
-      update: { id, updates in
-        guard let model = try await HeatingInterpolationModel.find(id, on: database) else {
-          throw NotFoundError()
+      update: { updates in
+        var models = [HeatingInterpolation]()
+        for (id, update) in updates {
+          guard let model = try await HeatingInterpolationModel.find(id, on: database) else {
+            throw NotFoundError()
+          }
+          model.applyUpdates(update)
+          if model.hasChanges {
+            try await model.validateAndSave(on: database)
+          }
+          models.append(try model.toDTO())
         }
-        model.applyUpdates(updates)
-        if model.hasChanges {
-          try await model.validateAndSave(on: database)
-        }
-        return try model.toDTO()
+        return models
       }
     )
   }
