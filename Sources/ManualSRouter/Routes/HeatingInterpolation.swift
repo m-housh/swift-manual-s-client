@@ -7,6 +7,9 @@ import Tagged
 import struct SharedModels.Project
 import protocol SharedModels.Routeable
 
+// FIX: Need to be able to differentiate / mix and match updates and
+//      creates, as it is possible to have one interpolation with an id (already created)
+//      and the form to add other interpolation(s) during an edit.
 extension HeatingInterpolation {
   public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
@@ -20,8 +23,6 @@ extension HeatingInterpolation {
         Path { path }
         Method.get
       }
-      // TODO: Have a form type that can accept all the heating interpolation
-      // values, so they can all be submitted together.
       Route(.case(Self.submit)) {
         Path { path }
         Method.post

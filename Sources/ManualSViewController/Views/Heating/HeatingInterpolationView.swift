@@ -32,9 +32,7 @@ struct HeatingInterpolationsView: HTML, Sendable {
       switch interpolation.interpolation {
       case .heatPump(let capacity):
         heatPumpRows(capacity, response)
-      // HeatPumpTable(inputCapacity: capacity, response: response)
       case .electric(let kilowatts):
-        // div { "Electric..." }
         electricRows(Double(kilowatts))
       case .boilerOrFurnace(_):
         div { "Gas..." }
@@ -99,7 +97,7 @@ struct HeatingInterpolationsView: HTML, Sendable {
       )
       if let response = response.heatPump {
         makeRow(
-          .label("Altitude Adjustments"),
+          .label("Altitude Deratings"),
           .percent(response.deratings),
           .percent(response.deratings)
         )
@@ -202,3 +200,5 @@ extension HeatingInterpolation.Response.Electric {
     return .success
   }
 }
+
+extension HTMLTag.tr: TextStylable {}

@@ -17,11 +17,15 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
 
   var id: String { Self.id }
 
-  var heatPumpInterpolation: HeatingInterpolation? {
+  private var gasInterpolation: HeatingInterpolation? {
+    interpolations.first { $0.boilerOrFurnace != nil }
+  }
+
+  private var heatPumpInterpolation: HeatingInterpolation? {
     interpolations.first { $0.heatPump != nil }
   }
 
-  var electricInterpolation: HeatingInterpolation? {
+  private var electricInterpolation: HeatingInterpolation? {
     interpolations.first { $0.electric != nil }
   }
 
@@ -30,117 +34,75 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
   }
 
   var body: some HTML {
-    div {
+    Form(
+      title: "Heating Interpolation"
+    ) {
       p(.class("text-accent italic")) {
         "Complete all sections that apply."
       }
 
-      div(.role("tablist"), .class("tabs tabs-lift")) {
+      input(.hidden, .name("projectID"), .value(projectID))
 
-        Tab(
-          title: "Heat Pump",
-          name: tagName,
-          checked: interpolations.count == 0 || heatPumpInterpolation != nil
-        ) {
-          HeatPumpForm(projectID: projectID, interpolation: heatPumpInterpolation)
-            .fieldsetContentStyle(.hstack())
-        }
-
-        Tab(
-          title: "Electric",
-          name: tagName,
-          checked: electricInterpolation != nil
-        ) {
-          ElectricForm(projectID: projectID, interpolation: electricInterpolation)
-        }
+      if let gasInterpolation {
+        input(.hidden, .name("boilerOrFurnaceID"), .value(gasInterpolation.id))
       }
+      if let electricInterpolation {
+        input(.hidden, .name("electricID"), .value(electricInterpolation.id))
+      }
+      if let heatPumpInterpolation {
+        input(.hidden, .name("heatPumpID"), .value(heatPumpInterpolation.id))
+      }
+
+      heatPumpFields
+
+      electricFields
+
+      gasFields
+
+      SubmitButton()
+        .attributes(.class("btn-block"))
+    }
+    .fieldsetContentStyle(.vstack(gap: 2))
+  }
+
+  private var gasFields: some HTML {
+    Fieldset("Gas") {
+
+      label(.class("select w-full")) {
+        span(.class("label")) { "Type" }
+        Select(
+          HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.allCases,
+          value: \.rawValue,
+          selected: {
+            return gasInterpolation == nil
+              ? $0 == .furnace
+              : $0 == gasInterpolation?.boilerOrFurnace?.type
+          },
+          label: \.rawValue.capitalized
+        )
+        .attributes(
+          .name("type"),
+          .required
+        )
+      }
+
+      label(.class("input w-full")) {
+        span(.class("label")) { "Input" }
+        input(
+          .type(.number),
+          .name("inputBTU"),
+          .value(gasInterpolation?.boilerOrFurnace?.inputBTU),
+          .min(0),
+          .step(1)
+        )
+        span(.class("label")) { "BTU/h" }
+      }
+
     }
   }
 
-  struct ElectricForm: HTML, Sendable {
-    let projectID: Project.ID
-    let interpolation: HeatingInterpolation?
-
-    private var route: String {
-      ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.heating(.index))))
-        .appendingPath(interpolation?.id)
-    }
-
-    var body: some HTML<HTMLTag.form> {
-      Form(
-        title: "Heating - Electric",
-        interpolation == nil
-          ? .hx.post(route)
-          : .hx.patch(route),
-        .hx.target(id: ProjectDetailsView.Section.id(.heatingInterpolation())),
-        .hx.swap(.outerHTML)
-      ) {
-
-        input(.hidden, .name("projectID"), .value(projectID))
-
-        if let interpolation {
-          input(.hidden, .name("id"), .value(interpolation.id))
-        }
-
-        Fieldset("Proposed KW") {
-          label(.class("input w-full")) {
-            span(.class("label")) { SVG(.zap) }
-            input(
-              .type(.number),
-              .name("kilowatts"),
-              .value(interpolation?.electric),
-              .min(0),
-              .step(0.1),
-              .required
-            )
-          }
-        }
-
-        SubmitButton()
-          .attributes(.class("btn-block"))
-      }
-    }
-  }
-
-  // @HTMLBuilder
-  // private var boilerFields: some HTML {
-  //   Fieldset("Input") {
-  //     label(.class("input w-full")) {
-  //       span(.class("label")) { SVG(.flame) }
-  //       input(
-  //         .type(.number),
-  //         .name("inputBTU"),
-  //         .value(interpolation?.boilerOrFurnace?.inputBTU),
-  //         .min(0),
-  //         .step(1),
-  //       )
-  //       span(.class("label")) { "BTU/h" }
-  //     }
-  //   }
-  //
-  //   Fieldset("Equipment Type") {
-  //     label(.class("select w-full")) {
-  //       span(.class("label")) { "Type" }
-  //       Select(
-  //         HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.allCases,
-  //         value: \.rawValue,
-  //         selected: {
-  //           interpolation == nil
-  //             ? $0 == .furnace
-  //             : $0 == interpolation?.boilerOrFurnace?.type
-  //         },
-  //         label: \.title
-  //       )
-  //       .attributes(
-  //         .name("type"),
-  //       )
-  //     }
-  //   }
-  // }
-  //
-  @HTMLBuilder
   private var electricFields: some HTML {
-    Fieldset("KW") {
+    Fieldset("Electric") {
       label(.class("input w-full")) {
         span(.class("label")) { SVG(.zap) }
         input(
@@ -151,6 +113,34 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
           .step(0.1)
         )
         span(.class("label")) { "kw/h" }
+      }
+    }
+  }
+
+  private var heatPumpFields: some HTML {
+    Fieldset("Heat Pump - Capacity") {
+      label(.class("input w-full")) {
+        span(.class("label")) { "@ 47°" }
+        input(
+          .type(.number),
+          .name("capacityAt47"),
+          .value(heatPumpInterpolation?.heatPump?.capacityAt47),
+          .min(0),
+          .step(1)
+        )
+        span(.class("label")) { "BTU/h" }
+      }
+
+      label(.class("input w-full")) {
+        span(.class("label")) { "@ 17°" }
+        input(
+          .type(.number),
+          .name("capacityAt17"),
+          .value(heatPumpInterpolation?.heatPump?.capacityAt17),
+          .min(0),
+          .step(1)
+        )
+        span(.class("label")) { "BTU/h" }
       }
     }
   }
