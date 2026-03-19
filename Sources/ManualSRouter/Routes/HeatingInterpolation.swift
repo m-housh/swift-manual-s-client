@@ -41,60 +41,6 @@ extension HeatingInterpolation {
   }
 }
 
-// FIX: Heat Pump form should also include kilowatt field
-// extension HeatingInterpolation.Create {
-//   static let parser = FormData {
-//     Field("projectID") { Project.ID.parser() }
-//     OneOf {
-//       ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
-//         Field("afue") { Percent.parser() }
-//         Field("inputBTU") { Int.parser() }
-//         Field("type") {
-//           HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
-//         }
-//       }
-//       .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
-//
-//       ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
-//         Field("kilowatts") { Int.parser() }
-//       }
-//
-//       ParsePrint(.memberwise(HeatPumpCapacity.init)) {
-//         Field("capacityAt47") { Double.parser() }
-//         Field("capacityAt17") { Double.parser() }
-//       }
-//       .map(.case(HeatingInterpolation.Interpolation.heatPump))
-//     }
-//   }
-//   .map(.memberwise(HeatingInterpolation.Create.init(projectID:interpolation:)))
-// }
-//
-// extension HeatingInterpolation.Update {
-//   static let parser = FormData {
-//     OneOf {
-//       ParsePrint(.memberwise(HeatingInterpolation.Interpolation.BoilerOrFurnace.init)) {
-//         Field("afue") { Percent.parser() }
-//         Field("inputBTU") { Int.parser() }
-//         Field("type") {
-//           HeatingInterpolation.Interpolation.BoilerOrFurnace.BoilerOrFurnaceType.parser()
-//         }
-//       }
-//       .map(.case(HeatingInterpolation.Interpolation.boilerOrFurnace))
-//
-//       ParsePrint(.case(HeatingInterpolation.Interpolation.electric)) {
-//         Field("kilowatts") { Int.parser() }
-//       }
-//
-//       ParsePrint(.memberwise(HeatPumpCapacity.init)) {
-//         Field("capacityAt47") { Double.parser() }
-//         Field("capacityAt17") { Double.parser() }
-//       }
-//       .map(.case(HeatingInterpolation.Interpolation.heatPump))
-//     }
-//   }
-//   .map(.memberwise(HeatingInterpolation.Update.init(interpolation:)))
-// }
-
 extension HeatingInterpolation {
   public struct FormIntermediate: Equatable, Sendable {
     let projectID: Project.ID
@@ -147,7 +93,12 @@ extension HeatingInterpolation {
       return .heatPump(capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17))
     }
 
-    public func toCreate() -> [HeatingInterpolation.Create]? {
+    public func convert() -> ([(HeatingInterpolation.ID, HeatingInterpolation.Update)]?, [HeatingInterpolation.Create]?) {
+      let updates = toUpdate()
+      return (updates, toCreate(updates))
+    }
+
+    public func toCreate(_ updates: [(HeatingInterpolation.ID, HeatingInterpolation.Update)]? = nil) -> [HeatingInterpolation.Create]? {
       var retval = [HeatingInterpolation.Create]()
       if let boilerOrFurnaceInterpolation {
         retval.append(

@@ -1,6 +1,7 @@
 import Elementary
 import SharedStyleguide
 
+// TODO: Better specify default modal attributes.
 struct SectionHeader<Form: HTML>: HTML {
   private let extraContent: String?
   private let formID: String
@@ -12,7 +13,7 @@ struct SectionHeader<Form: HTML>: HTML {
     _ extraContent: String? = nil,
     tooltip: String,
     formID: String,
-    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [],
+    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [.class("max-w-[1080px] w-[90%]")],
     @HTMLBuilder form: () -> Form
   ) {
     self.extraContent = extraContent
@@ -26,7 +27,7 @@ struct SectionHeader<Form: HTML>: HTML {
     _ extraContent: String? = nil,
     tooltip: String,
     formID: String,
-    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [],
+    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [.class("max-w-[1080px] w-[90%]")],
     form: @autoclosure () -> Form
   ) {
     self.init(
@@ -59,7 +60,7 @@ extension SectionHeader where Form: Identifiable, Form.ID == String {
   init(
     _ extraContent: String? = nil,
     tooltip: String,
-    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [],
+    modalAttributes: [HTMLAttribute<HTMLTag.div>] = [.class("max-w-[1080px] w-[90%]")],
     @HTMLBuilder form: () -> Form
   ) where Form: Identifiable, Form.ID == String {
     let form = form()

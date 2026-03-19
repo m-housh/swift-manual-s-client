@@ -20,9 +20,8 @@ struct ProjectDetailsView: HTML, Sendable {
 
   var body: some HTML {
     Navbar(userID: user.id)
-    div(.class("flex flex-col m-10 space-y-6")) {
-
-      div(.class("flex flex-wrap md:flex-nowrap")) {
+    div(.class("flex flex-col m-10 space-y-6 justify-center")) {
+      div(.class("flex flex-wrap md:flex-nowrap w-full max-w-[1200px] mx-auto")) {
         Section(projectID: project.id, section: .project(details.project))
         div(.class("divider divider-horizontal")) {}
         Section(projectID: project.id, section: .designInfo(details.designInfo))
@@ -72,7 +71,7 @@ struct ProjectDetailsView: HTML, Sendable {
     }
 
     var body: some HTML<HTMLTag.section> {
-      Elementary.section(.id(id)) {
+      Elementary.section(.id(id), .class("w-full max-w-[1200px] mx-auto")) {
         div(.class("divider")) {
           Title { section.title }
             .attributes(.class("text-secondary"))
@@ -95,7 +94,10 @@ struct ProjectDetailsView: HTML, Sendable {
             DesignInfoTable(projectID: projectID, designInfo: designInfo)
 
           case .coolingSystemType(let systemType):
-            SectionHeader(systemType?.cooling?.label, tooltip: "Edit system type") {
+            SectionHeader(
+              systemType?.cooling?.label,
+              tooltip: "Edit system type"
+            ) {
               CoolingSystemTypeForm(
                 projectID: projectID,
                 systemTypeID: systemType?.id,
@@ -106,7 +108,7 @@ struct ProjectDetailsView: HTML, Sendable {
           case .proposedEquipment(let proposedEquipment):
             SectionHeader(
               tooltip: "Edit proposed equipment",
-              modalAttributes: [.class("max-w-none w-[90%]")]
+              modalAttributes: [.class("max-w-[1080px] w-[90%]")]
             ) {
               ProposedEquipmentForm(projectID: projectID, proposedEquipment: proposedEquipment)
             }
@@ -121,7 +123,7 @@ struct ProjectDetailsView: HTML, Sendable {
           case .coolingInterpolation(let interpolation, let designInfo, let response):
             SectionHeader(
               tooltip: "Edit interpolation",
-              modalAttributes: [.class("max-w-none w-[90%] min-h-[80%]")]
+              modalAttributes: [.class("max-w-[1080px] w-[90%] min-h-[80%]")]
             ) {
               CoolingInterpolationForm(
                 projectID: projectID,
@@ -132,7 +134,6 @@ struct ProjectDetailsView: HTML, Sendable {
 
             InterpolationTable(projectID: projectID, coolingInterpolation: interpolation)
 
-            // FIX: The results need to be reinterpreted if house load changes.
             div(.id("coolingInterpolationResult")) {
               if interpolation != nil {
                 div(.class("divider")) {
