@@ -29,13 +29,16 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
     interpolations.first { $0.electric != nil }
   }
 
-  private var baseRoute: String {
+  private var route: String {
     ManualSRoute.router.path(for: .projectDetail(projectID, .interpolations(.heating(.index))))
   }
 
   var body: some HTML {
     Form(
-      title: "Heating Interpolation"
+      title: "Heating Interpolation",
+      .hx.post(route),
+      .hx.target(id: ProjectDetailsView.Section.id(.heatingInterpolation())),
+      .hx.swap(.outerHTML)
     ) {
       p(.class("text-accent italic")) {
         "Complete all sections that apply."
@@ -98,6 +101,18 @@ struct HeatingInterpolationForm: HTML, Identifiable, Sendable {
         span(.class("label")) { "BTU/h" }
       }
 
+      label(.class("input w-full")) {
+        span(.class("label")) { "AFUE" }
+        input(
+          .type(.number),
+          .name("afue"),
+          .value(gasInterpolation?.boilerOrFurnace?.afue.rawValue),
+          .min(0),
+          .max(100),
+          .step(1)
+        )
+        span(.class("label")) { SVG(.percent) }
+      }
     }
   }
 

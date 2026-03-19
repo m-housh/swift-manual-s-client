@@ -72,9 +72,10 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
             td { PercentView(response.sizingLimits.oversizing.latent) }
             td {}
           }
-
         }
       }
     }
+    .percentViewStyle(.hstack(gap: 1))
+    .percentViewSymbolStyle(.default)
   }
 }

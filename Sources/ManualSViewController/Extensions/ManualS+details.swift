@@ -55,8 +55,16 @@ extension ManualSClient {
           .init(kilowatts: kilowatts, heatingLoad: Int(heatingLoad))
         )
         retVal.append((interpolation, .electric(response)))
-      default:
-        fatalError()
+      case .boilerOrFurnace(let boilerOrFurnace):
+        let response = try await gasOrBoilerHeatingInterpolation(
+          .init(
+            inputBTU: boilerOrFurnace.inputBTU,
+            afue: boilerOrFurnace.afue,
+            heatingLoad: Int(heatingLoad),
+            projectElevation: designInfo.elevation
+          )
+        )
+        retVal.append((interpolation, .gasOrBoiler(response)))
       }
     }
     return retVal

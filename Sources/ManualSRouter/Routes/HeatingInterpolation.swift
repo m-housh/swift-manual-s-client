@@ -14,7 +14,6 @@ extension HeatingInterpolation {
   public enum ViewRoute: Equatable, Sendable, Routeable {
     case index
     case submit(HeatingInterpolation.FormIntermediate)
-    case update(HeatingInterpolation.FormIntermediate)
 
     static let path = "heating"
 
@@ -26,13 +25,6 @@ extension HeatingInterpolation {
       Route(.case(Self.submit)) {
         Path { path }
         Method.post
-        Body {
-          HeatingInterpolation.FormIntermediate.parser
-        }
-      }
-      Route(.case(Self.update)) {
-        Path { path }
-        Method.patch
         Body {
           HeatingInterpolation.FormIntermediate.parser
         }
@@ -93,14 +85,25 @@ extension HeatingInterpolation {
       return .heatPump(capacity: .init(capacityAt47: capacityAt47, capacityAt17: capacityAt17))
     }
 
-    public func convert() -> ([(HeatingInterpolation.ID, HeatingInterpolation.Update)]?, [HeatingInterpolation.Create]?) {
+    public func convert() -> (
+      [(HeatingInterpolation.ID, HeatingInterpolation.Update)]?,
+      [HeatingInterpolation.Create]?
+    ) {
       let updates = toUpdate()
-      return (updates, toCreate(updates))
+      return (
+        updates.count == 0 ? nil : updates,
+        toCreate(updates)
+      )
     }
 
-    public func toCreate(_ updates: [(HeatingInterpolation.ID, HeatingInterpolation.Update)]? = nil) -> [HeatingInterpolation.Create]? {
+    private func toCreate(
+      _ updates: [(HeatingInterpolation.ID, HeatingInterpolation.Update)]
+    ) -> [HeatingInterpolation.Create]? {
       var retval = [HeatingInterpolation.Create]()
-      if let boilerOrFurnaceInterpolation {
+
+      if updates.first(where: { $0.1.interpolation.boilerOrFurnace != nil }) == nil,
+        let boilerOrFurnaceInterpolation
+      {
         retval.append(
           .init(
             projectID: projectID,
@@ -108,7 +111,9 @@ extension HeatingInterpolation {
           )
         )
       }
-      if let electricInterpolation {
+      if updates.first(where: { $0.1.interpolation.electric != nil }) == nil,
+        let electricInterpolation
+      {
         retval.append(
           .init(
             projectID: projectID,
@@ -116,7 +121,9 @@ extension HeatingInterpolation {
           )
         )
       }
-      if let heatPumpInterpolation {
+      if updates.first(where: { $0.1.interpolation.heatPump != nil }) == nil,
+        let heatPumpInterpolation
+      {
         retval.append(
           .init(
             projectID: projectID,
@@ -130,7 +137,7 @@ extension HeatingInterpolation {
         : nil
     }
 
-    public func toUpdate() -> [(HeatingInterpolation.ID, HeatingInterpolation.Update)]? {
+    private func toUpdate() -> [(HeatingInterpolation.ID, HeatingInterpolation.Update)] {
       var retval = [(HeatingInterpolation.ID, HeatingInterpolation.Update)]()
       if let boilerOrFurnaceInterpolation, let boilerOrFurnaceID {
         retval.append(
@@ -163,9 +170,7 @@ extension HeatingInterpolation {
         )
       }
 
-      return retval.count > 0
-        ? retval
-        : nil
+      return retval
     }
 
     fileprivate static let parser = FormData {

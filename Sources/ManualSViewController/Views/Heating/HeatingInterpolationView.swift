@@ -34,8 +34,8 @@ struct HeatingInterpolationsView: HTML, Sendable {
         heatPumpRows(capacity, response)
       case .electric(let kilowatts):
         electricRows(Double(kilowatts))
-      case .boilerOrFurnace(_):
-        div { "Gas..." }
+      case .boilerOrFurnace(let boilerOrFurnace):
+        boilerOrFurnaceRows(boilerOrFurnace)
       }
     }
 
@@ -120,6 +120,39 @@ struct HeatingInterpolationsView: HTML, Sendable {
           nil,
           .double(response.capacityAtDesign),
           .temperature(response.balancePointTemperature)
+        )
+      }
+    }
+
+    @HTMLBuilder
+    private func boilerOrFurnaceRows(
+      _ interpolation: HeatingInterpolation.Interpolation.BoilerOrFurnace
+    ) -> some HTML {
+      // Header
+      makeRow(
+        .text("Gas - \(interpolation.type.rawValue.capitalized)", attributes: [.class("text-xl")]),
+        .text("BTU/h"),
+        .text("AFUE"),
+      )
+      .style(.label, .bold)
+      makeRow(
+        .label("Input"),
+        .double(Double(interpolation.inputBTU)),
+        .percent(interpolation.afue)
+      )
+      if let response = response.gasOrBoiler {
+        makeRow(
+          .label("Output / Altitude Derating"),
+          .double(Double(response.outputCapacity)),
+          .percent(response.altitudeDerating ?? .init(decimal: 1.0))
+        )
+        .percentViewStyle(.decimal)
+        .percentViewSymbolStyle(.none)
+
+        makeRow(
+          .label("Final Capacity"),
+          .double(Double(response.finalCapacity)),
+          nil
         )
       }
     }

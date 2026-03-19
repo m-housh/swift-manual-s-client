@@ -229,16 +229,14 @@ extension ManualSRoute.ProjectDetail {
         return .projectDetailsUpdate(projectID)
       case .submit(let form):
         return .projectDetailsUpdate(projectID) {
-          // _ = try await database.heatingInterpolations.create(form)
-          guard let models = form.toCreate() else {
-            throw Abort(.internalServerError)
+          let (updates, creates) = form.convert()
+          if let updates = updates {
+            _ = try await database.heatingInterpolations.update(updates)
           }
-          _ = try await database.heatingInterpolations.create(models)
-          // fatalError()
+          if let creates {
+            _ = try await database.heatingInterpolations.create(creates)
+          }
         }
-      case .update(_):
-        // FIX:
-        fatalError()
       }
     }
   }
