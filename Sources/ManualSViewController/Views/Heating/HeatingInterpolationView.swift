@@ -141,18 +141,37 @@ struct HeatingInterpolationsView: HTML, Sendable {
         .percent(interpolation.afue)
       )
       if let response = response.gasOrBoiler {
+        // makeRow(
+        //   .label("Output"),
+        //   .double(Double(response.outputCapacity)),
+        //   nil,
+        // )
+
         makeRow(
-          .label("Output / Altitude Derating"),
-          .double(Double(response.outputCapacity)),
-          .percent(response.altitudeDerating ?? .init(decimal: 1.0))
+          .label("Altitude Adjustment"),
+          .percent(response.altitudeDerating ?? .init(decimal: 1.0)),
+          nil,
         )
         .percentViewStyle(.decimal)
         .percentViewSymbolStyle(.none)
 
         makeRow(
           .label("Final Capacity"),
-          .double(Double(response.finalCapacity)),
+          .flagged(Double(response.finalCapacity), response.flag),
           nil
+          // .percent(Percent(Double(response.sizingLimits.oversizing)))
+        )
+
+        makeRow(
+          nil,
+          .label("Percent of Load"),
+          .label("Oversizing Limit")
+        )
+
+        makeRow(
+          nil,
+          .percent(response.percentOfLoad),
+          .percent(Percent(Double(response.sizingLimits.oversizing)))
         )
       }
     }
@@ -230,6 +249,16 @@ extension HeatingInterpolation.Response.Electric {
 
   func kwFlag(_ kw: Double) -> FlaggedState {
     if percentOfLoad > 175 { return .failure }
+    return .success
+  }
+}
+
+extension HeatingInterpolation.Response.GasOrBoiler {
+  var flag: FlaggedState {
+    let percentOfLoad = Int(percentOfLoad.rawValue)
+    if percentOfLoad < sizingLimits.undersizing || percentOfLoad > sizingLimits.oversizing {
+      return .failure
+    }
     return .success
   }
 }
