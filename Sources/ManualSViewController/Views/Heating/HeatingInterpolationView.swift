@@ -17,6 +17,158 @@ struct HeatingInterpolationsView: HTML, Sendable {
     .temperatureViewStyle(digits: 1)
     .percentViewSymbolStyle(.default)
 
+    // MARK: - Cards
+    div(.class("space-y-6")) {
+      if let (interpolation, response) = interpolations.first(where: { $0.1.gasOrBoiler != nil }),
+        let gasFurnace = interpolation.boilerOrFurnace
+      {
+        ResponseCard(
+          "Gas - \(gasFurnace.type.rawValue.capitalized)",
+          flag: response.gasOrBoiler?.flag
+        ) {
+          div(.class("grid grid-cols-2 m-6 justify-center items-center")) {
+            div(.class("grid grid-cols-2 gap-4 mx-auto")) {
+              Group {
+                span(.class("label")) { "Input" }
+                NumberView(gasFurnace.inputBTU)
+              }
+              if let response = response.gasOrBoiler {
+                Group {
+                  span(.class("label")) { "Altitude Adjustment" }
+                  PercentView(response.altitudeDerating ?? .init(decimal: 1.0))
+                    .percentViewStyle(.decimal)
+                    .percentViewSymbolStyle(.none)
+                }
+                Group {
+                  span(.class("label")) { "Final Capacity" }
+                  NumberView(response.finalCapacity)
+                }
+              }
+            }
+            div(.class("grid grid-cols-2 gap-4 mx-auto")) {
+              Group {
+                span(.class("label")) { "AFUE" }
+                PercentView(gasFurnace.afue)
+              }
+              if let response = response.gasOrBoiler {
+                Group {
+                  span(.class("label")) { "Oversizing Limit" }
+                  PercentView(Percent(Double(response.sizingLimits.oversizing)))
+                }
+                Group {
+                  span(.class("label")) { "Percent of Load" }
+                  PercentView(response.percentOfLoad)
+                }
+              }
+            }
+            .percentViewStyle(.default)
+            .percentViewSymbolStyle(.default)
+          }
+        }
+      }
+
+      if let (interpolation, response) = interpolations.first(where: { $0.1.electric != nil }),
+        let electric = interpolation.electric
+      {
+
+        ResponseCard(
+          "Electric",
+          flag: response.electric?.kwFlag(Double(electric))
+        ) {
+          if let response = response.electric {
+            div(.class("grid grid-cols-2 m-6 justify-center")) {
+              div(.class("grid grid-cols-2 gap-4 mx-auto")) {
+                Group {
+                  div {}
+                  div {}
+                }
+                Group {
+                  span(.class("label")) { "Required KW" }
+                  NumberView(response.requiredKW)
+                }
+                Group {
+                  span(.class("label")) { "Proposed KW" }
+                  NumberView(electric)
+                }
+              }
+              div(.class("grid grid-cols-2 gap-4 mx-auto")) {
+                Group {
+                  span(.class("label")) { "Undersizing Limit" }
+                  PercentView(Percent(response.sizingLimits.undersizing))
+                }
+                Group {
+                  span(.class("label")) { "Oversizing Limit" }
+                  PercentView(Percent(response.sizingLimits.oversizing))
+                }
+                Group {
+                  span(.class("label")) { "Percent of Load" }
+                  PercentView(response.percentOfLoad)
+                }
+              }
+              .percentViewStyle(.default)
+              .percentViewSymbolStyle(.default)
+            }
+          }
+        }
+      }
+
+      if let (interpolation, response) = interpolations.first(where: { $0.1.heatPump != nil }),
+        let heatPump = interpolation.heatPump
+      {
+        ResponseCard(
+          "Heat Pump"
+        ) {
+          if let response = response.heatPump {
+            div(.class("grid grid-cols-2 m-6 justify-center")) {
+              // lhs
+              div(.class("grid grid-cols-2 gap-4 mx-auto")) {
+                Group {
+                  span(.class("label")) { "Capacity @ 47" }
+                  NumberView(heatPump.capacityAt47)
+                }
+                Group {
+                  span(.class("label")) { "Altitude Adjustment" }
+                  PercentView(response.deratings)
+                    .percentViewStyle(.decimal)
+                    .percentViewSymbolStyle(.none)
+                }
+                Group {
+                  span(.class("label")) { "Final Capacity @ 47" }
+                  NumberView(response.finalCapacity.capacityAt47)
+                }
+                Group {
+                  span(.class("label")) { "Capacity @ Design" }
+                  NumberView(response.capacityAtDesign, digits: 0)
+                }
+              }
+
+              // rhs
+              div(.class("grid grid-cols-2 gap-4 mx-auto")) {
+                Group {
+                  span(.class("label")) { "Capacity @ 17" }
+                  NumberView(heatPump.capacityAt17)
+                }
+                Group {
+                  span(.class("label")) { "Altitude Adjustment" }
+                  PercentView(response.deratings)
+                    .percentViewStyle(.decimal)
+                    .percentViewSymbolStyle(.none)
+                }
+                Group {
+                  span(.class("label")) { "Final Capacity @ 17" }
+                  NumberView(response.finalCapacity.capacityAt17)
+                }
+                Group {
+                  span(.class("label")) { "Balance Point" }
+                  TemperatureView(response.balancePointTemperature)
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
   }
 
   struct Row: HTML, Sendable {
@@ -244,6 +396,35 @@ struct HeatingInterpolationsView: HTML, Sendable {
   }
 
 }
+
+private struct ResponseCard<Content: HTML>: HTML {
+  let title: String
+  let flag: FlaggedState?
+  let _content: Content
+
+  init(
+    _ title: String,
+    flag: FlaggedState? = nil,
+    @HTMLBuilder body: () -> Content
+  ) {
+    self.title = title
+    self.flag = flag
+    self._content = body()
+  }
+
+  var body: some HTML<HTMLTag.div> {
+    div(.class("border rounded-box p-6")) {
+      div(.class("flex justify-between")) {
+        h2(.class("text-2xl font-bold label")) { title }
+        if let flag {
+          FlaggedView(flag) {}
+        }
+      }
+      _content
+    }
+  }
+}
+extension ResponseCard: Sendable where Content: Sendable {}
 
 extension HeatingInterpolation.Response.Electric {
 

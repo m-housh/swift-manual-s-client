@@ -11,6 +11,10 @@ public struct Percent: Codable, Equatable, Sendable, RawRepresentable {
     self.rawValue = value
   }
 
+  public init(_ value: Int) {
+    self.init(Double(value))
+  }
+
   public init(rawValue: Double) {
     self.init(rawValue)
   }
