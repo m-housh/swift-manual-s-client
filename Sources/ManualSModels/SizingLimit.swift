@@ -6,8 +6,7 @@ public struct SizingLimit: Codable, Equatable, Sendable {
     TSLTag.CoolingUndersizeLimit, TSLContainer<Percent>
   >
   public typealias Cooling = Container<CoolingOversizeLimit, CoolingUndersizeLimit>
-  // FIX: Use Percent types.
-  public typealias Heating = Container<Int, Int>
+  public typealias Heating = Container<Percent, Percent>
 
   public struct Container<Over, Under> {
 
