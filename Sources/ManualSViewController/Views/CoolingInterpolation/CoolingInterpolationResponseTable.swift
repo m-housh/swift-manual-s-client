@@ -6,7 +6,7 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
   let response: CoolingInterpolation.Response?
 
   var body: some HTML<HTMLTag.div> {
-    div(.class("grid grid-cols-3 gap-4")) {
+    div(.class("grid grid-cols-1 lg:grid-cols-3 gap-4")) {
       if let response {
         Card(
           title: "Total",
@@ -63,7 +63,7 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
           FlaggedView(flag) {}
         }
 
-        div(.class("grid grid-cols-2 gap-2 mt-6 mx-auto justify-items-end")) {
+        div(.class("grid grid-cols-2 gap-2 justify-items-end mt-6 mx-auto w-fit")) {
           Row("Interpolated Capacity") { NumberView(interpolatedCapacity) }
           Row("Altitude Adjustment") {
             PercentView(altitudeAdjustment == 0 ? .init(decimal: 1.0) : altitudeAdjustment)
@@ -76,7 +76,7 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
           Row("Final Capacity") { NumberView(capacityAtDesign) }
           Row("Percent of Load") { PercentView(capacityAsPercentOfDesign) }
           Row("Sizing Limits") {
-            div(.class("flex")) {
+            div(.class("flex space-x-1")) {
               PercentView(undersizingLimit)
               span { "-" }
               if let oversizingLimit {
