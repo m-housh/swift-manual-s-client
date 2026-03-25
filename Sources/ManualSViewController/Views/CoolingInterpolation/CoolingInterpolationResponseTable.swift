@@ -5,77 +5,104 @@ import SharedStyleguide
 struct CoolingInterpolationResponseTable: HTML, Sendable {
   let response: CoolingInterpolation.Response?
 
-  var body: some HTML<HTMLTag.table> {
-    Table {
-      thead {
-        tr {
-          th { HTMLRaw("&nbsp;") }
-          th { "Total" }
-          th { "Sensible" }
-          th { "Latent" }
-          th { "SHR" }
-        }
-      }
-      tbody {
-        if let response {
-          tr {
-            td(.class("label")) { "Interpolated Capacity" }
-            td { NumberView(response.interpolatedCapacity.total) }
-            td { NumberView(response.interpolatedCapacity.sensible) }
-            td { NumberView(response.interpolatedCapacity.latent) }
-            td { NumberView(response.interpolatedCapacity.sensibleHeatRatio) }
-          }
-          tr {
-            td(.class("label")) { "Altitude Adjustments" }
-            td { NumberView(response.altitudeDeratings?.total.decimal ?? 1.0) }
-            td { NumberView(response.altitudeDeratings?.sensible.decimal ?? 1.0) }
-            td {}
-            td {}
-          }
-          tr {
-            td(.class("label")) { "Excess Latent" }
-            td {}
-            td {}
-            td { NumberView(response.excessLatent, digits: 0) }
-            td {}
-          }
-          tr {
-            td(.class("label")) { "Capacity at Design" }
-            td { NumberView(response.finalCapacityAtDesign.total) }
-            td { NumberView(response.finalCapacityAtDesign.sensible) }
-            td { NumberView(response.finalCapacityAtDesign.latent) }
-            td { NumberView(response.finalCapacityAtDesign.sensibleHeatRatio) }
-          }
-          tr {
-            td(.class("label")) { "Capacity as % of Design" }
-            td {
-              FlaggedView(response.flaggedCapacities.total) {
-                PercentView(response.capacityAsPercentOfLoad.total)
-              }
-            }
-            td {
-              FlaggedView(response.flaggedCapacities.sensible) {
-                PercentView(response.capacityAsPercentOfLoad.sensible)
-              }
-            }
-            td {
-              FlaggedView(response.flaggedCapacities.latent) {
-                PercentView(response.capacityAsPercentOfLoad.latent)
-              }
-            }
-            td {}
-          }
-          tr {
-            td(.class("label")) { "Oversizing Limits" }
-            td { PercentView(response.sizingLimits.oversizing.total) }
-            td {}
-            td { PercentView(response.sizingLimits.oversizing.latent) }
-            td {}
-          }
-        }
+  var body: some HTML<HTMLTag.div> {
+    div(.class("grid grid-cols-3 gap-4")) {
+      if let response {
+        Card(
+          title: "Total",
+          flag: response.flaggedCapacities.total,
+          interpolatedCapacity: response.interpolatedCapacity.total,
+          altitudeAdjustment: response.altitudeDeratings?.total ?? .init(decimal: 1.0),
+          excessLatent: nil,
+          capacityAtDesign: response.finalCapacityAtDesign.total,
+          capacityAsPercentOfDesign: response.capacityAsPercentOfLoad.total,
+          undersizingLimit: response.sizingLimits.undersizing.total,
+          oversizingLimit: response.sizingLimits.oversizing.total
+        )
+        Card(
+          title: "Sensible",
+          flag: response.flaggedCapacities.sensible,
+          interpolatedCapacity: response.interpolatedCapacity.sensible,
+          altitudeAdjustment: response.altitudeDeratings?.sensible ?? .init(decimal: 1.0),
+          excessLatent: nil,
+          capacityAtDesign: response.finalCapacityAtDesign.sensible,
+          capacityAsPercentOfDesign: response.capacityAsPercentOfLoad.sensible,
+          undersizingLimit: response.sizingLimits.undersizing.sensible,
+          oversizingLimit: nil
+        )
+        Card(
+          title: "Latent",
+          flag: response.flaggedCapacities.latent,
+          interpolatedCapacity: response.interpolatedCapacity.latent,
+          altitudeAdjustment: response.altitudeDeratings?.latent ?? .init(decimal: 1.0),
+          excessLatent: response.excessLatent,
+          capacityAtDesign: response.finalCapacityAtDesign.latent,
+          capacityAsPercentOfDesign: response.capacityAsPercentOfLoad.latent,
+          undersizingLimit: response.sizingLimits.undersizing.latent,
+          oversizingLimit: response.sizingLimits.oversizing.latent
+        )
       }
     }
-    .percentViewStyle(.hstack(gap: 1))
-    .percentViewSymbolStyle(.default)
+  }
+
+  struct Card: HTML, Sendable {
+    let title: String
+    let flag: FlaggedState
+    let interpolatedCapacity: Double
+    let altitudeAdjustment: Percent
+    let excessLatent: Double?
+    let capacityAtDesign: Double
+    let capacityAsPercentOfDesign: Percent
+    let undersizingLimit: Percent
+    let oversizingLimit: Percent?
+
+    var body: some HTML {
+      div(.class("border rounded-box shadow-lg p-6")) {
+        div(.class("flex justify-between")) {
+          h2(.class("text-2xl font-bold label")) { title }
+          FlaggedView(flag) {}
+        }
+
+        div(.class("grid grid-cols-2 gap-2 mt-6 mx-auto justify-items-end")) {
+          Row("Interpolated Capacity") { NumberView(interpolatedCapacity) }
+          Row("Altitude Adjustment") {
+            PercentView(altitudeAdjustment == 0 ? .init(decimal: 1.0) : altitudeAdjustment)
+          }
+          .percentViewStyle(.decimal)
+          .percentViewSymbolStyle(.none)
+          if let excessLatent {
+            Row("Excess Latent") { NumberView(excessLatent) }
+          }
+          Row("Final Capacity") { NumberView(capacityAtDesign) }
+          Row("Percent of Load") { PercentView(capacityAsPercentOfDesign) }
+          Row("Sizing Limits") {
+            div(.class("flex")) {
+              PercentView(undersizingLimit)
+              span { "-" }
+              if let oversizingLimit {
+                PercentView(oversizingLimit)
+              }
+            }
+          }
+        }
+        .percentViewStyle(.default)
+        .percentViewSymbolStyle(.default)
+      }
+    }
+  }
+
+  struct Row<Content: HTML>: HTML {
+    let label: String
+    let _body: Content
+
+    init(_ label: String, @HTMLBuilder body: () -> Content) {
+      self.label = label
+      self._body = body()
+    }
+
+    var body: some HTML {
+      span(.class("label")) { label }
+      _body
+    }
   }
 }
