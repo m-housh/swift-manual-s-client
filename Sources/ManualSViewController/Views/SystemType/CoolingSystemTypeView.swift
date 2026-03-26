@@ -9,7 +9,9 @@ struct CoolingSystemTypeView: HTML, Sendable {
       if let systemType {
         Stat("Equipment") { systemType.equipment.label }
         Stat("Compressor") { systemType.compressor.label }
-        Stat("Climate") { systemType.climate.label }
+        Stat("Climate", description: "or \(systemType.climate.labels.last!)") {
+          systemType.climate.labels.first!
+        }
       }
     }
   }

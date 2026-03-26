@@ -64,8 +64,6 @@ struct SectionHeader<Form: HTML>: HTML {
         form
       }
     }
-    // .attributes(.class("justify-between"), when: extraContent != nil)
-    // .attributes(.class("justify-end"), when: extraContent == nil)
   }
 }
 

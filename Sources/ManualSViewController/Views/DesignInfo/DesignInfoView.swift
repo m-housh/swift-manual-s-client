@@ -8,35 +8,37 @@ struct DesignInfoView: HTML, Sendable {
   var body: some HTML {
     if let designInfo {
       div(.class("space-y-4")) {
-        Card(title: "Summer", svg: .sun) {
-          div(.class("grid grid-cols-2 justify-items-end gap-2 mt-3 mx-auto w-full")) {
-            Row("Outdoor Temperature") { TemperatureView(designInfo.summerOutdoorTemperature) }
-            Row("Indoor Temperature") { TemperatureView(designInfo.summerIndoorTemperature) }
-            Row("Indoor Humidity") { PercentView(designInfo.summerIndoorHumidity) }
+        div(.class("grid grid-cols-1 lg:grid-cols-2 gap-4")) {
+          Card(title: "Summer", svg: .sun) {
+            div(.class("stats stats-vertical w-full")) {
+              Stat("Outdoor Temperature") { TemperatureView(designInfo.summerOutdoorTemperature) }
+            }
+            div(.class("stats stats-vertical lg:stats-horizontal w-full")) {
+              Stat("Indoor Temperature") { TemperatureView(designInfo.summerIndoorTemperature) }
+              Stat("Indoor Humidity") { PercentView(designInfo.summerIndoorHumidity) }
+            }
           }
           .percentViewStyle(.default)
           .percentViewSymbolStyle(.default)
-        }
-        // .labelStyle(.class("text-yellow-600"))
-        // .attributes(.class("bg-yellow-300 border-yellow-600 font-bold"))
+          .attributes(.class("border border-yellow-400 text-yellow-400 rounded-box"))
 
-        Card(title: "Winter", svg: .snowflake) {
-          div(.class("grid grid-cols-2 justify-items-end gap-2 mt-3 mx-auto w-full")) {
-            Row("Outdoor Temperature") { TemperatureView(designInfo.winterOutdoorTemperature) }
+          div(.class("space-y-4")) {
+            Card(title: "Winter", svg: .snowflake) {
+              div(.class("stats w-full")) {
+                Stat("Outdoor Temperature") { TemperatureView(designInfo.winterOutdoorTemperature) }
+              }
+            }
+            .attributes(.class("border border-sky-400 text-sky-400 rounded-box"))
+
+            Card(title: "Project", svg: .mountain) {
+              div(.class("stats w-full")) {
+                Stat("Elevation") { NumberView(designInfo.elevation) }
+              }
+            }
+            .attributes(.class("border border-secondary text-secondary rounded-box"))
           }
         }
-        // .labelStyle(.class("text-sky-600 font-bold"))
-        // .attributes(.class("bg-sky-300 border-sky-600 font-bold"))
-
-        Card(title: "Project", svg: .mountain) {
-          div(.class("grid grid-cols-2 justify-items-end gap-2 mt-3 mx-auto w-full")) {
-            Row("Elevation") { NumberView(designInfo.elevation) }
-          }
-        }
-        // .labelStyle(.class("text-white"))
-        // .attributes(.class("bg-primary border-secondary text-white font-bold"))
       }
-      .labelStyle(.class("label"))
     }
   }
 
@@ -52,8 +54,8 @@ struct DesignInfoView: HTML, Sendable {
     }
 
     var body: some HTML<HTMLTag.div> {
-      div(.class("p-4")) {
-        div(.class("flex justify-items-start space-x-4 w-fit")) {
+      div(.class("p-4 w-full")) {
+        div(.class("flex justify-center space-x-4 w-full")) {
           SVG(svg)
           h2(.class("text-xl font-bold")) { title }
         }
@@ -62,21 +64,4 @@ struct DesignInfoView: HTML, Sendable {
     }
   }
 
-  struct Row<Content: HTML>: HTML {
-    let label: String
-    let _body: Content
-
-    init(
-      _ label: String,
-      @HTMLBuilder body: () -> Content
-    ) {
-      self.label = label
-      self._body = body()
-    }
-
-    var body: some HTML {
-      Label { label }
-      _body
-    }
-  }
 }

@@ -76,6 +76,10 @@ public struct SystemType: Codable, Equatable, Identifiable, Sendable {
         return "Cold Winter or No Latent Load"
       }
     }
+
+    public var labels: [String] {
+      Array(label.split(separator: "or").map(String.init))
+    }
   }
 
   public enum CompressorType: String, CaseIterable, Codable, Equatable, Sendable {
