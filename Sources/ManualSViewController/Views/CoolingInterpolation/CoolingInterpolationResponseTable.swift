@@ -19,8 +19,6 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
           thead(.class("bg-base-300 text-base-content")) {
             tr {
               th { "Capacity Type" }
-              th(.class("text-right")) { "Interpolated" }
-              th(.class("text-right")) { "Altitude Adj." }
               th(.class("text-right")) { "Final Capacity" }
               th(.class("text-right")) { "% of Load" }
               th(.class("text-center")) { "Status" }
@@ -68,25 +66,6 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
           }
         }
         .attributes(.class("table-sm"))
-
-        // Sizing Limits Reference
-        div(.class("text-sm text-base-content/60 mt-2 flex gap-4")) {
-          span {
-            "Sizing Limits: Total: "
-            PercentView(response.sizingLimits.undersizing.total)
-            " - "
-            PercentView(response.sizingLimits.oversizing.total)
-          }
-          span(.class("text-base-300")) { "|" }
-          span {
-            "Latent: "
-            PercentView(response.sizingLimits.undersizing.latent)
-            " - "
-            PercentView(response.sizingLimits.oversizing.latent)
-          }
-        }
-        .percentViewStyle(.hstack(gap: 1))
-        .percentViewSymbolStyle(.default)
       }
     }
   }
@@ -127,18 +106,57 @@ struct CapacityRow: HTML {
 
   var body: some HTML<HTMLTag.tr> {
     tr {
-      td(.class("font-medium")) { label }
-      td(.class("text-right font-mono")) { NumberView(interpolated) }
-      td(.class("text-right font-mono")) {
-        PercentView(altitudeAdj == 0 ? .init(decimal: 1.0) : altitudeAdj)
+      td {
+        details(.class("cursor-pointer")) {
+          summary(.class("font-medium list-none flex items-center gap-1")) {
+            SVG(.chevronDown)
+            label
+          }
+          div(.class("mt-2 ml-5 space-y-1 text-sm text-base-content/70")) {
+            div(.class("flex justify-between")) {
+              span { "Interpolated Capacity" }
+              span(.class("font-mono")) { NumberView(interpolated) }
+            }
+            div(.class("flex justify-between")) {
+              span { "Altitude Adjustment" }
+              span(.class("font-mono")) {
+                PercentView(
+                  altitudeAdj == 0 ? .init(decimal: 1.0) : altitudeAdj
+                )
+              }
+            }
+            .percentViewStyle(.decimal)
+            .percentViewSymbolStyle(.none)
+            if let excessLatent {
+              div(.class("flex justify-between")) {
+                span { "Excess Latent" }
+                span(.class("font-mono")) { NumberView(excessLatent) }
+              }
+            }
+            div(.class("flex justify-between")) {
+              span { "Sizing Limits" }
+              span(.class("font-mono flex gap-1")) {
+                PercentView(undersizingLimit)
+                " - "
+                if let oversizingLimit {
+                  PercentView(oversizingLimit)
+                }
+              }
+            }
+            .percentViewStyle(.hstack(gap: 1))
+            .percentViewSymbolStyle(.default)
+          }
+        }
       }
-      .percentViewStyle(.decimal)
-      .percentViewSymbolStyle(.none)
-      td(.class("text-right font-mono font-semibold")) { NumberView(finalCapacity) }
-      td(.class("text-right font-mono")) { PercentView(percentOfLoad) }
-        .percentViewStyle(.hstack(gap: 2), .end)
-        .percentViewSymbolStyle(.default)
-      td(.class("text-center")) {
+      td(.class("text-right font-mono font-semibold align-top")) {
+        NumberView(finalCapacity)
+      }
+      td(.class("text-right font-mono align-top")) {
+        PercentView(percentOfLoad)
+      }
+      .percentViewStyle(.hstack(gap: 2), .end)
+      .percentViewSymbolStyle(.default)
+      td(.class("text-center align-top")) {
         FlaggedBadge(state: flag)
       }
     }
