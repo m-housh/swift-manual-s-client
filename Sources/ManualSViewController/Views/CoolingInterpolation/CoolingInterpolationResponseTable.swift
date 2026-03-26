@@ -18,10 +18,10 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
         Table {
           thead(.class("bg-base-300 text-base-content")) {
             tr {
-              th { "Capacity Type" }
-              th(.class("text-right")) { "Final Capacity" }
-              th(.class("text-right")) { "% of Load" }
-              th(.class("text-center")) { "Status" }
+              th(.class("w-1/2")) { "Capacity Type" }
+              th(.class("text-right w-[20%]")) { "Final Capacity" }
+              th(.class("text-right w-[15%]")) { "% of Load" }
+              th(.class("text-center w-[15%]")) { "Status" }
             }
           }
           tbody {
@@ -65,7 +65,7 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
             )
           }
         }
-        .attributes(.class("table-sm"))
+        .attributes(.class("table-sm table-fixed"))
       }
     }
   }
