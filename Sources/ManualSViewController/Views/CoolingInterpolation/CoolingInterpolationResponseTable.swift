@@ -5,104 +5,150 @@ import SharedStyleguide
 struct CoolingInterpolationResponseTable: HTML, Sendable {
   let response: CoolingInterpolation.Response?
 
-  var body: some HTML<HTMLTag.div> {
-    div(.class("grid grid-cols-1 lg:grid-cols-3 gap-4")) {
-      if let response {
-        Card(
-          title: "Total",
-          flag: response.flaggedCapacities.total,
-          interpolatedCapacity: response.interpolatedCapacity.total,
-          altitudeAdjustment: response.altitudeDeratings?.total ?? .init(decimal: 1.0),
-          excessLatent: nil,
-          capacityAtDesign: response.finalCapacityAtDesign.total,
-          capacityAsPercentOfDesign: response.capacityAsPercentOfLoad.total,
-          undersizingLimit: response.sizingLimits.undersizing.total,
-          oversizingLimit: response.sizingLimits.oversizing.total
-        )
-        Card(
-          title: "Sensible",
-          flag: response.flaggedCapacities.sensible,
-          interpolatedCapacity: response.interpolatedCapacity.sensible,
-          altitudeAdjustment: response.altitudeDeratings?.sensible ?? .init(decimal: 1.0),
-          excessLatent: nil,
-          capacityAtDesign: response.finalCapacityAtDesign.sensible,
-          capacityAsPercentOfDesign: response.capacityAsPercentOfLoad.sensible,
-          undersizingLimit: response.sizingLimits.undersizing.sensible,
-          oversizingLimit: nil
-        )
-        Card(
-          title: "Latent",
-          flag: response.flaggedCapacities.latent,
-          interpolatedCapacity: response.interpolatedCapacity.latent,
-          altitudeAdjustment: response.altitudeDeratings?.latent ?? .init(decimal: 1.0),
-          excessLatent: response.excessLatent,
-          capacityAtDesign: response.finalCapacityAtDesign.latent,
-          capacityAsPercentOfDesign: response.capacityAsPercentOfLoad.latent,
-          undersizingLimit: response.sizingLimits.undersizing.latent,
-          oversizingLimit: response.sizingLimits.oversizing.latent
-        )
-      }
-    }
-  }
-
-  struct Card: HTML, Sendable {
-    let title: String
-    let flag: FlaggedState
-    let interpolatedCapacity: Double
-    let altitudeAdjustment: Percent
-    let excessLatent: Double?
-    let capacityAtDesign: Double
-    let capacityAsPercentOfDesign: Percent
-    let undersizingLimit: Percent
-    let oversizingLimit: Percent?
-
-    var body: some HTML {
-      div(.class("border rounded-box shadow-lg p-6")) {
-        div(.class("flex justify-between")) {
-          h2(.class("text-2xl font-bold label")) { title }
-          FlaggedView(flag) {}
+  var body: some HTML {
+    if let response {
+      div(.class("space-y-6")) {
+        // Status Summary Row
+        div(.class("flex items-center gap-4 mb-4")) {
+          span(.class("text-lg font-semibold")) { "Overall Status:" }
+          OverallStatusBadge(response: response)
         }
 
-        div(.class("grid grid-cols-2 gap-2 justify-items-end mt-6 mx-auto w-fit")) {
-          Row("Interpolated Capacity") { NumberView(interpolatedCapacity) }
-          Row("Altitude Adjustment") {
-            PercentView(altitudeAdjustment == 0 ? .init(decimal: 1.0) : altitudeAdjustment)
-          }
-          .percentViewStyle(.decimal)
-          .percentViewSymbolStyle(.none)
-          if let excessLatent {
-            Row("Excess Latent") { NumberView(excessLatent) }
-          }
-          Row("Final Capacity") { NumberView(capacityAtDesign) }
-          Row("Percent of Load") { PercentView(capacityAsPercentOfDesign) }
-          Row("Sizing Limits") {
-            div(.class("flex space-x-1")) {
-              PercentView(undersizingLimit)
-              span { "-" }
-              if let oversizingLimit {
-                PercentView(oversizingLimit)
-              }
+        // Main Results Table
+        Table {
+          thead(.class("bg-base-300 text-base-content")) {
+            tr {
+              th { "Capacity Type" }
+              th(.class("text-right")) { "Interpolated" }
+              th(.class("text-right")) { "Altitude Adj." }
+              th(.class("text-right")) { "Final Capacity" }
+              th(.class("text-right")) { "% of Load" }
+              th(.class("text-center")) { "Status" }
             }
           }
+          tbody {
+            // Total Capacity Row
+            CapacityRow(
+              label: "Total",
+              flag: response.flaggedCapacities.total,
+              interpolated: response.interpolatedCapacity.total,
+              altitudeAdj: response.altitudeDeratings?.total ?? .init(decimal: 1.0),
+              excessLatent: nil,
+              finalCapacity: response.finalCapacityAtDesign.total,
+              percentOfLoad: response.capacityAsPercentOfLoad.total,
+              undersizingLimit: response.sizingLimits.undersizing.total,
+              oversizingLimit: response.sizingLimits.oversizing.total
+            )
+
+            // Sensible Capacity Row
+            CapacityRow(
+              label: "Sensible",
+              flag: response.flaggedCapacities.sensible,
+              interpolated: response.interpolatedCapacity.sensible,
+              altitudeAdj: response.altitudeDeratings?.sensible ?? .init(decimal: 1.0),
+              excessLatent: nil,
+              finalCapacity: response.finalCapacityAtDesign.sensible,
+              percentOfLoad: response.capacityAsPercentOfLoad.sensible,
+              undersizingLimit: response.sizingLimits.undersizing.sensible,
+              oversizingLimit: nil
+            )
+
+            // Latent Capacity Row
+            CapacityRow(
+              label: "Latent",
+              flag: response.flaggedCapacities.latent,
+              interpolated: response.interpolatedCapacity.latent,
+              altitudeAdj: response.altitudeDeratings?.latent ?? .init(decimal: 1.0),
+              excessLatent: response.excessLatent,
+              finalCapacity: response.finalCapacityAtDesign.latent,
+              percentOfLoad: response.capacityAsPercentOfLoad.latent,
+              undersizingLimit: response.sizingLimits.undersizing.latent,
+              oversizingLimit: response.sizingLimits.oversizing.latent
+            )
+          }
         }
-        .percentViewStyle(.default)
-        .percentViewSymbolStyle(.default)
+        .attributes(.class("table-sm"))
+
+        // Sizing Limits Reference
+        div(.class("text-sm text-base-content/60 mt-2 flex gap-4")) {
+          span {
+            "Sizing Limits: Total: "
+            PercentView(response.sizingLimits.undersizing.total)
+            " - "
+            PercentView(response.sizingLimits.oversizing.total)
+          }
+          span(.class("text-base-300")) { "|" }
+          span {
+            "Latent: "
+            PercentView(response.sizingLimits.undersizing.latent)
+            " - "
+            PercentView(response.sizingLimits.oversizing.latent)
+          }
+        }
       }
     }
   }
+}
 
-  struct Row<Content: HTML>: HTML {
-    let label: String
-    let _body: Content
+struct OverallStatusBadge: HTML {
+  let response: CoolingInterpolation.Response
 
-    init(_ label: String, @HTMLBuilder body: () -> Content) {
-      self.label = label
-      self._body = body()
+  var body: some HTML {
+    let allPass = response.flaggedCapacities.total == .success
+      && response.flaggedCapacities.sensible == .success
+      && response.flaggedCapacities.latent == .success
+
+    if allPass {
+      span(.class("badge badge-success badge-lg")) {
+        SVG(.check)
+        "Meets Requirements"
+      }
+    } else {
+      span(.class("badge badge-error badge-lg")) {
+        SVG(.x)
+        "Does Not Meet Requirements"
+      }
     }
+  }
+}
 
-    var body: some HTML {
-      span(.class("label")) { label }
-      _body
+struct CapacityRow: HTML {
+  let label: String
+  let flag: FlaggedState
+  let interpolated: Double
+  let altitudeAdj: Percent
+  let excessLatent: Double?
+  let finalCapacity: Double
+  let percentOfLoad: Percent
+  let undersizingLimit: Percent
+  let oversizingLimit: Percent?
+
+  var body: some HTML<HTMLTag.tr> {
+    tr {
+      td(.class("font-medium")) { label }
+      td(.class("text-right font-mono")) { NumberView(interpolated) }
+      td(.class("text-right font-mono")) {
+        PercentView(altitudeAdj == 0 ? .init(decimal: 1.0) : altitudeAdj)
+      }
+      td(.class("text-right font-mono font-semibold")) { NumberView(finalCapacity) }
+      td(.class("text-right font-mono")) { PercentView(percentOfLoad) }
+      td(.class("text-center")) {
+        FlaggedBadge(state: flag)
+      }
+    }
+    .attributes(.class("hover"))
+  }
+}
+
+struct FlaggedBadge: HTML {
+  let state: FlaggedState
+
+  var body: some HTML {
+    switch state {
+    case .success:
+      span(.class("badge badge-success badge-sm")) { "Pass" }
+    case .failure:
+      span(.class("badge badge-error badge-sm")) { "Fail" }
     }
   }
 }

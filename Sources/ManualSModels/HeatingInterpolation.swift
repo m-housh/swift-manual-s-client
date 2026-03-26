@@ -129,7 +129,7 @@ public struct HeatingInterpolation: Codable, Equatable, Identifiable, Sendable {
 
   @CasePathable
   @dynamicMemberLookup
-  public enum Response: CasePathable, Sendable {
+  public enum Response: CasePathable, Codable, Sendable {
     case gasOrBoiler(GasOrBoiler)
     case electric(Electric)
     case heatPump(HeatPump)

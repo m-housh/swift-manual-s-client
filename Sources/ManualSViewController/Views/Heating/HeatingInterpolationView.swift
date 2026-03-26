@@ -4,13 +4,13 @@ import SharedStyleguide
 
 struct HeatingInterpolationsView: HTML, Sendable {
   let projectID: Project.ID
-  let interpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]
+  let interpolations: [ProjectDetailsAndInterpolations.HeatingInterpolationContainer]
 
   var body: some HTML {
     div(.class("space-y-6 mt-6")) {
-      if let (interpolation, response) = interpolations.first(where: { $0.1.gasOrBoiler != nil }),
-        let gasFurnace = interpolation.boilerOrFurnace,
-        let response = response.gasOrBoiler
+      if let container = interpolations.first(where: { $0.response.gasOrBoiler != nil }),
+        let gasFurnace = container.interpolation.boilerOrFurnace,
+        let response = container.response.gasOrBoiler
       {
         ResponseCard(
           "Gas - \(gasFurnace.type.rawValue.capitalized)",
@@ -37,9 +37,9 @@ struct HeatingInterpolationsView: HTML, Sendable {
         .percentViewSymbolStyle(.default)
       }
 
-      if let (interpolation, response) = interpolations.first(where: { $0.1.electric != nil }),
-        let electric = interpolation.electric,
-        let response = response.electric
+      if let container = interpolations.first(where: { $0.response.electric != nil }),
+        let electric = container.interpolation.electric,
+        let response = container.response.electric
       {
 
         ResponseCard(
@@ -65,9 +65,9 @@ struct HeatingInterpolationsView: HTML, Sendable {
         }
       }
 
-      if let (interpolation, response) = interpolations.first(where: { $0.1.heatPump != nil }),
-        let heatPump = interpolation.heatPump,
-        let response = response.heatPump
+      if let container = interpolations.first(where: { $0.response.heatPump != nil }),
+        let heatPump = container.interpolation.heatPump,
+        let response = container.response.heatPump
       {
         ResponseCard(
           "Heat Pump"

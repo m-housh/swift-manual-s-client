@@ -58,6 +58,7 @@ extension ManualSRoute.ProjectDetail {
     @Dependency(\.auth) var auth
     @Dependency(\.database) var database
     @Dependency(\.manualS) var manualS
+    @Dependency(\.logger) var logger
 
     switch self {
     case .index:
@@ -66,6 +67,16 @@ extension ManualSRoute.ProjectDetail {
           let details = try await fetchDetails(for: projectID)
           let user = try auth.currentUser()
           return ProjectDetailsView(user: user, details: details)
+        }
+      }
+    case .dumpJSON:
+      return .view {
+        await ResultView {
+          let details = try await fetchDetails(for: projectID)
+          // logger.info("Details: \(details)")
+          let data = try JSONEncoder().encode(details)
+          let string = try String(data: data, encoding: .utf8)
+          return HTMLText(string!)
         }
       }
     case .designInfo(let route):
@@ -244,11 +255,11 @@ extension ManualSRoute.ProjectDetail {
 }
 
 @dynamicMemberLookup
-private struct ProjectDetailsAndInterpolations: Sendable {
+struct ProjectDetailsAndInterpolations: Codable, Sendable {
 
   let projectDetails: Project.Details
   let coolingInterpolationResponse: CoolingInterpolation.Response?
-  let heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]?
+  let heatingInterpolations: [HeatingInterpolationContainer]?
 
   internal init(
     details: Project.Details,
@@ -257,11 +268,18 @@ private struct ProjectDetailsAndInterpolations: Sendable {
   ) {
     self.projectDetails = details
     self.coolingInterpolationResponse = coolingInterpolationResponse
-    self.heatingInterpolations = heatingInterpolations
+    self.heatingInterpolations = heatingInterpolations?.map {
+      HeatingInterpolationContainer(interpolation: $0.0, response: $0.1)
+    }
   }
 
   subscript<T>(dynamicMember keyPath: KeyPath<Project.Details, T>) -> T {
     projectDetails[keyPath: keyPath]
+  }
+
+  struct HeatingInterpolationContainer: Codable, Sendable {
+    let interpolation: HeatingInterpolation
+    let response: HeatingInterpolation.Response
   }
 }
 

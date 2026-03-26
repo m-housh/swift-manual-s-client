@@ -14,7 +14,8 @@
 			"packages": "tmux"
     },
 	  "ghcr.io/swift-server-community/swift-devcontainer-features/jemalloc:1": { },
-		"ghcr.io/devcontainers/features/node:1": {}
+		"ghcr.io/devcontainers/features/node:1": {},
+		"ghcr.io/danzilberdan/devcontainers/opencode:0": {}
 	},
 	"runArgs": [
     "--cap-add=SYS_PTRACE",
@@ -28,7 +29,15 @@
 		// Less backtrace error warnings from swift.
 		"SWIFT_BACKTRACE": "enable=no"
 	},
-  "remoteUser": "swift",
+	"remoteUser": "swift",
 	"forwardPorts": [8081],
+	"mounts": [
+		{
+			"source": "${localEnv:HOME}/.local/share/opencode/auth.json",
+			"target": "/tmp/opencode-auth.json",
+			"type": "bind",
+			"consistency": "cached"
+		}
+	]
 }
 	

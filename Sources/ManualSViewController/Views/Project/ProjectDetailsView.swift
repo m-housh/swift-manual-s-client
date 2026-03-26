@@ -14,7 +14,7 @@ struct ProjectDetailsView: HTML, Sendable {
   let user: User
   let details: Project.Details
   let coolingInterpolationResponse: CoolingInterpolation.Response?
-  let heatingInterpolations: [(HeatingInterpolation, HeatingInterpolation.Response)]
+  let heatingInterpolations: [ProjectDetailsAndInterpolations.HeatingInterpolationContainer]
 
   var project: Project { details.project }
 
@@ -63,29 +63,12 @@ struct ProjectDetailsView: HTML, Sendable {
     let projectID: Project.ID
     let section: SectionRoute
 
-    private var shouldApplyWidthAttribute: Bool {
-      switch section {
-      case .project, .designInfo: return true
-      default: return false
-      }
-    }
-
     var body: some HTML<HTMLTag.section> {
       Elementary.section(
         .id(id),
-        // .class("card w-full max-w-[1200px] mx-auto"),
-        .class("card bg-base-100 shadow max-w-5xl mx-auto w-full")
+        .class("w-full max-w-5xl mx-auto")
       ) {
-        // div(.class("divider")) {
-        //   Title { section.title }
-        //     .attributes(.class("text-primary tracking-wide"))
-        // }
-        div(.class("card-body")) {
-          // div(.class("flex justify-between items-center")) {
-          //   Title { section.title }
-          //     .attributes(.class("card-title"))
-          //   // Edit button / form.
-          // }
+        div(.class("space-y-4")) {
           switch section {
 
           case .project(let project):
@@ -162,7 +145,9 @@ struct ProjectDetailsView: HTML, Sendable {
             SectionHeader(section.title, tooltip: "Edit heating") {
               HeatingInterpolationForm(
                 projectID: projectID,
-                interpolations: heatingInterpolations?.reduce(into: []) { $0.append($1.0) } ?? []
+                interpolations: heatingInterpolations?.reduce(into: []) {
+                  $0.append($1.interpolation)
+                } ?? []
               )
             }
             if let heatingInterpolations {
@@ -173,11 +158,10 @@ struct ProjectDetailsView: HTML, Sendable {
             }
           }
         }
-        .titleStyle(.cardTitle)
+        .titleStyle(.sectionTitle)
         .fieldsetStyle(.roundedBox)
-        .sectionContentStyle()
+        hr(.class("divider"))
       }
-      .attributes(.class("w-full md:w-[50%]"), when: shouldApplyWidthAttribute)
     }
   }
 }
@@ -193,7 +177,8 @@ extension ProjectDetailsView.Section {
     case coolingInterpolation(
       CoolingInterpolation? = nil, DesignInfo? = nil, CoolingInterpolation.Response? = nil
     )
-    case heatingInterpolation([(HeatingInterpolation, HeatingInterpolation.Response)]? = nil)
+    case heatingInterpolation(
+      [ProjectDetailsAndInterpolations.HeatingInterpolationContainer]? = nil)
 
     static func coolingInterpolation(
       details: Project.Details,

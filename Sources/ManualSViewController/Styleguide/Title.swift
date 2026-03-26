@@ -40,6 +40,7 @@ typealias TitleStyle = Tagged<Title, Style<HTMLTag.h2>>
 extension TitleStyle {
   static let `default` = Self.init(.class("text-2xl font-bold"))
   static let cardTitle = Self.init(.class("card-title"))
+  static let sectionTitle = Self.init(.class("text-xl font-semibold text-primary"))
 }
 
 typealias FormTitleStyle = Tagged<FormTitle, Style<HTMLTag.h2>>

@@ -7,61 +7,57 @@ struct DesignInfoView: HTML, Sendable {
 
   var body: some HTML {
     if let designInfo {
-      div(.class("space-y-4")) {
-        div(.class("grid grid-cols-1 lg:grid-cols-2 gap-4")) {
-          Card(title: "Summer", svg: .sun) {
-            div(.class("stats stats-vertical w-full")) {
-              Stat("Outdoor Temperature") { TemperatureView(designInfo.summerOutdoorTemperature) }
+      div(.class("space-y-6")) {
+        // Summer Conditions
+        div {
+          div(.class("flex items-center gap-2 mb-3")) {
+            SVG(.sun)
+            h3(.class("text-lg font-semibold text-yellow-600")) { "Summer Design Conditions" }
+          }
+          dl(.class("grid grid-cols-1 md:grid-cols-2 gap-4")) {
+            div(.class("flex justify-between py-2")) {
+              dt(.class("text-base-content/70")) { "Outdoor Temperature" }
+              dd(.class("font-medium")) { TemperatureView(designInfo.summerOutdoorTemperature) }
             }
-            div(.class("stats stats-vertical lg:stats-horizontal w-full")) {
-              Stat("Indoor Temperature") { TemperatureView(designInfo.summerIndoorTemperature) }
-              Stat("Indoor Humidity") { PercentView(designInfo.summerIndoorHumidity) }
+            div(.class("flex justify-between py-2")) {
+              dt(.class("text-base-content/70")) { "Indoor Temperature" }
+              dd(.class("font-medium")) { TemperatureView(designInfo.summerIndoorTemperature) }
+            }
+            div(.class("flex justify-between py-2")) {
+              dt(.class("text-base-content/70")) { "Indoor Humidity" }
+              dd(.class("font-medium")) { PercentView(designInfo.summerIndoorHumidity) }
             }
           }
-          .percentViewStyle(.default)
-          .percentViewSymbolStyle(.default)
-          .attributes(.class("border border-yellow-400 text-yellow-400 rounded-box"))
+        }
 
-          div(.class("space-y-4")) {
-            Card(title: "Winter", svg: .snowflake) {
-              div(.class("stats w-full")) {
-                Stat("Outdoor Temperature") { TemperatureView(designInfo.winterOutdoorTemperature) }
-              }
+        // Winter Conditions
+        div {
+          div(.class("flex items-center gap-2 mb-3")) {
+            SVG(.snowflake)
+            h3(.class("text-lg font-semibold text-sky-600")) { "Winter Design Conditions" }
+          }
+          dl(.class("grid grid-cols-1 md:grid-cols-2 gap-4")) {
+            div(.class("flex justify-between py-2")) {
+              dt(.class("text-base-content/70")) { "Outdoor Temperature" }
+              dd(.class("font-medium")) { TemperatureView(designInfo.winterOutdoorTemperature) }
             }
-            .attributes(.class("border border-sky-400 text-sky-400 rounded-box"))
+          }
+        }
 
-            Card(title: "Project", svg: .mountain) {
-              div(.class("stats w-full")) {
-                Stat("Elevation") { NumberView(designInfo.elevation) }
-              }
+        // Project Info
+        div {
+          div(.class("flex items-center gap-2 mb-3")) {
+            SVG(.mountain)
+            h3(.class("text-lg font-semibold text-secondary")) { "Project Details" }
+          }
+          dl(.class("grid grid-cols-1 md:grid-cols-2 gap-4")) {
+            div(.class("flex justify-between py-2")) {
+              dt(.class("text-base-content/70")) { "Elevation" }
+              dd(.class("font-medium")) { NumberView(designInfo.elevation) }
             }
-            .attributes(.class("border border-secondary text-secondary rounded-box"))
           }
         }
       }
     }
   }
-
-  struct Card<Content: HTML>: HTML {
-    let title: String
-    let svg: SVG.Key
-    let _body: Content
-
-    init(title: String, svg: SVG.Key, @HTMLBuilder body: () -> Content) {
-      self.title = title
-      self.svg = svg
-      self._body = body()
-    }
-
-    var body: some HTML<HTMLTag.div> {
-      div(.class("p-4 w-full")) {
-        div(.class("flex justify-center space-x-4 w-full")) {
-          SVG(svg)
-          h2(.class("text-xl font-bold")) { title }
-        }
-        _body
-      }
-    }
-  }
-
 }

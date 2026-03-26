@@ -32,6 +32,7 @@ public enum ManualSRoute: Equatable, Sendable, Routeable {
   public enum ProjectDetail: Equatable, Sendable, Routeable {
     case index
     case designInfo(DesignInfo.ViewRoute)
+    case dumpJSON
     case houseLoads(HouseLoad.ViewRoute)
     case interpolations(Interpolations)
     case proposedEquipment(ProposedEquipment.ViewRoute)
@@ -39,6 +40,12 @@ public enum ManualSRoute: Equatable, Sendable, Routeable {
 
     public static let router = OneOf {
       Route(.case(Self.index)) {
+        Method.get
+      }
+      Route(.case(Self.dumpJSON)) {
+        Path {
+          "dump"
+        }
         Method.get
       }
       Route(.case(Self.designInfo)) {
