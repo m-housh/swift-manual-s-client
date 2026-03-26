@@ -85,6 +85,8 @@ struct CoolingInterpolationResponseTable: HTML, Sendable {
             PercentView(response.sizingLimits.oversizing.latent)
           }
         }
+        .percentViewStyle(.hstack(gap: 1))
+        .percentViewSymbolStyle(.default)
       }
     }
   }
@@ -130,8 +132,12 @@ struct CapacityRow: HTML {
       td(.class("text-right font-mono")) {
         PercentView(altitudeAdj == 0 ? .init(decimal: 1.0) : altitudeAdj)
       }
+      .percentViewStyle(.decimal)
+      .percentViewSymbolStyle(.none)
       td(.class("text-right font-mono font-semibold")) { NumberView(finalCapacity) }
       td(.class("text-right font-mono")) { PercentView(percentOfLoad) }
+        .percentViewStyle(.hstack(gap: 2), .end)
+        .percentViewSymbolStyle(.default)
       td(.class("text-center")) {
         FlaggedBadge(state: flag)
       }

@@ -8,37 +8,25 @@ struct ProposedEquipmentView: HTML, Sendable {
   var body: some HTML<HTMLTag.div> {
     div(.class("w-full space-y-4")) {
       if proposedEquipment != nil {
-        dl(.class("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4")) {
-          div(.class("flex justify-between py-2")) {
-            dt(.class("text-base-content/70")) { "AFUE" }
-            dd(.class("font-medium")) {
-              if let afue = proposedEquipment?.afue {
-                PercentView(afue)
-              }
+        div(.class("stats stats-vertical lg:stats-horizontal shadow w-full")) {
+          Stat("AFUE") {
+            if let afue = proposedEquipment?.afue {
+              PercentView(afue)
             }
           }
-          div(.class("flex justify-between py-2")) {
-            dt(.class("text-base-content/70")) { "SEER" }
-            dd(.class("font-medium")) {
-              if let seer = proposedEquipment?.seer {
-                NumberView(seer, digits: 1)
-              }
+          Stat("SEER") {
+            if let seer = proposedEquipment?.seer {
+              NumberView(seer, digits: 1)
             }
           }
-          div(.class("flex justify-between py-2")) {
-            dt(.class("text-base-content/70")) { "HSPF" }
-            dd(.class("font-medium")) {
-              if let hspf = proposedEquipment?.hspf {
-                NumberView(hspf, digits: 1)
-              }
+          Stat("HSPF") {
+            if let hspf = proposedEquipment?.hspf {
+              NumberView(hspf, digits: 1)
             }
           }
-          div(.class("flex justify-between py-2")) {
-            dt(.class("text-base-content/70")) { "Fan Speed" }
-            dd(.class("font-medium")) {
-              if let fanSpeed = proposedEquipment?.fanSpeed {
-                span { fanSpeed.label }
-              }
+          Stat("Fan Speed") {
+            if let fanSpeed = proposedEquipment?.fanSpeed {
+              span { fanSpeed.label }
             }
           }
         }

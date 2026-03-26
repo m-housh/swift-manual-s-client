@@ -66,7 +66,7 @@ struct ProjectDetailsView: HTML, Sendable {
     var body: some HTML<HTMLTag.section> {
       Elementary.section(
         .id(id),
-        .class("w-full max-w-5xl mx-auto")
+        .class("w-full max-w-5xl mx-auto bg-base-200 border border-base-300 rounded-box p-6")
       ) {
         div(.class("space-y-4")) {
           switch section {
@@ -160,7 +160,6 @@ struct ProjectDetailsView: HTML, Sendable {
         }
         .titleStyle(.sectionTitle)
         .fieldsetStyle(.roundedBox)
-        hr(.class("divider"))
       }
     }
   }
