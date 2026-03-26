@@ -11,11 +11,8 @@ struct CoolingSystemTypeView: HTML, Sendable {
         div(.class("stats stats-vertical lg:stats-horizontal shadow w-full")) {
           Stat("Equipment") { systemType.equipment.label }
           Stat("Compressor") { systemType.compressor.label }
-          Stat("Climate") {
+          Stat("Climate", description: "or \(systemType.climate.labels.last!)") {
             systemType.climate.labels.first!
-            span(.class("text-base-content/50 text-sm")) {
-              " or \(systemType.climate.labels.last!)"
-            }
           }
         }
       }

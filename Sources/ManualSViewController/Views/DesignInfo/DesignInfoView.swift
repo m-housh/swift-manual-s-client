@@ -29,31 +29,34 @@ struct DesignInfoView: HTML, Sendable {
           }
         }
 
-        // Winter Conditions
-        div {
-          div(.class("flex items-center gap-2 mb-3")) {
-            SVG(.snowflake)
-            h3(.class("text-lg font-semibold text-sky-600")) {
-              "Winter Design Conditions"
-            }
-          }
-          div(.class("stats stats-vertical md:stats-horizontal shadow w-full")) {
-            Stat("Outdoor Temp") {
-              TemperatureView(designInfo.winterOutdoorTemperature)
-            }
-          }
-        }
+        div(.class("grid grid-cols-1 lg:grid-cols-2")) {
 
-        // Project Info
-        div {
-          div(.class("flex items-center gap-2 mb-3")) {
-            SVG(.mountain)
-            h3(.class("text-lg font-semibold text-secondary")) {
-              "Project Details"
+          // Winter Conditions
+          div {
+            div(.class("flex items-center gap-2 mb-3")) {
+              SVG(.snowflake)
+              h3(.class("text-lg font-semibold text-sky-600")) {
+                "Winter Design Conditions"
+              }
+            }
+            div(.class("stats stats-vertical md:stats-horizontal shadow w-full")) {
+              Stat("Outdoor Temp") {
+                TemperatureView(designInfo.winterOutdoorTemperature)
+              }
             }
           }
-          div(.class("stats stats-vertical md:stats-horizontal shadow w-full")) {
-            Stat("Elevation") { NumberView(designInfo.elevation) }
+
+          // Project Info
+          div {
+            div(.class("flex items-center gap-2 mb-3")) {
+              SVG(.mountain)
+              h3(.class("text-lg font-semibold text-secondary")) {
+                "Project Details"
+              }
+            }
+            div(.class("stats stats-vertical md:stats-horizontal shadow w-full")) {
+              Stat("Elevation") { NumberView(designInfo.elevation) }
+            }
           }
         }
       }

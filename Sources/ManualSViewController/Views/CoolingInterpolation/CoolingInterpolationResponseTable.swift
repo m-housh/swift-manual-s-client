@@ -107,9 +107,11 @@ struct CapacityRow: HTML {
   var body: some HTML<HTMLTag.tr> {
     tr {
       td {
-        details(.class("cursor-pointer")) {
+        details(.class("cursor-pointer group")) {
           summary(.class("font-medium list-none flex items-center gap-1")) {
-            SVG(.chevronDown)
+            span(.class("transition-transform duration-200 group-open:rotate-90")) {
+              SVG(.chevronRight)
+            }
             label
           }
           div(.class("mt-2 ml-5 space-y-1 text-sm text-base-content/70")) {
