@@ -5,47 +5,17 @@ import SharedStyleguide
 struct HouseLoadView: HTML, Sendable {
   let houseLoad: HouseLoad?
 
-  var body: some HTML<HTMLTag.table> {
-    Table {
-      thead {
-        tr {
-          th { "Heating" }
-          th { "Total - Cooling" }
-          th { "Sensible - Cooling" }
-          th { "Latent - Cooling" }
-          th { "SHR" }
-        }
-      }
-      tbody {
-        tr {
-          td {
-            if let heating = houseLoad?.heating {
-              NumberView(heating)
-            }
-          }
-          td {
-            if let total = houseLoad?.cooling.total {
-              NumberView(total)
-            }
-          }
-          td {
-            if let sensible = houseLoad?.cooling.sensible {
-              NumberView(sensible)
-            }
-          }
-          td {
-            if let latent = houseLoad?.cooling.latent {
-              NumberView(latent)
-            }
-          }
-          td {
-            if let shr = houseLoad?.cooling.sensibleHeatRatio {
-              NumberView(shr)
-            }
-          }
+  var body: some HTML<HTMLTag.div> {
+    div(.class("stats stats-vertical lg:stats-horizontal shadow w-full")) {
+      if let houseLoad {
+        Stat("Heating", description: "BTU") { NumberView(houseLoad.heating) }
+        Stat("Cooling Total", description: "BTU") { NumberView(houseLoad.cooling.total) }
+        Stat("Cooling Sensible", description: "BTU") { NumberView(houseLoad.cooling.sensible) }
+        Stat("Cooling Latent", description: "BTU") { NumberView(houseLoad.cooling.latent) }
+        Stat("Sensible Heat Ratio", description: nil) {
+          NumberView(houseLoad.cooling.sensibleHeatRatio)
         }
       }
     }
   }
-  // }
 }

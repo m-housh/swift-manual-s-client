@@ -20,12 +20,12 @@ struct ProjectDetailsView: HTML, Sendable {
 
   var body: some HTML {
     Navbar(userID: user.id)
-    div(.class("flex flex-col m-10 space-y-6 justify-center")) {
-      div(.class("flex flex-wrap md:flex-nowrap w-full max-w-[1200px] mx-auto")) {
-        Section(projectID: project.id, section: .project(details.project))
-        div(.class("divider divider-horizontal")) {}
-        Section(projectID: project.id, section: .designInfo(details.designInfo))
-      }
+    div(.class("flex flex-col p-6 space-y-6 justify-center")) {
+      // div(.class("flex flex-wrap md:flex-nowrap w-full max-w-[1200px] mx-auto")) {
+      Section(projectID: project.id, section: .project(details.project))
+      // div(.class("divider divider-horizontal")) {}
+      Section(projectID: project.id, section: .designInfo(details.designInfo))
+      // }
 
       Section(
         projectID: project.id,
@@ -71,31 +71,42 @@ struct ProjectDetailsView: HTML, Sendable {
     }
 
     var body: some HTML<HTMLTag.section> {
-      Elementary.section(.id(id), .class("w-full max-w-[1200px] mx-auto")) {
-        div(.class("divider")) {
-          Title { section.title }
-            .attributes(.class("text-secondary"))
-        }
-        div {
+      Elementary.section(
+        .id(id),
+        // .class("card w-full max-w-[1200px] mx-auto"),
+        .class("card bg-base-100 shadow max-w-5xl mx-auto w-full")
+      ) {
+        // div(.class("divider")) {
+        //   Title { section.title }
+        //     .attributes(.class("text-primary tracking-wide"))
+        // }
+        div(.class("card-body")) {
+          // div(.class("flex justify-between items-center")) {
+          //   Title { section.title }
+          //     .attributes(.class("card-title"))
+          //   // Edit button / form.
+          // }
           switch section {
 
           case .project(let project):
             if let project {
-              SectionHeader(tooltip: "Edit project") {
+              SectionHeader(section.title, tooltip: "Edit project") {
                 ProjectForm(project: project)
               }
               ProjectTable(project: project)
             }
 
           case .designInfo(let designInfo):
-            SectionHeader(tooltip: "Edit design info") {
+            SectionHeader(section.title, tooltip: "Edit design info") {
               DesignInfoForm(projectID: projectID, designInfo: designInfo)
             }
-            DesignInfoTable(projectID: projectID, designInfo: designInfo)
+            // DesignInfoTable(projectID: projectID, designInfo: designInfo)
+            DesignInfoView(designInfo: designInfo)
 
           case .coolingSystemType(let systemType):
             SectionHeader(
-              systemType?.cooling?.label,
+              section.title,
+              // systemType?.cooling?.label,
               tooltip: "Edit system type"
             ) {
               CoolingSystemTypeForm(
@@ -104,9 +115,11 @@ struct ProjectDetailsView: HTML, Sendable {
                 systemType: systemType?.cooling
               )
             }
+            CoolingSystemTypeView(systemType: systemType?.cooling)
 
           case .proposedEquipment(let proposedEquipment):
             SectionHeader(
+              section.title,
               tooltip: "Edit proposed equipment",
               modalAttributes: [.class("max-w-[1080px] w-[90%]")]
             ) {
@@ -115,13 +128,14 @@ struct ProjectDetailsView: HTML, Sendable {
             ProposedEquipmentView(proposedEquipment: proposedEquipment)
 
           case .houseLoad(let houseLoad):
-            SectionHeader(tooltip: "Edit manual-j") {
+            SectionHeader(section.title, tooltip: "Edit manual-j") {
               HouseLoadForm(projectID: projectID, houseLoad: houseLoad)
             }
             HouseLoadView(houseLoad: houseLoad)
 
           case .coolingInterpolation(let interpolation, let designInfo, let response):
             SectionHeader(
+              section.title,
               tooltip: "Edit interpolation",
               modalAttributes: [.class("max-w-[1080px] w-[90%] min-h-[80%]")]
             ) {
@@ -145,7 +159,7 @@ struct ProjectDetailsView: HTML, Sendable {
 
           case .heatingInterpolation(let heatingInterpolations):
             // FIX: Heating interpolation results.
-            SectionHeader(tooltip: "Edit heating") {
+            SectionHeader(section.title, tooltip: "Edit heating") {
               HeatingInterpolationForm(
                 projectID: projectID,
                 interpolations: heatingInterpolations?.reduce(into: []) { $0.append($1.0) } ?? []
@@ -159,6 +173,7 @@ struct ProjectDetailsView: HTML, Sendable {
             }
           }
         }
+        .titleStyle(.cardTitle)
         .fieldsetStyle(.roundedBox)
         .sectionContentStyle()
       }
@@ -227,6 +242,6 @@ extension HTML<HTMLTag.table> {
 
 extension HTML<HTMLTag.div> {
   func sectionContentStyle() -> some HTML<HTMLTag.div> {
-    attributes(.class("bg-base-200 border-base-300 border rounded-box shadow-lg p-6"))
+    attributes(.class("bg-base-100 rounded-box p-4"))
   }
 }

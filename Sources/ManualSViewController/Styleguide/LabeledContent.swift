@@ -21,7 +21,4 @@ struct LabeledContent<Label: HTML, Content: HTML>: HTML {
   }
 }
 
-enum LabelTag {}
 enum ContentTag {}
-
-
