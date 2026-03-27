@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Manual-S (Style Preview)</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css">
+  <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css">
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body>
+  <div id="content" data-theme="dracula" class="flex flex-col min-h-screen min-w-full justify-between">
+    <main class="flex flex-col min-h-screen min-w-full grow mb-auto">
+
+      <!-- CHANGE 1: Navbar — bg-base-200 → bg-base-300, border-accent → border-primary -->
+      <div class="navbar bg-base-300 border-primary border-b shadow-sm p-4">
+        <div class="flex-1 ms-6">
+          <h1 class="text-4xl">Manual-S</h1>
+        </div>
+        <div class="flex-none">
+          <a class="btn btn-ghost" href="/projects">Projects</a>
+          <a class="btn btn-ghost" href="/user/D8EEF80D-7C5F-4346-B0D4-AA424C916307/profile">Profile</a>
+        </div>
+      </div>
+
+      <div class="flex flex-col p-6 space-y-6 justify-center">
+
+        <!-- ===== PROJECT SECTION ===== -->
+        <!-- CHANGE 2: Section cards — bg-base-200 → bg-base-100 -->
+        <section id="projectSection" class="w-full max-w-5xl mx-auto bg-base-100 border border-base-300 rounded-box p-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold text-primary">Project</h2>
+              <div class="tooltip tooltip-left" data-tip="Edit project">
+                <button class="btn btn-sm btn-outline btn-primary" onclick="projectForm.showModal()">Edit</button>
+              </div>
+              <dialog id="projectForm" class="modal">
+                <div class="modal-box max-w-[1080px] w-[90%]">
+                  <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="projectForm.close();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                  <form class="grid grid-cols-1 gap-4">
+                    <h1 class="text-3xl font-bold pb-6 ps-2">Project</h1>
+                    <input class="hidden" name="id" value="6A34B3B0-57B5-417E-A2EF-BB15FEF5CFAB">
+                    <fieldset><legend class="fieldset-legend">Name</legend><input class="input w-full" type="text" name="name" placeholder="Big Bird" value="Testy McTestface" required="" autofocus=""></fieldset>
+                    <fieldset><legend class="fieldset-legend">Address</legend><input class="input w-full" type="text" name="streetAddress" placeholder="123 Sesame St." value="123 Sesame St" required=""></fieldset>
+                    <fieldset><legend class="fieldset-legend">City</legend><input class="input w-full" type="text" name="city" placeholder="Manhattan" value="Monroe" required=""></fieldset>
+                    <fieldset><legend class="fieldset-legend">State</legend><input class="input w-full" type="text" name="state" placeholder="NY" value="OH" required=""></fieldset>
+                    <fieldset><legend class="fieldset-legend">Zip</legend><input class="input validator w-full" type="text" name="zipCode" placeholder="10001" value="45050" minlength="5" pattern="[0-9\-]*" required=""><div class="validator-hint"><p>Enter 5 digit zip code. Numbers or '-' only</p></div></fieldset>
+                    <button class="btn btn-secondary btn-block my-6" type="submit">Submit</button>
+                  </form>
+                </div>
+              </dialog>
+            </div>
+            <table class="table table-sm">
+              <thead class="bg-base-300 text-base-content">
+                <tr><th>Name</th><th>Address</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="font-semibold align-top">Testy McTestface</td>
+                  <td class="align-top"><div>123 Sesame St</div><div>Monroe, OH 45050</div></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===== COMBINED DESIGN CONDITIONS SECTION ===== -->
+        <section id="designConditionsSection" class="w-full max-w-5xl mx-auto bg-base-100 border border-base-300 rounded-box p-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold text-primary">Design Conditions</h2>
+              <div class="tooltip tooltip-left" data-tip="Edit design conditions">
+                <button class="btn btn-sm btn-outline btn-primary" onclick="designInfoForm.showModal()">Edit</button>
+              </div>
+              <!-- Preserved existing dialogs for now -->
+              <dialog id="designInfoForm" class="modal">
+                <div class="modal-box max-w-[1080px] w-[90%]">
+                  <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="designInfoForm.close();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                  <form class="space-y-4">
+                    <h2 class="text-2xl font-bold mb-6">Design Information</h2>
+                    <input hidden="" value="6A34B3B0-57B5-417E-A2EF-BB15FEF5CFAB" name="projectID">
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+                      <legend class="fieldset-legend">Outdoor Design - Temperature</legend>
+                      <div>
+                        <label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thermometer-snowflake-icon lucide-thermometer-snowflake"><path d="m10 20-1.25-2.5L6 18"></path><path d="M10 4 8.75 6.5 6 6"></path><path d="M10.585 15H10"></path><path d="M2 12h6.5L10 9"></path><path d="M20 14.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"></path><path d="m4 10 1.5 2L4 14"></path><path d="m7 21 3-6-1.5-3"></path><path d="m7 3 3 6h2"></path></svg></span><input type="number" name="winterOutdoorTemperature" value="5.0" placeholder="12" min="0.0" required=""><span class="label min-w-[5rem]">Winter</span></label>
+                        <label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thermometer-sun-icon lucide-thermometer-sun"><path d="M12 2v2"></path><path d="M12 8a4 4 0 0 0-1.645 7.647"></path><path d="M2 12h2"></path><path d="M20 14.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"></path><path d="m4.93 4.93 1.41 1.41"></path><path d="m6.34 17.66-1.41 1.41"></path></svg></span><input type="number" name="summerOutdoorTemperature" value="90.0" placeholder="95" min="0.0" required=""><span class="label min-w-[5rem]">Summer</span></label>
+                      </div>
+                    </fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+                      <legend class="fieldset-legend">Indoor Design - Summer</legend>
+                      <div>
+                        <label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thermometer-icon lucide-thermometer"><path d="M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z"></path></svg></span><input type="number" name="summerIndoorTemperature" value="75.0" min="0.0" required=""><span class="label min-w-[7rem]">Temperature</span></label>
+                        <label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-droplets-icon lucide-droplets"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"></path><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97"></path></svg></span><input type="number" name="summerIndoorHumidity" value="50.0" min="0.0" required=""><span class="label min-w-[7rem]">Humidity</span></label>
+                      </div>
+                    </fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+                      <legend class="fieldset-legend">Project - Elevation</legend>
+                      <div>
+                        <label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mountain-icon lucide-mountain"><path d="m8 3 4 8 5-5 5 15H2L8 3z"></path></svg></span><input type="number" name="elevation" value="0.0" min="0.0" required=""></label>
+                      </div>
+                    </fieldset>
+                    <button class="btn btn-secondary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </dialog>
+            </div>
+
+            <!-- House Loads stats bar (prominent, top) -->
+            <div class="stats stats-vertical md:stats-horizontal shadow w-full">
+              <div class="stat"><div class="stat-title">Heating</div><div class="stat-value"><span>49,667</span></div><div class="stat-desc">BTU</div></div>
+              <div class="stat"><div class="stat-title">Cooling Total</div><div class="stat-value"><span>25,432</span></div><div class="stat-desc">BTU</div></div>
+              <div class="stat"><div class="stat-title">Cooling Sensible</div><div class="stat-value"><span>22,345</span></div><div class="stat-desc">BTU</div></div>
+              <div class="stat"><div class="stat-title">Cooling Latent</div><div class="stat-value"><span>3,087</span></div><div class="stat-desc">BTU</div></div>
+              <div class="stat"><div class="stat-title">Sensible Heat Ratio</div><div class="stat-value"><span>0.88</span></div></div>
+            </div>
+
+            <!-- Design conditions expandable details table -->
+            <table class="table table-sm table-fixed">
+              <thead class="bg-base-300 text-base-content">
+                <tr>
+                  <th class="w-1/2">Design Conditions</th>
+                  <th class="text-right w-[25%]">Winter</th>
+                  <th class="text-right w-[25%]">Summer</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="hover">
+                  <td>
+                    <details class="cursor-pointer group">
+                      <summary class="font-medium list-none flex items-center gap-1">
+                        <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>Outdoor Design Temperatures
+                      </summary>
+                      <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                        <div class="flex justify-between"><span>Indoor Temp - Summer</span><span class="font-mono"><span>75</span> &deg;F</span></div>
+                        <div class="flex justify-between"><span>Indoor Humidity - Summer</span><span class="font-mono">50</span></div>
+                        <div class="flex justify-between"><span>Project Elevation</span><span class="font-mono">0</span></div>
+                      </div>
+                    </details>
+                  </td>
+                  <td class="text-right font-mono font-semibold align-top"><span>5</span> &deg;F</td>
+                  <td class="text-right font-mono font-semibold align-top"><span>90</span> &deg;F</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- ===== COMBINED PROPOSED SYSTEM SECTION ===== -->
+        <section id="proposedSystemSection" class="w-full max-w-5xl mx-auto bg-base-100 border border-base-300 rounded-box p-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold text-primary">Proposed System</h2>
+              <div class="tooltip tooltip-left" data-tip="Edit proposed system">
+                <button class="btn btn-sm btn-outline btn-primary" onclick="proposedEquipmentForm.showModal()">Edit</button>
+              </div>
+              <!-- Preserved existing dialogs -->
+              <dialog id="coolingSystemTypeForm" class="modal">
+                <div class="modal-box max-w-[1080px] w-[90%]">
+                  <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="coolingSystemTypeForm.close();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                  <form class="space-y-4">
+                    <h2 class="text-2xl font-bold mb-6">System Type</h2>
+                    <input hidden="" name="projectID" value="6A34B3B0-57B5-417E-A2EF-BB15FEF5CFAB">
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Type</legend><div><select class="select w-full" id="equipment" name="equipment" required=""><option value="airConditioner" selected="">Air Conditioner</option><option value="heatPump">Heat Pump</option></select></div></fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Compressor</legend><div><select class="select w-full" name="compressor" required=""><option value="singleSpeed">Single Speed</option><option value="multiSpeed">Multi Speed</option><option value="variableSpeed" selected="">Variable Speed</option></select></div></fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Climate</legend><div><select class="select w-full" id="climate" name="climate" required=""><option value="mildWinterOrLatentLoad" selected="">Mild Winter or Latent Load</option><option value="coldWinterOrNoLatentLoad">Cold Winter or No Latent Load</option></select></div></fieldset>
+                    <button class="btn btn-secondary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </dialog>
+              <dialog id="proposedEquipmentForm" class="modal">
+                <div class="modal-box max-w-[1080px] w-[90%]">
+                  <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="proposedEquipmentForm.close();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                  <form class="space-y-4">
+                    <h2 class="text-2xl font-bold mb-6">Proposed Equipment</h2>
+                    <input hidden="" value="1DA9A7D1-F50D-46C7-AB54-B374503BA6B3" name="id">
+                    <input hidden="" name="projectID" value="6A34B3B0-57B5-417E-A2EF-BB15FEF5CFAB">
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+                      <legend class="fieldset-legend">Equipment</legend>
+                      <div>
+                        <p class="text-accent font-bold italic">Equipment used for the project.</p>
+                        <table class="table table-zebra">
+                          <thead><tr><th>Manufacturer</th><th>Type</th><th>Model</th><th><div class="flex justify-end"><button class="btn btn-primary btn-ghost" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-plus-icon lucide-circle-plus"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg></button></div></th></tr></thead>
+                          <tbody id="equipmentTable">
+                            <tr>
+                              <td><input class="input" name="equipment[manufacturer]" value="Bosch" required=""></td>
+                              <td><select class="select" name="equipment[type]" required=""><option value="airConditioner">Air Conditioner</option><option value="airHandler">Air Handler</option><option value="evaportorCoil">Evaporator Coil</option><option value="heatPump" selected="">Heat Pump</option><option value="furnace">Furnace</option><option value="packaged">Packaged</option></select></td>
+                              <td><input class="input" name="equipment[model]" value="BOVAB_DEEZNUTS" required=""></td>
+                              <td><div class="flex justify-end"><button class="btn btn-error btn-ghost" type="button"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash2-icon lucide-trash-2"><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"></path><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg></button></div></td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4">
+                      <legend class="fieldset-legend">Efficiencies</legend>
+                      <div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                          <label class="select w-full"><span class="label">Fan Speed</span><select name="fanSpeed"><option value="low">Low</option><option value="medium">Medium</option><option value="mediumHigh" selected="">Medium-High</option><option value="high">High</option></select></label>
+                          <label class="input w-full"><span class="label">AFUE</span><input type="number" name="afue" value="98.0" placeholder="97" min="0.0" max="100.0" step="1.0"></label>
+                          <label class="input w-full"><span class="label">SEER</span><input type="number" name="seer" value="18.0" placeholder="16" min="0.0" step="0.1"></label>
+                          <label class="input w-full"><span class="label">HSPF</span><input type="number" name="hspf" value="9.5" placeholder="9.5" min="0.0" step="0.1"></label>
+                        </div>
+                      </div>
+                    </fieldset>
+                    <button class="btn btn-secondary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </dialog>
+            </div>
+
+            <!-- Part 1: Efficiency stats (prominent, top) — Fan Speed removed -->
+            <div class="stats stats-vertical lg:stats-horizontal shadow w-full">
+              <div class="stat"><div class="stat-title">AFUE</div><div class="stat-value"><div class="flex"><span>98</span><div>%</div></div></div></div>
+              <div class="stat"><div class="stat-title">SEER</div><div class="stat-value"><span>18</span></div></div>
+              <div class="stat"><div class="stat-title">HSPF</div><div class="stat-value"><span>9.5</span></div></div>
+            </div>
+
+            <!-- Part 2: Equipment table (unchanged) -->
+            <table class="table table-sm">
+              <thead class="bg-base-300 text-base-content"><tr><th>Manufacturer</th><th>Type</th><th>Model</th></tr></thead>
+              <tbody><tr><td>Bosch</td><td>Heat Pump</td><td>BOVAB_DEEZNUTS</td></tr></tbody>
+            </table>
+
+            <!-- Part 3: System Configuration — Standalone div with accent border -->
+            <div class="bg-secondary/5 rounded-box p-4">
+              <details class="cursor-pointer group">
+                <summary class="font-medium list-none flex items-center gap-1">
+                  <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>System Configuration
+                </summary>
+                <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                  <div class="flex justify-between"><span>Equipment</span><span class="font-mono">Air Conditioner</span></div>
+                  <div class="flex justify-between"><span>Compressor</span><span class="font-mono">Variable Speed</span></div>
+                  <div class="flex justify-between"><span>Climate</span><span class="font-mono">Mild Winter or Latent Load</span></div>
+                  <div class="flex justify-between"><span>Fan Speed</span><span class="font-mono">Medium-High</span></div>
+                </div>
+              </details>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ===== COOLING INTERPOLATION SECTION ===== -->
+        <!-- CHANGE 2: bg-base-200 → bg-base-100 -->
+        <section id="coolingInterpolationSection" class="w-full max-w-5xl mx-auto bg-base-100 border border-base-300 rounded-box p-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold text-primary">Interpolation</h2>
+              <div class="tooltip tooltip-left" data-tip="Edit interpolation">
+                <button class="btn btn-sm btn-outline btn-primary" onclick="coolingInterpolationForm.showModal()">Edit</button>
+              </div>
+              <dialog id="coolingInterpolationForm" class="modal">
+                <div class="modal-box max-w-[1080px] w-[90%] min-h-[80%]">
+                  <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="coolingInterpolationForm.close();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                  <h2 class="text-2xl font-bold mb-6">Interpolation</h2>
+                  <div role="tablist" class="tabs tabs-lift">
+                    <input type="radio" name="coolingInterpolationTabs" class="tab" aria-label="None" checked="">
+                    <div class="tab-content border-base-300 p-6">
+                      <form class="space-y-4">
+                        <h2 class="text-2xl font-bold mb-6">No Interpolation</h2>
+                        <input hidden="" name="projectID" value="6A34B3B0-57B5-417E-A2EF-BB15FEF5CFAB">
+                        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Design Airflow</legend><div><label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-wind-icon lucide-wind"><path d="M12.8 19.6A2 2 0 1 0 14 16H2"></path><path d="M17.5 8a2.5 2.5 0 1 1 2 4H2"></path><path d="M9.8 4.4A2 2 0 1 1 11 8H2"></path></svg></span><input type="number" name="designAirflow" value="800.0" min="0.0" step="1.0" required=""></label></div></fieldset>
+                        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Cooling Capacity</legend><div class="flex gap-4"><label class="input w-full"><span class="label">Total</span><input type="number" name="coolingTotal" value="23456.0" min="0.0" step="1.0" required=""><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-leaf-icon lucide-leaf"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"></path><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"></path></svg></span></label><label class="input w-full"><span class="label">Sensible</span><input type="number" name="coolingSensible" value="22345.0" min="0.0" step="1.0" required=""><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-thermometer-snowflake-icon lucide-thermometer-snowflake"><path d="m10 20-1.25-2.5L6 18"></path><path d="M10 4 8.75 6.5 6 6"></path><path d="M10.585 15H10"></path><path d="M2 12h6.5L10 9"></path><path d="M20 14.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"></path><path d="m4 10 1.5 2L4 14"></path><path d="m7 21 3-6-1.5-3"></path><path d="m7 3 3 6h2"></path></svg></span></label></div></fieldset>
+                        <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Manufacturer's Adjustments</legend><div class="flex gap-4"><label class="input w-full"><span class="label">Total</span><input type="number" value="1.0" max="1.0" min="0.0" step="0.01" name="manufacturersAdjustmentTotal"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span></label><label class="input w-full"><span class="label">Sensible</span><input type="number" value="1.0" max="1.0" min="0.0" step="0.01" name="manufacturersAdjustmentSensible"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg></span></label></div></fieldset>
+                        <button class="btn btn-secondary btn-block" type="submit">Submit</button>
+                      </form>
+                    </div>
+                    <input type="radio" name="coolingInterpolationTabs" class="tab" aria-label="One Way - Indoor">
+                    <div class="tab-content border-base-300 p-6">
+                      <p class="text-base-content/50 italic">One Way - Indoor form content (same as original)</p>
+                    </div>
+                    <input type="radio" name="coolingInterpolationTabs" class="tab" aria-label="One Way - Outdoor">
+                    <div class="tab-content border-base-300 p-6">
+                      <p class="text-base-content/50 italic">One Way - Outdoor form content (same as original)</p>
+                    </div>
+                    <input type="radio" name="coolingInterpolationTabs" class="tab" aria-label="Two Way">
+                    <div class="tab-content border-base-300 p-6">
+                      <p class="text-base-content/50 italic">Two Way form content (same as original)</p>
+                    </div>
+                  </div>
+                </div>
+              </dialog>
+            </div>
+
+            <!-- Stats bar: Method, Design CFM, Return Wet Bulb, SHR -->
+            <div class="stats stats-vertical md:stats-horizontal shadow w-full">
+              <div class="stat">
+                <div class="stat-title">Method</div>
+                <p class="text-lg font-semibold">No Interpolation</p>
+              </div>
+              <div class="stat">
+                <div class="stat-title">Design CFM</div>
+                <div class="stat-value"><span>800</span></div>
+              </div>
+              <div class="stat">
+                <div class="stat-title">Return Wet Bulb</div>
+                <div class="stat-value"><span>63</span></div>
+              </div>
+              <div class="stat">
+                <div class="stat-title">Sensible Heat Ratio</div>
+                <div class="stat-value"><span>0.95</span></div>
+              </div>
+            </div>
+
+            <!-- Overall status + result table -->
+            <div id="coolingInterpolationResult">
+              <div class="space-y-6">
+                <div class="flex items-center gap-4 mb-4">
+                  <span class="text-lg font-semibold">Overall Status:</span>
+                  <span class="badge badge-error badge-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                    Does Not Meet Requirements
+                  </span>
+                </div>
+                <table class="table table-sm table-fixed">
+                  <thead class="bg-base-300 text-base-content">
+                    <tr>
+                      <th class="w-1/2">Capacity Type</th>
+                      <th class="text-right w-[20%]">Final Capacity</th>
+                      <th class="text-right w-[15%]">% of Load</th>
+                      <th class="text-center w-[15%]">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <!-- Total row -->
+                    <tr class="hover">
+                      <td>
+                        <details class="cursor-pointer group">
+                          <summary class="font-medium list-none flex items-center gap-1">
+                            <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>Total
+                          </summary>
+                          <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                            <div class="flex justify-between"><span>Input Capacity</span><span class="font-mono">23,456</span></div>
+                            <div class="flex justify-between"><span>Manufacturer's Adjustment</span><span class="font-mono">1</span></div>
+                            <div class="flex justify-between"><span>Interpolated Capacity</span><span class="font-mono">23,456</span></div>
+                            <div class="flex justify-between"><span>Altitude Adjustment</span><span class="font-mono"><div class="flex"><span>1</span><div></div></div></span></div>
+                            <div class="flex justify-between"><span>Sizing Limits</span><span class="font-mono flex gap-1"><div class="flex gap-1"><span>90</span><div>%</div></div> - <div class="flex gap-1"><span>130</span><div>%</div></div></span></div>
+                          </div>
+                        </details>
+                      </td>
+                      <td class="text-right font-mono font-semibold align-top"><span>23,456</span></td>
+                      <td class="text-right font-mono align-top"><div class="flex gap-2 justify-end"><span>92.23</span><div>%</div></div></td>
+                      <td class="text-center align-top"><span class="badge badge-success badge-sm">Pass</span></td>
+                    </tr>
+                    <!-- Sensible row -->
+                    <tr class="hover">
+                      <td>
+                        <details class="cursor-pointer group">
+                          <summary class="font-medium list-none flex items-center gap-1">
+                            <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>Sensible
+                          </summary>
+                          <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                            <div class="flex justify-between"><span>Input Capacity</span><span class="font-mono">22,345</span></div>
+                            <div class="flex justify-between"><span>Manufacturer's Adjustment</span><span class="font-mono">1</span></div>
+                            <div class="flex justify-between"><span>Interpolated Capacity</span><span class="font-mono">22,345</span></div>
+                            <div class="flex justify-between"><span>Altitude Adjustment</span><span class="font-mono"><div class="flex"><span>1</span><div></div></div></span></div>
+                            <div class="flex justify-between"><span>Sizing Limits</span><span class="font-mono flex gap-1"><div class="flex gap-1"><span>90</span><div>%</div></div> - </span></div>
+                          </div>
+                        </details>
+                      </td>
+                      <td class="text-right font-mono font-semibold align-top"><span>21,357</span></td>
+                      <td class="text-right font-mono align-top"><div class="flex gap-2 justify-end"><span>95.58</span><div>%</div></div></td>
+                      <td class="text-center align-top"><span class="badge badge-success badge-sm">Pass</span></td>
+                    </tr>
+                    <!-- Latent row -->
+                    <tr class="hover">
+                      <td>
+                        <details class="cursor-pointer group">
+                          <summary class="font-medium list-none flex items-center gap-1">
+                            <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>Latent
+                          </summary>
+                          <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                            <div class="flex justify-between"><span>Input Capacity</span><span class="font-mono">1,111</span></div>
+                            <div class="flex justify-between"><span>Interpolated Capacity</span><span class="font-mono">1,111</span></div>
+                            <div class="flex justify-between"><span>Altitude Adjustment</span><span class="font-mono"><div class="flex"><span>1</span><div></div></div></span></div>
+                            <div class="flex justify-between"><span>Excess Latent</span><span class="font-mono">-988</span></div>
+                            <div class="flex justify-between"><span>Sizing Limits</span><span class="font-mono flex gap-1"><div class="flex gap-1"><span>90</span><div>%</div></div> - <div class="flex gap-1"><span>150</span><div>%</div></div></span></div>
+                          </div>
+                        </details>
+                      </td>
+                      <td class="text-right font-mono font-semibold align-top"><span>2,099</span></td>
+                      <td class="text-right font-mono align-top"><div class="flex gap-2 justify-end"><span>67.99</span><div>%</div></div></td>
+                      <td class="text-center align-top"><span class="badge badge-error badge-sm">Fail</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== HEATING INTERPOLATION SECTION ===== -->
+        <!-- CHANGE 2: bg-base-200 → bg-base-100 -->
+        <section id="heatingInterpolationSection" class="w-full max-w-5xl mx-auto bg-base-100 border border-base-300 rounded-box p-6">
+          <div class="space-y-4">
+            <div class="flex justify-between items-center">
+              <h2 class="text-xl font-semibold text-primary">Heating</h2>
+              <div class="tooltip tooltip-left" data-tip="Edit heating">
+                <button class="btn btn-sm btn-outline btn-primary" onclick="heatingInterpolationForm.showModal()">Edit</button>
+              </div>
+              <dialog id="heatingInterpolationForm" class="modal">
+                <div class="modal-box max-w-[1080px] w-[90%]">
+                  <button class="btn btn-sm btn-circle btn-ghost absolute right-2 top-2" onclick="heatingInterpolationForm.close();">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+                  </button>
+                  <form class="space-y-4">
+                    <h2 class="text-2xl font-bold mb-6">Heating Interpolation</h2>
+                    <p class="text-accent italic">Complete all sections that apply.</p>
+                    <input hidden="" name="projectID" value="6A34B3B0-57B5-417E-A2EF-BB15FEF5CFAB">
+                    <input hidden="" name="boilerOrFurnaceID" value="1CFBFA53-29DC-41B9-8A09-A3443B0B8276">
+                    <input hidden="" name="electricID" value="27664FD0-EE7F-4FF0-85FC-54EC1C1C666F">
+                    <input hidden="" name="heatPumpID" value="964D9941-3D00-41C3-9035-B7173C90B315">
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Heat Pump - Capacity</legend><div class="space-y-2"><label class="input w-full"><span class="label">@ 47&deg;</span><input type="number" name="capacityAt47" value="22345.0" min="0.0" step="1.0"><span class="label">BTU/h</span></label><label class="input w-full"><span class="label">@ 17&deg;</span><input type="number" name="capacityAt17" value="21234.0" min="0.0" step="1.0"><span class="label">BTU/h</span></label></div></fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Electric</legend><div class="space-y-2"><label class="input w-full"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap-icon lucide-zap"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"></path></svg></span><input type="number" name="kilowatts" value="16.0" min="0.0" step="0.1"><span class="label">kw/h</span></label></div></fieldset>
+                    <fieldset class="fieldset bg-base-200 border-base-300 rounded-box border p-4"><legend class="fieldset-legend">Gas</legend><div class="space-y-2"><label class="select w-full"><span class="label">Type</span><select name="type" required=""><option value="boiler" selected="">Boiler</option><option value="furnace">Furnace</option></select></label><label class="input w-full"><span class="label">Input</span><input type="number" name="inputBTU" value="60000.0" min="0.0" step="1.0"><span class="label">BTU/h</span></label><label class="input w-full"><span class="label">AFUE</span><input type="number" name="afue" value="98.0" min="0.0" max="100.0" step="1.0"><span class="label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-percent-icon lucide-percent"><line x1="19" x2="5" y1="5" y2="19"></line><circle cx="6.5" cy="6.5" r="2.5"></circle><circle cx="17.5" cy="17.5" r="2.5"></circle></svg></span></label></div></fieldset>
+                    <button class="btn btn-secondary btn-block" type="submit">Submit</button>
+                  </form>
+                </div>
+              </dialog>
+            </div>
+
+            <!-- ===== Pass/Fail Table: Gas + Electric ===== -->
+            <table class="table table-sm table-fixed">
+              <thead class="bg-base-300 text-base-content">
+                <tr>
+                  <th class="w-1/2">Heating Type</th>
+                  <th class="text-right w-[20%]">Final Value</th>
+                  <th class="text-right w-[15%]">% of Load</th>
+                  <th class="text-center w-[15%]">Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Gas - Boiler row -->
+                <tr class="hover">
+                  <td>
+                    <details class="cursor-pointer group">
+                      <summary class="font-medium list-none flex items-center gap-1">
+                        <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>Gas - Boiler
+                      </summary>
+                      <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                        <div class="flex justify-between"><span>Input</span><span class="font-mono">60,000</span></div>
+                        <div class="flex justify-between"><span>Altitude Adjustment</span><span class="font-mono">1</span></div>
+                        <div class="flex justify-between"><span>AFUE</span><span class="font-mono"><div class="flex gap-1"><span>98</span><div>%</div></div></span></div>
+                        <div class="flex justify-between"><span>Sizing Limits</span><span class="font-mono flex gap-1"><div class="flex gap-1"><span>90</span><div>%</div></div> - <div class="flex gap-1"><span>140</span><div>%</div></div></span></div>
+                      </div>
+                    </details>
+                  </td>
+                  <td class="text-right font-mono font-semibold align-top"><span>58,800</span></td>
+                  <td class="text-right font-mono align-top"><div class="flex gap-2 justify-end"><span>118.39</span><div>%</div></div></td>
+                  <td class="text-center align-top"><span class="badge badge-success badge-sm">Pass</span></td>
+                </tr>
+                <!-- Electric row -->
+                <tr class="hover">
+                  <td>
+                    <details class="cursor-pointer group">
+                      <summary class="font-medium list-none flex items-center gap-1">
+                        <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>Electric
+                      </summary>
+                      <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                        <div class="flex justify-between"><span>Required KW</span><span class="font-mono">14.6</span></div>
+                        <div class="flex justify-between"><span>Sizing Limits</span><span class="font-mono flex gap-1"><div class="flex gap-1"><span>90</span><div>%</div></div> - <div class="flex gap-1"><span>140</span><div>%</div></div></span></div>
+                      </div>
+                    </details>
+                  </td>
+                  <td class="text-right font-mono font-semibold align-top"><span>16 kW</span></td>
+                  <td class="text-right font-mono align-top"><div class="flex gap-2 justify-end"><span>109.95</span><div>%</div></div></td>
+                  <td class="text-center align-top"><span class="badge badge-success badge-sm">Pass</span></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- ===== Heat Pump Reference Data ===== -->
+            <h3 class="text-lg font-bold mt-6 mb-2">Heat Pump</h3>
+            <table class="table table-sm table-fixed">
+              <thead class="bg-base-300 text-base-content">
+                <tr>
+                  <th class="w-1/2">Reference</th>
+                  <th class="text-right w-[25%]">Final Capacity</th>
+                  <th class="text-right w-[25%]">Key Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- @47°F row -->
+                <tr class="hover">
+                  <td>
+                    <details class="cursor-pointer group">
+                      <summary class="font-medium list-none flex items-center gap-1">
+                        <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>@ 47&deg;F
+                      </summary>
+                      <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                        <div class="flex justify-between"><span>Capacity</span><span class="font-mono">22,345</span></div>
+                        <div class="flex justify-between"><span>Altitude Adjustment</span><span class="font-mono">1</span></div>
+                      </div>
+                    </details>
+                  </td>
+                  <td class="text-right font-mono font-semibold align-top"><span>22,345</span></td>
+                  <td class="text-right font-mono align-top">
+                    <div class="flex flex-col items-end">
+                      <span class="text-xs text-base-content/50">Capacity at Design</span>
+                      <span>20,790</span>
+                    </div>
+                  </td>
+                </tr>
+                <!-- @17°F row -->
+                <tr class="hover">
+                  <td>
+                    <details class="cursor-pointer group">
+                      <summary class="font-medium list-none flex items-center gap-1">
+                        <span class="transition-transform duration-200 group-open:rotate-90"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"></path></svg></span>@ 17&deg;F
+                      </summary>
+                      <div class="mt-2 ml-5 space-y-1 text-sm text-base-content/70">
+                        <div class="flex justify-between"><span>Capacity</span><span class="font-mono">21,234</span></div>
+                        <div class="flex justify-between"><span>Altitude Adjustment</span><span class="font-mono">1</span></div>
+                      </div>
+                    </details>
+                  </td>
+                  <td class="text-right font-mono font-semibold align-top"><span>21,234</span></td>
+                  <td class="text-right font-mono align-top">
+                    <div class="flex flex-col items-end">
+                      <span class="text-xs text-base-content/50">Balance Point</span>
+                      <div class="flex gap-1"><span>38.39</span><span>&deg;F</span></div>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</body>
+</html>
